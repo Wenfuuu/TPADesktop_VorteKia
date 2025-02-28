@@ -19,7 +19,9 @@ export default function StaffLoginPage({uiType}: Props){
 
     const handleNavigate = () =>{
         if(uiType === "Lost and Found UI"){
-            navigate("/lostandfound/report")
+          navigate("/lostandfound/report")
+        }else if(uiType === "Restaurant UI"){
+          navigate("/restaurant/view")
         }
     }
 

@@ -2,3 +2,5 @@ pub mod user;
 pub mod staff;
 pub mod customer;
 pub mod lost_and_found_item;
+pub mod restaurant;
+pub mod menu;

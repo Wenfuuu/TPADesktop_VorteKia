@@ -5,6 +5,8 @@ use std::sync::Mutex;
 use crate::handler::customer_handler::*;
 use crate::handler::lost_and_found_handler::*;
 use crate::handler::staff_handler::*;
+use crate::handler::restaurant_handler::*;
+use crate::handler::menu_handler::*;
 
 extern crate diesel;
 
@@ -59,6 +61,8 @@ pub fn run() {
             login_staff,
             get_current_staff,
             register_staff,
+            get_all_restaurants,
+            get_menus_by_restaurant,
             test_backend
         ])
         .run(tauri::generate_context!())

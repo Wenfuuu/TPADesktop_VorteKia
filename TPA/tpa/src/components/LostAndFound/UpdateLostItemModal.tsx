@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import ImageUpload from "./ImageUpload";
+import ImageUpload from "../ImageUpload";
 
 type Props = {
   customers: Customer[];
@@ -8,23 +8,28 @@ type Props = {
   onClose: () => void;
 };
 
-export default function UpdateItemModal({ customers, item, onUpdate, onClose }: Props) {
+export default function UpdateItemModal({
+  customers,
+  item,
+  onUpdate,
+  onClose,
+}: Props) {
   if (!item) return null;
   const [updatedItem, setUpdatedItem] = useState<LostAndFoundItem>({ ...item });
   const [itemStatus, setItemStatus] = useState<ItemStatus>(updatedItem.status);
   const [errors, setErrors] = useState("");
 
-  useEffect(() =>{
-    if(itemStatus !== "Missing"){
+  useEffect(() => {
+    if (itemStatus !== "Missing") {
       setUpdatedItem((prev) => ({
         ...prev,
         finder: "",
         found_location: "",
       }));
     }
-  }, [itemStatus])
+  }, [itemStatus]);
 
-  function handleUpdate(){
+  function handleUpdate() {
     //check error
     if (itemStatus === "Missing") {
       if (
@@ -52,11 +57,11 @@ export default function UpdateItemModal({ customers, item, onUpdate, onClose }: 
       }
     }
 
-    if(itemStatus === "Missing"){
-      setUpdatedItem({...updatedItem, finder: ""})
-      setUpdatedItem({...updatedItem, found_location: ""})
+    if (itemStatus === "Missing") {
+      setUpdatedItem({ ...updatedItem, finder: "" });
+      setUpdatedItem({ ...updatedItem, found_location: "" });
     }
-    setErrors("")
+    setErrors("");
     onUpdate(updatedItem);
     onClose();
   }

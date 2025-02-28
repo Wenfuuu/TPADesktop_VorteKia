@@ -24,6 +24,7 @@ function App() {
   useEffect(() =>{
     if(deviceId){
       if(deviceId === "ST-002") setUIType("Lost and Found UI")
+      else if(deviceId === "ST-001") setUIType("Restaurant UI")
     }
   }, [deviceId])
 
@@ -32,7 +33,6 @@ function App() {
       {/* {uiType === "Lost and Found UI" && <LostAndFoundUI/>} */}
       
       {deviceId?.startsWith("ST") && <StaffLoginPage uiType={uiType} />}
-      {/* <ImageUpload/> */}
 
       {/* <StaffLoginPage uiType={uiType} /> */}
     </div>
