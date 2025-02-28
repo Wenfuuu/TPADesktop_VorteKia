@@ -17,6 +17,7 @@ export default function LostAndFoundView() {
         )
       );
 
+      // console.log(updatedItem)
       invoke("update_lost_item", {
         id: updatedItem.item_id,
         newName: updatedItem.name,
@@ -27,6 +28,7 @@ export default function LostAndFoundView() {
         newFinder: updatedItem.finder,
         newOwner: updatedItem.owner,
         newStatus: updatedItem.status,
+        newimagedata: updatedItem.image
       }).then((success) => {
         if (success) toast("Lost item has been updated!");
       });

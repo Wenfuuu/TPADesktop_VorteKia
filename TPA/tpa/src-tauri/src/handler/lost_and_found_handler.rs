@@ -1,3 +1,4 @@
+
 use uuid::Uuid;
 
 use crate::db::establish_connection;
@@ -21,7 +22,7 @@ pub fn create_lost_item(
     new_color: &str,
     new_last_seen: &str,
     new_owner: &str,
-    new_status: &str,
+    new_status: &str
 ) -> bool {
     println!("test creating lost item {new_name}");
     use crate::schema::lostandfounditems::dsl::*;
@@ -37,6 +38,7 @@ pub fn create_lost_item(
         owner: new_owner.to_string(),
         finder: None,
         status: new_status.to_string(),
+        image: None
     };
 
     diesel::insert_into(lostandfounditems)
@@ -57,6 +59,7 @@ pub fn update_lost_item(
     new_finder: &str,
     new_owner: &str,
     new_status: &str,
+    newimagedata: Option<Vec<u8>>,
 ) -> Result<bool, String> {
     println!("updating item id {}", id);
     use crate::schema::lostandfounditems::dsl::*;
@@ -73,6 +76,7 @@ pub fn update_lost_item(
             finder.eq(new_finder),
             owner.eq(new_owner),
             status.eq(new_status),
+            image.eq(newimagedata)
         ));
 
     match update_query.execute(conn) {

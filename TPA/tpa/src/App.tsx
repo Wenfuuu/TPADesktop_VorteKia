@@ -30,7 +30,10 @@ function App() {
   return (
     <div>
       {/* {uiType === "Lost and Found UI" && <LostAndFoundUI/>} */}
+      
       {deviceId?.startsWith("ST") && <StaffLoginPage uiType={uiType} />}
+      {/* <ImageUpload/> */}
+
       {/* <StaffLoginPage uiType={uiType} /> */}
     </div>
   );

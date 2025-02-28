@@ -13,5 +13,6 @@ pub struct LostAndFound{
     pub found_location: Option<String>,
     pub owner: String,
     pub finder: Option<String>,
-    pub status: String
+    pub status: String,
+    pub image: Option<Vec<u8>>
 }

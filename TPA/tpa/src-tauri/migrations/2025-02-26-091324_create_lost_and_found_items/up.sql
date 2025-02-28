@@ -8,5 +8,6 @@ CREATE TABLE lostandfounditems(
     found_location VARCHAR(50),
     owner VARCHAR(50) NOT NULL,
     finder VARCHAR(50),
-    status VARCHAR(50) NOT NULL
+    status VARCHAR(50) NOT NULL,
+    image BYTEA
 )

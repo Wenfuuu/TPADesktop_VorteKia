@@ -7,6 +7,7 @@ import LostAndFoundForm from "./components/LostAndFoundForm";
 import { LostAndFoundProvider } from "./components/context/LostAndFoundContext";
 import LostAndFoundView from "./components/LostAndFoundView";
 import { Toaster } from "sonner";
+import ChatBox from "./components/Chatbox";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
@@ -21,6 +22,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         }>
           <Route path="report" element={<LostAndFoundForm />} />
           <Route path="view" element={<LostAndFoundView />} />
+          <Route path="chat" element={<ChatBox/>}/>
         </Route>
       </Routes>
     </BrowserRouter>

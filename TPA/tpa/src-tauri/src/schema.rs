@@ -29,6 +29,7 @@ diesel::table! {
         finder -> Nullable<Varchar>,
         #[max_length = 50]
         status -> Varchar,
+        image -> Nullable<Bytea>,
     }
 }
 

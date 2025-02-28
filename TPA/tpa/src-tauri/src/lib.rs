@@ -30,8 +30,6 @@ fn get_device_id() -> String {
     config.device_id
 }
 
-
-
 #[tauri::command]
 fn test_backend(){
     println!("Backend function was called!");
@@ -46,6 +44,7 @@ pub fn run() {
     };
 
     // register_staff("titi", "ti24-2", "ceo");
+    // create_customer("paula");
 
     tauri::Builder::default()
         .manage(current_user)
