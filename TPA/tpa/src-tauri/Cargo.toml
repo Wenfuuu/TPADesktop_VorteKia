@@ -26,4 +26,5 @@ diesel = { version = "2.2.7", features = ["postgres", "chrono"] }
 dotenvy = "0.15"  # To manage environment variables
 chrono = "^0"
 uuid = { version = "1.0", features = ["v4"] }
-bcrypt = "0.15"
+argon2 = "0.5"
+rand_core = { version = "0.6", features = ["std"] }

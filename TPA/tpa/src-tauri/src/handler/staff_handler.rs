@@ -2,7 +2,7 @@ use crate::db::establish_connection;
 use crate::diesel::prelude::*;
 use crate::models::staff::Staff;
 use crate::models::user::CurrentUser;
-use bcrypt::{hash, verify, DEFAULT_COST};
+use argon2::{password_hash::{rand_core::OsRng, PasswordHasher, PasswordVerifier, SaltString}, Argon2, PasswordHash};
 use serde::Serialize;
 use tauri::State;
 use uuid::Uuid;
@@ -23,13 +23,22 @@ pub fn register_staff(staffname: &str, pass: &str, staffrole: &str) -> bool {
     println!("creating staff");
     use crate::schema::staffs::dsl::*;
     let conn = &mut establish_connection(); 
-    let hashed_pass = match hash(pass, DEFAULT_COST) {
-        Ok(hashed) => hashed,
-        Err(_) => {
-            eprintln!("Failed to hash password");
-            return false;
-        }
-    };
+    // let hashed_pass = match hash(pass, DEFAULT_COST) {
+    //     Ok(hashed) => hashed,
+    //     Err(_) => {
+    //         eprintln!("Failed to hash password");
+    //         return false;
+    //     }
+    // };
+
+    // Generate a random salt
+    let salt = SaltString::generate(&mut OsRng);
+
+    // Create an Argon2 password hasher
+    let argon2 = Argon2::default();
+
+    // Hash the password with the salt
+    let hashed_pass = argon2.hash_password(pass.as_bytes(), &salt).unwrap().to_string();
 
     let new_staff = Staff {
         staff_id: format!("STAFF-{}", &Uuid::new_v4().to_string()[..8]),
@@ -56,10 +65,17 @@ pub fn get_staff(staffid: &str, pass: &str) -> Result<Staff, diesel::result::Err
     .first::<Staff>(conn)?;
 
     println!("{}", pass);
-    // Ok(staff)
-    if verify(pass, &staff.password).unwrap_or(false) {
+
+    // Verify the password using Argon2
+    let parsed_hash = PasswordHash::new(&staff.password)
+        .map_err(|_| diesel::result::Error::NotFound)?;
+
+    let argon2 = Argon2::default();
+    if argon2.verify_password(pass.as_bytes(), &parsed_hash).is_ok() {
+        println!("Password verified successfully!");
         Ok(staff)
     } else {
+        println!("Invalid password!");
         Err(diesel::result::Error::NotFound)
     }
 }
