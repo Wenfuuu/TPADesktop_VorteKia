@@ -63,6 +63,7 @@ pub fn run() {
             register_staff,
             get_all_restaurants,
             get_menus_by_restaurant,
+            update_restaurant,
             test_backend
         ])
         .run(tauri::generate_context!())

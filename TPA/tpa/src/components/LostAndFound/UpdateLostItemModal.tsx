@@ -3,7 +3,7 @@ import ImageUpload from "../ImageUpload";
 
 type Props = {
   customers: Customer[];
-  item: LostAndFoundItem | undefined;
+  item: LostAndFoundItem;
   onUpdate: (updatedItem: LostAndFoundItem) => void;
   onClose: () => void;
 };

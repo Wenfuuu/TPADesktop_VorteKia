@@ -10,6 +10,7 @@ type Props = {
 export default function RestaurantList({ restaurants, onEdit }: Props) {
   const [imageUrls, setImageUrls] = useState<{ [key: string]: string }>({});
   const [menus, setMenus] = useState<{ [key: string]: Menu[] }>({});
+  const urls: { [key: string]: string } = {};
   const menusData: { [key: string]: Menu[] } = {};
 
   const fetchMenus = async (restaurantid: string) => {
@@ -17,8 +18,22 @@ export default function RestaurantList({ restaurants, onEdit }: Props) {
       const fetchedMenus: Menu[] = await invoke("get_menus_by_restaurant", {
         restaurantid: restaurantid,
       });
-      menusData[restaurantid] = fetchedMenus;
+      console.log(fetchedMenus);
 
+      // get menus url
+      fetchedMenus.forEach((menu) => {
+        if (menu.image) {
+          const imageUrl = menu.image
+            ? URL.createObjectURL(
+                new Blob([new Uint8Array(menu.image)], { type: "image/png" })
+              )
+            : "";
+          urls[menu.menu_id] = imageUrl;
+        }
+      });
+      setImageUrls(urls);
+
+      menusData[restaurantid] = fetchedMenus;
       setMenus(menusData);
     } catch (error) {
       console.error(`Failed to fetch menu for ${restaurantid}:`, error);
@@ -26,7 +41,7 @@ export default function RestaurantList({ restaurants, onEdit }: Props) {
   };
 
   useEffect(() => {
-    const urls: { [key: string]: string } = {};
+    // const urls: { [key: string]: string } = {};
     restaurants.forEach((restaurant) => {
       if (restaurant.image) {
         const imageUrl = restaurant.image
@@ -43,9 +58,6 @@ export default function RestaurantList({ restaurants, onEdit }: Props) {
       fetchMenus(restaurant.restaurant_id);
     });
     setImageUrls(urls);
-    // return () => {
-    //   Object.values(urls).forEach((url) => URL.revokeObjectURL(url));
-    // };
   }, [restaurants]);
 
   return (
@@ -55,7 +67,7 @@ export default function RestaurantList({ restaurants, onEdit }: Props) {
       ) : (
         <ul className="space-y-4">
           {restaurants.map((restaurant) => {
-            const imageUrl = imageUrls[restaurant.restaurant_id] || "";
+            const imageUrl = imageUrls[restaurant.restaurant_id];
 
             return (
               <li
@@ -107,8 +119,23 @@ export default function RestaurantList({ restaurants, onEdit }: Props) {
                   {menus[restaurant.restaurant_id]?.length ? (
                     <ul>
                       {menus[restaurant.restaurant_id].map((menu) => (
-                        <li key={menu.menu_id} className="text-gray-700">
-                          {menu.name} - Rp.{menu.price}
+                        <li key={menu.menu_id} className="text-gray-700 flex">
+                          {imageUrls[menu.menu_id] ? (
+                            <img
+                              src={imageUrls[menu.menu_id]}
+                              alt={menu.name}
+                              className="w-16 h-16 object-cover rounded-lg border mr-2"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 flex items-center justify-center bg-gray-200 rounded-lg border mr-2">
+                              <span className="text-gray-500 text-xs">
+                                No Image
+                              </span>
+                            </div>
+                          )}
+                          <p>
+                            {menu.name} - Rp{menu.price}
+                          </p>
                         </li>
                       ))}
                     </ul>
