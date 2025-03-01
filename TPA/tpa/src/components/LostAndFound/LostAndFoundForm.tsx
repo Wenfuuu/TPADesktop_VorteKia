@@ -115,7 +115,7 @@ const LostAndFoundForm = () => {
             Select Owner
           </option>
           {customers.map((c) => (
-            <option key={c.id} value={c.id}>
+            <option key={c.customer_id} value={c.customer_id}>
               {c.name}
             </option>
           ))}

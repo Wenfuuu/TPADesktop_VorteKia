@@ -1,4 +1,4 @@
 type Customer = {
-    id: string
+    customer_id: string
     name: string
 }

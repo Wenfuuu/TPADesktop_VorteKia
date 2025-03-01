@@ -1,5 +1,5 @@
 type Staff = {
-    id: String
-    name: String
-    role: String
+    staff_id: string
+    name: string
+    role: string
 }

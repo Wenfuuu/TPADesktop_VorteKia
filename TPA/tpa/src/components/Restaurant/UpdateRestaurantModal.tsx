@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ImageUpload from "../ImageUpload";
+import { invoke } from "@tauri-apps/api/core";
 
 type Props = {
   restaurant: Restaurant;
@@ -15,8 +16,66 @@ export default function UpdateRestaurantModal({
   if (!restaurant) return null;
   const [updatedRestaurant, setUpdatedRestaurant] = useState<Restaurant>({
     ...restaurant,
+    assigned_staff: Array.isArray(restaurant.assigned_staff)
+      ? [...restaurant.assigned_staff]
+      : [], // Safely handle non-array values
   });
+  const [allStaff, setAllStaff] = useState<Staff[]>([]);
   const [errors, setErrors] = useState("");
+
+  async function fetchStaff() {
+    try {
+      const fetchedStaff: Staff[] = await invoke("get_all_staffs");
+      setAllStaff(fetchedStaff);
+    } catch (error) {
+      console.error("Failed to fetch staff:", error);
+    }
+  }
+
+  useEffect(() => {
+    console.log(restaurant)
+    fetchStaff();
+  }, [restaurant]);
+
+  // Toggle staff selection
+  function toggleStaffSelection(staff: Staff) {
+    setUpdatedRestaurant((prev) => {
+      const currentAssignedStaff = Array.isArray(prev.assigned_staff)
+        ? prev.assigned_staff
+        : [];
+
+      // Check if staff is already assigned by comparing staff_id
+      const isStaffAssigned = currentAssignedStaff.some(
+        (assignedStaff) => assignedStaff.staff_id === staff.staff_id
+      );
+
+      if (isStaffAssigned) {
+        // If staff is already assigned, remove them
+        return {
+          ...prev,
+          assigned_staff: currentAssignedStaff.filter(
+            (assignedStaff) => assignedStaff.staff_id !== staff.staff_id
+          ),
+        };
+      } else {
+        // If staff is not assigned, add them
+        return {
+          ...prev,
+          assigned_staff: [...currentAssignedStaff, staff],
+        };
+      }
+    });
+  }
+
+  // Check if a staff member is currently assigned
+  function isStaffAssigned(staffId: string): boolean {
+    return (
+      Array.isArray(updatedRestaurant.assigned_staff) &&
+      updatedRestaurant.assigned_staff.some(
+        (staff) => staff.staff_id === staffId
+      )
+    );
+  }
 
   function handleUpdate() {
     // Check for errors
@@ -87,7 +146,11 @@ export default function UpdateRestaurantModal({
               <input
                 type="time"
                 className="p-2 border rounded w-full"
-                value={updatedRestaurant.opening_hours}
+                value={
+                  updatedRestaurant.opening_hours
+                    ? updatedRestaurant.opening_hours.slice(0, 5)
+                    : ""
+                } // Handle null/undefined
                 onChange={(e) =>
                   setUpdatedRestaurant({
                     ...updatedRestaurant,
@@ -102,7 +165,11 @@ export default function UpdateRestaurantModal({
               <input
                 type="time"
                 className="p-2 border rounded w-full"
-                value={updatedRestaurant.closing_hours}
+                value={
+                  updatedRestaurant.closing_hours
+                    ? updatedRestaurant.closing_hours.slice(0, 5)
+                    : ""
+                } // Handle null/undefined
                 onChange={(e) =>
                   setUpdatedRestaurant({
                     ...updatedRestaurant,
@@ -130,6 +197,39 @@ export default function UpdateRestaurantModal({
                 <option value="Open">Open</option>
                 <option value="Closed">Closed</option>
               </select>
+            </div>
+          </div>
+
+          {/* Staff Allocation Section */}
+          <div className="w-full mb-4">
+            <h2 className="font-semibold mb-2">Assign Staff</h2>
+            <div className="border rounded p-4 max-h-60 overflow-y-auto">
+              {allStaff.length === 0 ? (
+                <p className="text-gray-500">Loading staff...</p>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  {allStaff.map((staff) => (
+                    <div key={staff.staff_id} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id={`${staff.staff_id}`}
+                        checked={isStaffAssigned(staff.staff_id)}
+                        onChange={() => toggleStaffSelection(staff)}
+                        className="mr-2"
+                      />
+                      <label
+                        htmlFor={`${staff.staff_id}`}
+                        className="flex-1 cursor-pointer"
+                      >
+                        <span className="font-medium">{staff.name}</span>
+                        <span className="text-sm text-gray-500 ml-2">
+                          ({staff.role})
+                        </span>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

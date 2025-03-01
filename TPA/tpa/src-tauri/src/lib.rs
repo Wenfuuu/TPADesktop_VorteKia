@@ -37,6 +37,15 @@ fn test_backend(){
     println!("Backend function was called!");
 }
 
+// #[warn(dead_code)]
+// fn seeding(){
+//     register_staff("titi", "ti24-2", "ceo");
+//     register_staff("betty", "bt24-2", "chef");
+//     register_staff("kepin", "kh24-2", "waiter");
+//     create_customer("paula");
+//     create_lost_item("tribbie", "anak kecil", "red", "hsr", "paula", "Missing");
+// }
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // create_customer("weel");
@@ -45,8 +54,7 @@ pub fn run() {
         staff: Mutex::new(None)
     };
 
-    // register_staff("titi", "ti24-2", "ceo");
-    // create_customer("paula");
+    // seeding();
 
     tauri::Builder::default()
         .manage(current_user)
@@ -61,8 +69,11 @@ pub fn run() {
             login_staff,
             get_current_staff,
             register_staff,
+            get_all_staffs,
             get_all_restaurants,
             get_menus_by_restaurant,
+            allocate_restaurant_staff,
+            get_allocated_staff_in_restaurant,
             update_restaurant,
             test_backend
         ])

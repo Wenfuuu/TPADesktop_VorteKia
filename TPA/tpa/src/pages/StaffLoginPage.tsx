@@ -11,7 +11,7 @@ export default function StaffLoginPage({uiType}: Props){
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
-      staffId: "",
+      staffName: "",
       password: "",
     });
 
@@ -37,25 +37,25 @@ export default function StaffLoginPage({uiType}: Props){
     const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
 
-      if (!formData.staffId.trim() || !formData.password) {
+      if (!formData.staffName.trim() || !formData.password) {
         setErrors("There are empty form fields.");
         return;
       }
 
       console.log("Login with:", formData);
       // Invoke backend here
-      invoke('login_staff', {
-        staffid: formData.staffId,
-        pass: formData.password
-      }).then((success) =>{
+      invoke("login_staff", {
+        staffname: formData.staffName,
+        pass: formData.password,
+      }).then((success) => {
         // console.log(result);
-        if(success){
-            toast("Login Success")
-            handleNavigate()
-        }else{
-            toast("Invalid StaffID or Password")
+        if (success) {
+          toast("Login Success");
+          handleNavigate();
+        } else {
+          toast("Invalid StaffID or Password");
         }
-      })
+      });
     };
 
     return (
@@ -73,16 +73,16 @@ export default function StaffLoginPage({uiType}: Props){
           {errors && <div className="text-red-500 text-sm mt-2">{errors}</div>}
           <div className="mb-4">
             <label
-              htmlFor="staffId"
+              htmlFor="staffName"
               className="block text-gray-700 text-sm font-semibold mb-2"
             >
-              StaffID
+              Username
             </label>
             <input
-              id="staffId"
+              id="staffName"
               type="text"
-              placeholder="Enter your StaffID"
-              value={formData.staffId}
+              placeholder="Enter your username"
+              value={formData.staffName}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />

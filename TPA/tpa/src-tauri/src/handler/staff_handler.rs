@@ -1,3 +1,4 @@
+use crate::models::restaurant_staff::RestaurantStaff;
 use crate::db::establish_connection;
 use crate::diesel::prelude::*;
 use crate::models::staff::Staff;
@@ -23,13 +24,6 @@ pub fn register_staff(staffname: &str, pass: &str, staffrole: &str) -> bool {
     println!("creating staff");
     use crate::schema::staffs::dsl::*;
     let conn = &mut establish_connection(); 
-    // let hashed_pass = match hash(pass, DEFAULT_COST) {
-    //     Ok(hashed) => hashed,
-    //     Err(_) => {
-    //         eprintln!("Failed to hash password");
-    //         return false;
-    //     }
-    // };
 
     // Generate a random salt
     let salt = SaltString::generate(&mut OsRng);
@@ -55,13 +49,35 @@ pub fn register_staff(staffname: &str, pass: &str, staffrole: &str) -> bool {
         .unwrap_or(false)
 }
 
-pub fn get_staff(staffid: &str, pass: &str) -> Result<Staff, diesel::result::Error>{
-    println!("getting staff {}", staffid);
+#[tauri::command]
+pub fn get_allocated_staff_in_restaurant(restaurantid: &str) -> Result<Vec<RestaurantStaff>, String>{
+    println!("plz getting allocated staffs in restaurant {}", restaurantid);
+    use crate::schema::restaurant_staffs::dsl::*;
+    let conn = &mut establish_connection();
+
+    restaurant_staffs
+        .filter(restaurant_id.eq(restaurantid))
+        .load::<RestaurantStaff>(conn)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn get_all_staffs() -> Result<Vec<Staff>, String> {
+    println!("getting all staffs");
+    use crate::schema::staffs::dsl::*;
+    let conn = &mut establish_connection();
+    staffs
+        .load::<Staff>(conn)
+        .map_err(|e| e.to_string())
+}
+
+pub fn get_staff(staffname: &str, pass: &str) -> Result<Staff, diesel::result::Error>{
+    println!("getting staff {}", staffname);
     use crate::schema::staffs::dsl::*;
 
     let conn = &mut establish_connection();
 
-    let staff = staffs.filter(staff_id.eq(staffid))
+    let staff = staffs.filter(name.eq(staffname))
     .first::<Staff>(conn)?;
 
     println!("{}", pass);
@@ -81,9 +97,9 @@ pub fn get_staff(staffid: &str, pass: &str) -> Result<Staff, diesel::result::Err
 }
 
 #[tauri::command]
-pub fn login_staff(staffid: &str, pass: &str, current_user: State<CurrentUser>) -> bool{
-    println!("logging in staff {}, {}", staffid, pass);
-    match get_staff(staffid, pass) {
+pub fn login_staff(staffname: &str, pass: &str, current_user: State<CurrentUser>) -> bool{
+    println!("logging in staff {}, {}", staffname, pass);
+    match get_staff(staffname, pass) {
         Ok(staff) =>{
             current_user.staff.lock().unwrap().replace(staff);
             true

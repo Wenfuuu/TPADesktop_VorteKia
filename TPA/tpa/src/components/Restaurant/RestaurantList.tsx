@@ -41,7 +41,6 @@ export default function RestaurantList({ restaurants, onEdit }: Props) {
   };
 
   useEffect(() => {
-    // const urls: { [key: string]: string } = {};
     restaurants.forEach((restaurant) => {
       if (restaurant.image) {
         const imageUrl = restaurant.image
@@ -54,7 +53,7 @@ export default function RestaurantList({ restaurants, onEdit }: Props) {
         urls[restaurant.restaurant_id] = imageUrl;
       }
 
-      // Fetch menus for each restaurant
+      // fetch menus
       fetchMenus(restaurant.restaurant_id);
     });
     setImageUrls(urls);
@@ -75,7 +74,7 @@ export default function RestaurantList({ restaurants, onEdit }: Props) {
                 className="p-4 border rounded-lg flex gap-4 flex-col"
               >
                 <div className="flex justify-between items-center gap-4">
-                  {/* Image on the left */}
+                  
                   <div className="w-40 h-28 flex-shrink-0">
                     {imageUrl ? (
                       <img
@@ -90,7 +89,6 @@ export default function RestaurantList({ restaurants, onEdit }: Props) {
                     )}
                   </div>
 
-                  {/* Restaurant Details */}
                   <div className="flex-1">
                     <p className="font-semibold">{restaurant.name}</p>
                     <p className="text-sm text-gray-600">
@@ -111,7 +109,7 @@ export default function RestaurantList({ restaurants, onEdit }: Props) {
                     </p>
                   </div>
 
-                  <Button onClick={() => onEdit(restaurant)}>Edit</Button>
+                  <Button onClick={() => onEdit(restaurant)}>View Details</Button>
                 </div>
 
                 <div>

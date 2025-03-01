@@ -6,4 +6,5 @@ type Restaurant = {
     closing_hours: string
     status: string
     image: Uint8Array | null
+    assigned_staff: Staff[] | null
 }
