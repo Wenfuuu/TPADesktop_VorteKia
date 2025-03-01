@@ -1,24 +1,46 @@
 import { useEffect, useState } from "react";
 import ImageUpload from "../ImageUpload";
 import { invoke } from "@tauri-apps/api/core";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type Props = {
   restaurant: Restaurant;
   onUpdate: (restaurant: Restaurant) => void;
   onClose: () => void;
+  open: boolean;
 };
 
 export default function UpdateRestaurantModal({
   restaurant,
   onUpdate,
   onClose,
+  open,
 }: Props) {
   if (!restaurant) return null;
+
   const [updatedRestaurant, setUpdatedRestaurant] = useState<Restaurant>({
     ...restaurant,
     assigned_staff: Array.isArray(restaurant.assigned_staff)
       ? [...restaurant.assigned_staff]
-      : [], // Safely handle non-array values
+      : [],
   });
   const [allStaff, setAllStaff] = useState<Staff[]>([]);
   const [errors, setErrors] = useState("");
@@ -33,9 +55,17 @@ export default function UpdateRestaurantModal({
   }
 
   useEffect(() => {
-    console.log(restaurant)
-    fetchStaff();
-  }, [restaurant]);
+    if (open) {
+      fetchStaff();
+      setUpdatedRestaurant({
+        ...restaurant,
+        assigned_staff: Array.isArray(restaurant.assigned_staff)
+          ? [...restaurant.assigned_staff]
+          : [],
+      });
+      setErrors("");
+    }
+  }, [restaurant, open]);
 
   // Toggle staff selection
   function toggleStaffSelection(staff: Staff) {
@@ -44,26 +74,45 @@ export default function UpdateRestaurantModal({
         ? prev.assigned_staff
         : [];
 
-      // Check if staff is already assigned by comparing staff_id
       const isStaffAssigned = currentAssignedStaff.some(
         (assignedStaff) => assignedStaff.staff_id === staff.staff_id
       );
 
-      if (isStaffAssigned) {
-        // If staff is already assigned, remove them
-        return {
-          ...prev,
-          assigned_staff: currentAssignedStaff.filter(
+      const newAssignedStaff = isStaffAssigned
+        ? currentAssignedStaff.filter(
             (assignedStaff) => assignedStaff.staff_id !== staff.staff_id
-          ),
-        };
+          )
+        : [...currentAssignedStaff, staff];
+
+      // If removing staff would result in no staff but status is Open, show error
+      if (newAssignedStaff.length === 0 && prev.status === "Open") {
+        setErrors("Cannot have Open status with no staff assigned.");
       } else {
-        // If staff is not assigned, add them
-        return {
-          ...prev,
-          assigned_staff: [...currentAssignedStaff, staff],
-        };
+        setErrors("");
       }
+
+      return {
+        ...prev,
+        assigned_staff: newAssignedStaff,
+      };
+    });
+  }
+
+  // Handle status change with validation
+  function handleStatusChange(value: string) {
+    const hasStaff =
+      Array.isArray(updatedRestaurant.assigned_staff) &&
+      updatedRestaurant.assigned_staff.length > 0;
+
+    if (value === "Open" && !hasStaff) {
+      setErrors("Cannot set status to Open with no staff assigned.");
+      return;
+    }
+
+    setErrors("");
+    setUpdatedRestaurant({
+      ...updatedRestaurant,
+      status: value,
     });
   }
 
@@ -78,7 +127,7 @@ export default function UpdateRestaurantModal({
   }
 
   function handleUpdate() {
-    // Check for errors
+    // Check for empty fields
     if (
       !updatedRestaurant.name ||
       !updatedRestaurant.cuisine_type ||
@@ -90,67 +139,72 @@ export default function UpdateRestaurantModal({
       return;
     }
 
+    // Check staff validation
+    const hasStaff =
+      Array.isArray(updatedRestaurant.assigned_staff) &&
+      updatedRestaurant.assigned_staff.length > 0;
+
+    if (updatedRestaurant.status === "Open" && !hasStaff) {
+      setErrors("Cannot save with Open status and no staff assigned.");
+      return;
+    }
+
     setErrors("");
     onUpdate(updatedRestaurant);
     onClose();
   }
 
   return (
-    <div>
-      <div className="fixed inset-0 bg-white opacity-50 z-10"></div>
-      <div
-        className="fixed inset-0 flex items-center justify-center z-20"
-        onClick={onClose}
-      >
-        <div
-          className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl flex flex-col items-center"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <h2 className="text-xl font-semibold mb-4 text-center">
-            Update Restaurant
-          </h2>
-          {errors && <div className="text-red-500 text-sm mt-2">{errors}</div>}
-          <div className="grid grid-cols-2 gap-4 mb-4 w-full">
-            <div>
-              <h2>Restaurant Name</h2>
-              <input
-                type="text"
-                className="p-2 border rounded w-full"
-                value={updatedRestaurant.name}
-                onChange={(e) =>
-                  setUpdatedRestaurant({
-                    ...updatedRestaurant,
-                    name: e.target.value,
-                  })
-                }
-              />
-            </div>
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Update Restaurant</DialogTitle>
+        </DialogHeader>
 
-            <div>
-              <h2>Cuisine Type</h2>
-              <input
-                type="text"
-                className="p-2 border rounded w-full"
-                value={updatedRestaurant.cuisine_type}
-                onChange={(e) =>
-                  setUpdatedRestaurant({
-                    ...updatedRestaurant,
-                    cuisine_type: e.target.value,
-                  })
-                }
-              />
-            </div>
+        {errors && (
+          <div className="text-red-500 text-sm mt-1 mb-2">{errors}</div>
+        )}
 
-            <div>
-              <h2>Opening Hours</h2>
-              <input
+        <div className="grid grid-cols-1 gap-3 py-2">
+          <div className="space-y-1">
+            <Label htmlFor="name">Restaurant Name</Label>
+            <Input
+              id="name"
+              value={updatedRestaurant.name}
+              onChange={(e) =>
+                setUpdatedRestaurant({
+                  ...updatedRestaurant,
+                  name: e.target.value,
+                })
+              }
+            />
+          </div>
+
+          <div className="space-y-1">
+            <Label htmlFor="cuisine">Cuisine Type</Label>
+            <Input
+              id="cuisine"
+              value={updatedRestaurant.cuisine_type}
+              onChange={(e) =>
+                setUpdatedRestaurant({
+                  ...updatedRestaurant,
+                  cuisine_type: e.target.value,
+                })
+              }
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1">
+              <Label htmlFor="opening">Opening Hours</Label>
+              <Input
+                id="opening"
                 type="time"
-                className="p-2 border rounded w-full"
                 value={
                   updatedRestaurant.opening_hours
                     ? updatedRestaurant.opening_hours.slice(0, 5)
                     : ""
-                } // Handle null/undefined
+                }
                 onChange={(e) =>
                   setUpdatedRestaurant({
                     ...updatedRestaurant,
@@ -160,16 +214,16 @@ export default function UpdateRestaurantModal({
               />
             </div>
 
-            <div>
-              <h2>Closing Hours</h2>
-              <input
+            <div className="space-y-1">
+              <Label htmlFor="closing">Closing Hours</Label>
+              <Input
+                id="closing"
                 type="time"
-                className="p-2 border rounded w-full"
                 value={
                   updatedRestaurant.closing_hours
                     ? updatedRestaurant.closing_hours.slice(0, 5)
                     : ""
-                } // Handle null/undefined
+                }
                 onChange={(e) =>
                   setUpdatedRestaurant({
                     ...updatedRestaurant,
@@ -178,76 +232,88 @@ export default function UpdateRestaurantModal({
                 }
               />
             </div>
-
-            <div>
-              <h2>Status</h2>
-              <select
-                className="p-2 border rounded w-full"
-                value={updatedRestaurant.status}
-                onChange={(e) =>
-                  setUpdatedRestaurant({
-                    ...updatedRestaurant,
-                    status: e.target.value,
-                  })
-                }
-              >
-                <option value="" disabled>
-                  Select Status
-                </option>
-                <option value="Open">Open</option>
-                <option value="Closed">Closed</option>
-              </select>
-            </div>
           </div>
 
-          {/* Staff Allocation Section */}
-          <div className="w-full mb-4">
-            <h2 className="font-semibold mb-2">Assign Staff</h2>
-            <div className="border rounded p-4 max-h-60 overflow-y-auto">
+          <div className="space-y-1">
+            <Label htmlFor="status">Status</Label>
+            <Select
+              value={updatedRestaurant.status}
+              onValueChange={handleStatusChange}
+            >
+              <SelectTrigger id="status">
+                <SelectValue placeholder="Select Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Open">Open</SelectItem>
+                <SelectItem value="Closed">Closed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Staff Allocation Section - now more compact */}
+          <div className="space-y-1 py-1">
+            <Label htmlFor="staff-list">
+              Assign Staff{" "}
+              {updatedRestaurant.status === "Open" && (
+                <span className="text-red-500">*</span>
+              )}
+            </Label>
+            <ScrollArea className="border rounded h-20 p-2" id="staff-list">
               {allStaff.length === 0 ? (
-                <p className="text-gray-500">Loading staff...</p>
+                <p className="text-gray-500 text-sm">Loading staff...</p>
               ) : (
-                <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
                   {allStaff.map((staff) => (
-                    <div key={staff.staff_id} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id={`${staff.staff_id}`}
+                    <div
+                      key={staff.staff_id}
+                      className="flex items-center space-x-2"
+                    >
+                      <Checkbox
+                        id={staff.staff_id}
                         checked={isStaffAssigned(staff.staff_id)}
-                        onChange={() => toggleStaffSelection(staff)}
-                        className="mr-2"
+                        onCheckedChange={() => toggleStaffSelection(staff)}
                       />
-                      <label
-                        htmlFor={`${staff.staff_id}`}
-                        className="flex-1 cursor-pointer"
+                      <Label
+                        htmlFor={staff.staff_id}
+                        className="text-sm flex cursor-pointer items-center"
                       >
-                        <span className="font-medium">{staff.name}</span>
-                        <span className="text-sm text-gray-500 ml-2">
+                        <span>{staff.name}</span>
+                        <span className="text-xs text-gray-500 ml-1">
                           ({staff.role})
                         </span>
-                      </label>
+                      </Label>
                     </div>
                   ))}
                 </div>
               )}
-            </div>
+            </ScrollArea>
+            {updatedRestaurant.status === "Open" && (
+              <p className="text-xs text-gray-500">
+                * Staff required for Open status
+              </p>
+            )}
           </div>
 
-          <ImageUpload
-            image={updatedRestaurant.image}
-            onImageUpload={(binaryImage) =>
-              setUpdatedRestaurant({ ...updatedRestaurant, image: binaryImage })
-            }
-          />
-
-          <button
-            className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full"
-            onClick={handleUpdate}
-          >
-            Save Changes
-          </button>
+          {/* Centered Image Upload */}
+          <div className="flex justify-center py-2">
+            <ImageUpload
+              image={updatedRestaurant.image}
+              onImageUpload={(binaryImage) =>
+                setUpdatedRestaurant({
+                  ...updatedRestaurant,
+                  image: binaryImage,
+                })
+              }
+            />
+          </div>
         </div>
-      </div>
-    </div>
+
+        <DialogFooter>
+          <Button onClick={handleUpdate} className="w-full">
+            Save Changes
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -137,6 +137,7 @@ export default function RestaurantView() {
           restaurant={editingRestaurant}
           onUpdate={updateRestaurant}
           onClose={() => setEditingRestaurant(null)}
+          open={true}
         />
       )}
     </div>

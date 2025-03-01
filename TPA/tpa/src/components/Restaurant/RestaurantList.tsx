@@ -230,7 +230,7 @@ export default function RestaurantList({
                         No menu items available
                       </p>
                       <p className="text-xs text-gray-400">
-                        Click 'Add Menu Item' to get started
+                        Click 'Add Menu Item' to add a menu
                       </p>
                     </div>
                   )}
