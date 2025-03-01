@@ -75,6 +75,9 @@ pub fn run() {
             allocate_restaurant_staff,
             get_allocated_staff_in_restaurant,
             update_restaurant,
+            add_menu,
+            update_menu,
+            delete_menu,
             test_backend
         ])
         .run(tauri::generate_context!())

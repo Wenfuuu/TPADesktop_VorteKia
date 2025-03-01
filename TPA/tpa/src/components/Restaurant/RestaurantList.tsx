@@ -1,22 +1,37 @@
 import { Button } from "@/components/ui/button";
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
+import { Trash2, Edit } from "lucide-react";
+import AddMenuDialog from "./AddMenuDialog";
+import EditMenuDialog from "./EditMenuDialog";
 
 type Props = {
   restaurants: Restaurant[];
   onEdit: (restaurant: Restaurant) => void;
+  onAddMenu?: (restaurantId: string, menu: Omit<Menu, "menu_id">) => void;
+  onUpdateMenu?: (
+    menuId: string,
+    updatedMenu: Partial<Menu>
+  ) => void;
+  onRemoveMenu?: (menuId: string, restaurantId: string) => void;
 };
 
-export default function RestaurantList({ restaurants, onEdit }: Props) {
+export default function RestaurantList({
+  restaurants,
+  onEdit,
+  onAddMenu,
+  onUpdateMenu,
+  onRemoveMenu,
+}: Props) {
   const [imageUrls, setImageUrls] = useState<{ [key: string]: string }>({});
   const [menus, setMenus] = useState<{ [key: string]: Menu[] }>({});
   const urls: { [key: string]: string } = {};
   const menusData: { [key: string]: Menu[] } = {};
 
-  const fetchMenus = async (restaurantid: string) => {
+  const fetchMenus = async (restaurantId: string) => {
     try {
       const fetchedMenus: Menu[] = await invoke("get_menus_by_restaurant", {
-        restaurantid: restaurantid,
+        restaurantid: restaurantId,
       });
       console.log(fetchedMenus);
 
@@ -33,10 +48,28 @@ export default function RestaurantList({ restaurants, onEdit }: Props) {
       });
       setImageUrls(urls);
 
-      menusData[restaurantid] = fetchedMenus;
+      menusData[restaurantId] = fetchedMenus;
       setMenus(menusData);
     } catch (error) {
-      console.error(`Failed to fetch menu for ${restaurantid}:`, error);
+      console.error(`Failed to fetch menu for ${restaurantId}:`, error);
+    }
+  };
+
+  const handleAddMenu = (
+    restaurantId: string,
+    newMenu: Omit<Menu, "menu_id">
+  ) => {
+    if (onAddMenu) {
+      onAddMenu(restaurantId, newMenu);
+    }
+  };
+
+  const handleUpdateMenu = (
+    menuId: string,
+    updatedMenu: Partial<Menu>
+  ) => {
+    if (onUpdateMenu) {
+      onUpdateMenu(menuId, updatedMenu);
     }
   };
 
@@ -60,27 +93,31 @@ export default function RestaurantList({ restaurants, onEdit }: Props) {
   }, [restaurants]);
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-5 mb-6">
+    <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
       {restaurants.length === 0 ? (
-        <p className="text-gray-500">No restaurants available.</p>
+        <div className="flex flex-col items-center justify-center h-40 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+          <p className="text-gray-500 mb-2">No restaurants available.</p>
+          <p className="text-sm text-gray-400">
+            Add a restaurant to get started
+          </p>
+        </div>
       ) : (
-        <ul className="space-y-4">
+        <ul className="space-y-6">
           {restaurants.map((restaurant) => {
             const imageUrl = imageUrls[restaurant.restaurant_id];
 
             return (
               <li
                 key={restaurant.restaurant_id}
-                className="p-4 border rounded-lg flex gap-4 flex-col"
+                className="p-5 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 flex gap-4 flex-col bg-gray-50"
               >
-                <div className="flex justify-between items-center gap-4">
-                  
+                <div className="flex justify-between items-center gap-6">
                   <div className="w-40 h-28 flex-shrink-0">
                     {imageUrl ? (
                       <img
                         src={imageUrl}
                         alt={restaurant.name}
-                        className="w-full h-full object-cover rounded-lg border"
+                        className="w-full h-full object-cover rounded-lg border shadow-sm"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gray-200 rounded-lg">
@@ -90,16 +127,17 @@ export default function RestaurantList({ restaurants, onEdit }: Props) {
                   </div>
 
                   <div className="flex-1">
-                    <p className="font-semibold">{restaurant.name}</p>
+                    <p className="font-semibold text-lg">{restaurant.name}</p>
                     <p className="text-sm text-gray-600">
-                      Cuisine: {restaurant.cuisine_type}
+                      <span className="font-medium">Cuisine:</span>{" "}
+                      {restaurant.cuisine_type}
                     </p>
                     <p className="text-sm text-gray-600">
-                      Operating Hours: {restaurant.opening_hours} -{" "}
-                      {restaurant.closing_hours}
+                      <span className="font-medium">Hours:</span>{" "}
+                      {restaurant.opening_hours} - {restaurant.closing_hours}
                     </p>
                     <p
-                      className={`text-white rounded-sm px-2 py-1 mt-2 inline-block ${
+                      className={`text-white rounded-full px-3 py-1 mt-2 text-xs font-medium inline-block ${
                         restaurant.status === "Open"
                           ? "bg-green-500"
                           : "bg-red-500"
@@ -109,36 +147,92 @@ export default function RestaurantList({ restaurants, onEdit }: Props) {
                     </p>
                   </div>
 
-                  <Button onClick={() => onEdit(restaurant)}>View Details</Button>
+                  <Button
+                    onClick={() => onEdit(restaurant)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    View Details
+                  </Button>
                 </div>
 
-                <div>
-                  <h2 className="font-semibold">Menu List</h2>
+                <div className="mt-2 pt-4 border-t border-gray-200">
+                  <div className="flex justify-between items-center mb-3">
+                    <h2 className="font-semibold text-gray-800">Menu Items</h2>
+                    <AddMenuDialog
+                      restaurantId={restaurant.restaurant_id}
+                      onAddMenu={(newMenu) =>
+                        handleAddMenu(restaurant.restaurant_id, newMenu)
+                      }
+                    />
+                  </div>
+
                   {menus[restaurant.restaurant_id]?.length ? (
-                    <ul>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {menus[restaurant.restaurant_id].map((menu) => (
-                        <li key={menu.menu_id} className="text-gray-700 flex">
+                        <div
+                          key={menu.menu_id}
+                          className="flex items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm hover:border-gray-300"
+                        >
                           {imageUrls[menu.menu_id] ? (
                             <img
                               src={imageUrls[menu.menu_id]}
                               alt={menu.name}
-                              className="w-16 h-16 object-cover rounded-lg border mr-2"
+                              className="w-16 h-16 object-cover rounded-lg border mr-3"
                             />
                           ) : (
-                            <div className="w-16 h-16 flex items-center justify-center bg-gray-200 rounded-lg border mr-2">
+                            <div className="w-16 h-16 flex items-center justify-center bg-gray-200 rounded-lg border mr-3">
                               <span className="text-gray-500 text-xs">
                                 No Image
                               </span>
                             </div>
                           )}
-                          <p>
-                            {menu.name} - Rp{menu.price}
-                          </p>
-                        </li>
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-800">
+                              {menu.name}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              Rp{menu.price.toLocaleString()}
+                            </p>
+                          </div>
+                          <div className="flex items-center">
+                            <EditMenuDialog
+                              menu={menu}
+                              onUpdateMenu={(menuId, updatedMenu) =>
+                                handleUpdateMenu(
+                                  menuId,
+                                  updatedMenu
+                                )
+                              }
+                            />
+                            <Button
+                              onClick={() =>
+                                onRemoveMenu &&
+                                onRemoveMenu(
+                                  menu.menu_id,
+                                  restaurant.restaurant_id
+                                )
+                              }
+                              variant="destructive"
+                              size="sm"
+                              className="ml-2 h-8 w-8 p-0"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              <span className="sr-only">Delete menu</span>
+                            </Button>
+                          </div>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   ) : (
-                    <p className="text-gray-500">No menu available.</p>
+                    <div className="flex flex-col items-center justify-center h-24 bg-gray-100 rounded-lg border border-dashed border-gray-300">
+                      <p className="text-gray-500 text-sm mb-1">
+                        No menu items available
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        Click 'Add Menu Item' to get started
+                      </p>
+                    </div>
                   )}
                 </div>
               </li>
