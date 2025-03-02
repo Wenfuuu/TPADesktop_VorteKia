@@ -11,6 +11,8 @@ import ChatBox from "./components/Chatbox";
 import RestaurantUI from "./ui/RestaurantUI";
 import RestaurantView from "./components/Restaurant/RestaurantView";
 import { RestaurantProvider } from "./components/context/RestaurantContext";
+import StoreUI from "./ui/StoreUI";
+import StoreView from "./components/Store/StoreView";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
@@ -32,12 +34,28 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <Route path="chat" element={<ChatBox />} />
         </Route>
 
-        <Route path="/restaurant" element={
-          <RestaurantProvider>
-            <RestaurantUI/>
-          </RestaurantProvider>
-        }>
-          <Route path="view" element={<RestaurantView/>} />
+        <Route
+          path="/restaurant"
+          element={
+            <RestaurantProvider>
+              <RestaurantUI />
+            </RestaurantProvider>
+          }
+        >
+          <Route path="view" element={<RestaurantView />} />
+          {/* <Route path="propose" element={} />
+          <Route path="chat" element={} /> */}
+        </Route>
+
+        <Route
+          path="/store"
+          element={
+            // <RestaurantProvider>
+              <StoreUI />
+            // {/* </RestaurantProvider> */}
+          }
+        >
+          <Route path="view" element={<StoreView />} />
           {/* <Route path="propose" element={} />
           <Route path="chat" element={} /> */}
         </Route>

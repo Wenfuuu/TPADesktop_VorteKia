@@ -25,6 +25,7 @@ function App() {
     if(deviceId){
       if(deviceId === "ST-002") setUIType("Lost and Found UI")
       else if(deviceId === "ST-001") setUIType("Restaurant UI")
+      else if(deviceId === "ST-003") setUIType("Store UI")
     }
   }, [deviceId])
 

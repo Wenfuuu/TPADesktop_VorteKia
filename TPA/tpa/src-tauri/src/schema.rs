@@ -72,6 +72,19 @@ diesel::table! {
 }
 
 diesel::table! {
+    souvenirs (souvenir_id) {
+        #[max_length = 255]
+        souvenir_id -> Varchar,
+        #[max_length = 255]
+        store_id -> Varchar,
+        #[max_length = 255]
+        name -> Varchar,
+        price -> Int4,
+        image -> Nullable<Bytea>,
+    }
+}
+
+diesel::table! {
     staffs (staff_id) {
         #[max_length = 255]
         staff_id -> Varchar,
@@ -84,9 +97,24 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    stores (store_id) {
+        #[max_length = 255]
+        store_id -> Varchar,
+        #[max_length = 255]
+        name -> Varchar,
+        opening_hours -> Time,
+        closing_hours -> Time,
+        #[max_length = 255]
+        status -> Varchar,
+        image -> Nullable<Bytea>,
+    }
+}
+
 diesel::joinable!(menus -> restaurants (restaurant_id));
 diesel::joinable!(restaurant_staffs -> restaurants (restaurant_id));
 diesel::joinable!(restaurant_staffs -> staffs (staff_id));
+diesel::joinable!(souvenirs -> stores (store_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     customers,
@@ -94,5 +122,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     menus,
     restaurant_staffs,
     restaurants,
+    souvenirs,
     staffs,
+    stores,
 );

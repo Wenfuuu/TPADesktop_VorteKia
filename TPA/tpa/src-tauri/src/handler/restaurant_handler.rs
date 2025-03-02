@@ -7,11 +7,9 @@ use chrono::NaiveTime;
 #[tauri::command]
 pub fn allocate_restaurant_staff(restaurant_id: &str, staff_ids: Vec<&str>) -> Result<bool, String> {
     println!("Allocating staff to restaurant {restaurant_id}");
-    
-    // Implement the logic to allocate staff to a restaurant
     let conn = &mut establish_connection();
 
-    // Remove existing staff assignments (optional, if you want to replace staff)
+    // Remove existing staff
     diesel::delete(restaurant_staffs::table)
         .filter(restaurant_staffs::restaurant_id.eq(restaurant_id))
         .execute(conn)

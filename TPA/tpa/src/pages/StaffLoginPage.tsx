@@ -22,6 +22,8 @@ export default function StaffLoginPage({uiType}: Props){
           navigate("/lostandfound/report")
         }else if(uiType === "Restaurant UI"){
           navigate("/restaurant/view")
+        }else if(uiType === "Store UI"){
+          navigate("/store/view")
         }
     }
 

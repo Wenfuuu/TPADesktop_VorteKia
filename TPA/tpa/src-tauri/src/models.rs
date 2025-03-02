@@ -5,3 +5,5 @@ pub mod lost_and_found_item;
 pub mod restaurant;
 pub mod menu;
 pub mod restaurant_staff;
+pub mod store;
+pub mod souvenir;

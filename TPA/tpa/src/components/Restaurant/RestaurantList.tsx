@@ -9,10 +9,7 @@ type Props = {
   restaurants: Restaurant[];
   onEdit: (restaurant: Restaurant) => void;
   onAddMenu?: (restaurantId: string, menu: Omit<Menu, "menu_id">) => void;
-  onUpdateMenu?: (
-    menuId: string,
-    updatedMenu: Partial<Menu>
-  ) => void;
+  onUpdateMenu?: (menuId: string, updatedMenu: Partial<Menu>) => void;
   onRemoveMenu?: (menuId: string, restaurantId: string) => void;
 };
 
@@ -25,33 +22,48 @@ export default function RestaurantList({
 }: Props) {
   const [imageUrls, setImageUrls] = useState<{ [key: string]: string }>({});
   const [menus, setMenus] = useState<{ [key: string]: Menu[] }>({});
-  const urls: { [key: string]: string } = {};
-  const menusData: { [key: string]: Menu[] } = {};
+  const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
 
   const fetchMenus = async (restaurantId: string) => {
+    // Skip if already loading this restaurant's menus
+    if (isLoading[restaurantId]) return;
+
+    // Set loading state for this restaurant
+    setIsLoading((prev) => ({ ...prev, [restaurantId]: true }));
+
     try {
       const fetchedMenus: Menu[] = await invoke("get_menus_by_restaurant", {
         restaurantid: restaurantId,
       });
-      console.log(fetchedMenus);
+      console.log(`Fetched menus for ${restaurantId}:`, fetchedMenus);
 
-      // get menus url
+      // Update menus state for this restaurant
+      setMenus((prevMenus) => ({
+        ...prevMenus,
+        [restaurantId]: fetchedMenus,
+      }));
+
+      // Process menu images
+      const newImageUrls: { [key: string]: string } = {};
       fetchedMenus.forEach((menu) => {
         if (menu.image) {
-          const imageUrl = menu.image
-            ? URL.createObjectURL(
-                new Blob([new Uint8Array(menu.image)], { type: "image/png" })
-              )
-            : "";
-          urls[menu.menu_id] = imageUrl;
+          const imageUrl = URL.createObjectURL(
+            new Blob([new Uint8Array(menu.image)], { type: "image/png" })
+          );
+          newImageUrls[menu.menu_id] = imageUrl;
         }
       });
-      setImageUrls(urls);
 
-      menusData[restaurantId] = fetchedMenus;
-      setMenus(menusData);
+      // Update image URLs state
+      setImageUrls((prevUrls) => ({
+        ...prevUrls,
+        ...newImageUrls,
+      }));
     } catch (error) {
       console.error(`Failed to fetch menu for ${restaurantId}:`, error);
+    } finally {
+      // Clear loading state
+      setIsLoading((prev) => ({ ...prev, [restaurantId]: false }));
     }
   };
 
@@ -64,36 +76,46 @@ export default function RestaurantList({
     }
   };
 
-  const handleUpdateMenu = (
-    menuId: string,
-    updatedMenu: Partial<Menu>
-  ) => {
+  const handleUpdateMenu = (menuId: string, updatedMenu: Partial<Menu>) => {
     if (onUpdateMenu) {
       onUpdateMenu(menuId, updatedMenu);
     }
   };
 
   useEffect(() => {
+    // Process restaurant images
+    const newImageUrls: { [key: string]: string } = {};
+
     restaurants.forEach((restaurant) => {
       if (restaurant.image) {
-        const imageUrl = restaurant.image
-          ? URL.createObjectURL(
-              new Blob([new Uint8Array(restaurant.image)], {
-                type: "image/png",
-              })
-            )
-          : "";
-        urls[restaurant.restaurant_id] = imageUrl;
+        const imageUrl = URL.createObjectURL(
+          new Blob([new Uint8Array(restaurant.image)], {
+            type: "image/png",
+          })
+        );
+        newImageUrls[restaurant.restaurant_id] = imageUrl;
       }
 
-      // fetch menus
+      // Fetch menus for each restaurant
       fetchMenus(restaurant.restaurant_id);
     });
-    setImageUrls(urls);
-  }, [restaurants]);
+
+    // Update image URLs with restaurant images
+    setImageUrls((prevUrls) => ({
+      ...prevUrls,
+      ...newImageUrls,
+    }));
+
+    // Cleanup function for image URLs
+    return () => {
+      Object.values(imageUrls).forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
+    };
+  }, [restaurants]); // Only re-run when restaurants change
 
   return (
-    <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
+    <div className="bg-white shadow-lg rounded-lg p-6 mb-6 max-w-6xl mx-auto">
       {restaurants.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-40 bg-gray-50 rounded-lg border border-dashed border-gray-300">
           <p className="text-gray-500 mb-2">No restaurants available.</p>
@@ -105,6 +127,8 @@ export default function RestaurantList({
         <ul className="space-y-6">
           {restaurants.map((restaurant) => {
             const imageUrl = imageUrls[restaurant.restaurant_id];
+            const restaurantMenus = menus[restaurant.restaurant_id] || [];
+            const isMenuLoading = isLoading[restaurant.restaurant_id];
 
             return (
               <li
@@ -167,9 +191,13 @@ export default function RestaurantList({
                     />
                   </div>
 
-                  {menus[restaurant.restaurant_id]?.length ? (
+                  {isMenuLoading ? (
+                    <div className="flex items-center justify-center h-24 bg-gray-100 rounded-lg">
+                      <p className="text-gray-500">Loading menus...</p>
+                    </div>
+                  ) : restaurantMenus.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {menus[restaurant.restaurant_id].map((menu) => (
+                      {restaurantMenus.map((menu) => (
                         <div
                           key={menu.menu_id}
                           className="flex items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm hover:border-gray-300"
@@ -199,10 +227,7 @@ export default function RestaurantList({
                             <EditMenuDialog
                               menu={menu}
                               onUpdateMenu={(menuId, updatedMenu) =>
-                                handleUpdateMenu(
-                                  menuId,
-                                  updatedMenu
-                                )
+                                handleUpdateMenu(menuId, updatedMenu)
                               }
                             />
                             <Button

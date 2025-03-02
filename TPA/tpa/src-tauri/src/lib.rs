@@ -7,6 +7,8 @@ use crate::handler::lost_and_found_handler::*;
 use crate::handler::staff_handler::*;
 use crate::handler::restaurant_handler::*;
 use crate::handler::menu_handler::*;
+use crate::handler::store_handler::*;
+use crate::handler::souvenir_handler::*;
 
 extern crate diesel;
 
@@ -78,6 +80,11 @@ pub fn run() {
             add_menu,
             update_menu,
             delete_menu,
+            get_all_stores,
+            get_souvenirs_by_store,
+            add_souvenir,
+            update_souvenir,
+            delete_souvenir,
             test_backend
         ])
         .run(tauri::generate_context!())
