@@ -21,6 +21,7 @@ export default function StoreView() {
             await invoke("add_souvenir", {
                 storeid: storeId,
                 souvenirname: newSouvenir.name,
+                souvenirdesc: newSouvenir.description,
                 souvenirprice: newSouvenir.price,
                 souvenirimage: newSouvenir.image,
             });
@@ -38,6 +39,7 @@ export default function StoreView() {
             await invoke("update_souvenir", {
                 souvenirid: souvenirId,
                 souvenirname: updatedSouvenir.name,
+                souvenirdesc: updatedSouvenir.description,
                 souvenirprice: updatedSouvenir.price,
                 souvenirimage: updatedSouvenir.image,
             });

@@ -79,6 +79,8 @@ diesel::table! {
         store_id -> Varchar,
         #[max_length = 255]
         name -> Varchar,
+        #[max_length = 255]
+        description -> Varchar,
         price -> Int4,
         image -> Nullable<Bytea>,
     }

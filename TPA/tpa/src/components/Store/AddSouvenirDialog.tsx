@@ -12,6 +12,7 @@ import { PlusCircle } from "lucide-react";
 import ImageUpload from "../ImageUpload";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 type AddSouvenirDialogProps = {
   storeId: string;
@@ -24,16 +25,29 @@ export default function AddSouvenirDialog({
 }: AddSouvenirDialogProps) {
   const [open, setOpen] = useState(false);
   const [souvenirName, setSouvenirName] = useState("");
+  const [souvenirDesc, setSouvenirDesc] = useState("");
   const [souvenirPrice, setSouvenirPrice] = useState("");
   const [souvenirImage, setSouvenirImage] = useState<Uint8Array | null>(null);
-  const [errors, setErrors] = useState<{ name?: string; price?: string }>();
+  const [errors, setErrors] = useState<{
+    name?: string;
+    price?: string;
+    description?: string;
+  }>();
 
   const handleSubmit = () => {
     // Validate form
-    const newErrors: { name?: string; price?: string } = {};
+    const newErrors: {
+      name?: string;
+      price?: string;
+      description?: string;
+    } = {};
 
     if (!souvenirName.trim()) {
       newErrors.name = "Souvenir name is required";
+    }
+
+    if (!souvenirDesc.trim()) {
+      newErrors.description = "Souvenir description is required";
     }
 
     if (!souvenirPrice.trim()) {
@@ -51,6 +65,7 @@ export default function AddSouvenirDialog({
     onAddSouvenir({
       store_id: storeId,
       name: souvenirName,
+      description: souvenirDesc, // Handle empty description
       price: Number(souvenirPrice),
       image: souvenirImage,
     });
@@ -62,6 +77,7 @@ export default function AddSouvenirDialog({
 
   const resetForm = () => {
     setSouvenirName("");
+    setSouvenirDesc("");
     setSouvenirPrice("");
     setSouvenirImage(null);
     setErrors({});
@@ -101,6 +117,21 @@ export default function AddSouvenirDialog({
             />
             {errors?.name && (
               <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+            )}
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={souvenirDesc}
+              onChange={(e) => setSouvenirDesc(e.target.value)}
+              placeholder="Enter souvenir description"
+              className={errors?.description ? "border-red-500" : ""}
+              rows={3}
+            />
+            {errors?.description && (
+              <p className="text-red-500 text-xs mt-1">{errors.description}</p>
             )}
           </div>
 

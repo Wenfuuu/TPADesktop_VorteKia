@@ -217,6 +217,9 @@ export default function StoreList({
                               {souvenir.name}
                             </p>
                             <p className="text-sm text-gray-600">
+                              {souvenir.description}
+                            </p>
+                            <p className="text-sm text-gray-600">
                               Rp{souvenir.price.toLocaleString()}
                             </p>
                           </div>

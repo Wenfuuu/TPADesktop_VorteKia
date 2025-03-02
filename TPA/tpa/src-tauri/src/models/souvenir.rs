@@ -8,6 +8,7 @@ pub struct Souvenir {
     pub souvenir_id: String,
     pub store_id: String,
     pub name: String,
+    pub description: String,
     pub price: i32,
     pub image: Option<Vec<u8>>,
 }

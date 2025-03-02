@@ -1,11 +1,13 @@
 use crate::models::souvenir::Souvenir;
 use crate::db::establish_connection;
 use crate::diesel::prelude::*;
+use crate::schema::souvenirs::description;
 
 #[tauri::command]
 pub fn add_souvenir(
     storeid: &str,
     souvenirname: &str,
+    souvenirdesc: &str,
     souvenirprice: i32,
     souvenirimage: Option<Vec<u8>>,
 ) -> Result<bool, String> {
@@ -17,6 +19,7 @@ pub fn add_souvenir(
         souvenir_id: format!("SOUV-{}", &uuid::Uuid::new_v4().to_string()[..8]),
         store_id: storeid.to_string(),
         name: souvenirname.to_string(),
+        description: souvenirdesc.to_string(),
         price: souvenirprice,
         image: souvenirimage,
     };
@@ -32,6 +35,7 @@ pub fn add_souvenir(
 pub fn update_souvenir(
     souvenirid: &str,
     souvenirname: &str,
+    souvenirdesc: &str,
     souvenirprice: i32,
     souvenirimage: Option<Vec<u8>>,
 ) -> Result<bool, String> {
@@ -43,6 +47,7 @@ pub fn update_souvenir(
         .filter(souvenir_id.eq(souvenirid))
         .set((
             name.eq(souvenirname),
+            description.eq(souvenirdesc),
             price.eq(souvenirprice),
             image.eq(souvenirimage),
         ));
