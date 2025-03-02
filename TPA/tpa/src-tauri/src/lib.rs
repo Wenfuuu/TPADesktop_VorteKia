@@ -41,11 +41,12 @@ fn test_backend(){
 
 // #[warn(dead_code)]
 // fn seeding(){
-//     register_staff("titi", "ti24-2", "ceo");
-//     register_staff("betty", "bt24-2", "chef");
-//     register_staff("kepin", "kh24-2", "waiter");
-//     create_customer("paula");
-//     create_lost_item("tribbie", "anak kecil", "red", "hsr", "paula", "Missing");
+    // register_staff("titi", "ti24-2", "ceo");
+    // register_staff("betty", "bt24-2", "chef");
+    // register_staff("kepin", "kh24-2", "waiter");
+    // register_staff("ryu", "ru24-2", "sales associate");
+    // create_customer("paula");
+    // create_lost_item("tribbie", "anak kecil", "red", "hsr", "paula", "Missing");
 // }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -72,6 +73,8 @@ pub fn run() {
             get_current_staff,
             register_staff,
             get_all_staffs,
+            get_all_restaurant_staffs,
+            get_all_store_staffs,
             get_all_restaurants,
             get_menus_by_restaurant,
             allocate_restaurant_staff,

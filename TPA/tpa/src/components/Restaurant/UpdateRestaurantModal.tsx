@@ -47,7 +47,7 @@ export default function UpdateRestaurantModal({
 
   async function fetchStaff() {
     try {
-      const fetchedStaff: Staff[] = await invoke("get_all_staffs");
+      const fetchedStaff: Staff[] = await invoke("get_all_restaurant_staffs");
       setAllStaff(fetchedStaff);
     } catch (error) {
       console.error("Failed to fetch staff:", error);

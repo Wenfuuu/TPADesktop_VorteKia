@@ -47,7 +47,7 @@ export default function EditStoreDialog({
 
   async function fetchStaff() {
     try {
-      const fetchedStaff: Staff[] = await invoke("get_all_staffs");
+      const fetchedStaff: Staff[] = await invoke("get_all_store_staffs");
       setAllStaff(fetchedStaff);
     } catch (error) {
       console.error("Failed to fetch staff:", error);

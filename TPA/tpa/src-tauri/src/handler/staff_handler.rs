@@ -83,6 +83,28 @@ pub fn get_all_staffs() -> Result<Vec<Staff>, String> {
         .map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+pub fn get_all_restaurant_staffs() -> Result<Vec<Staff>, String> {
+    println!("getting all restaurant staffs");
+    use crate::schema::staffs::dsl::*;
+    let conn = &mut establish_connection();
+    staffs
+        .filter(role.eq("chef").or(role.eq("waiter")))
+        .load::<Staff>(conn)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn get_all_store_staffs() -> Result<Vec<Staff>, String> {
+    println!("getting all store staffs");
+    use crate::schema::staffs::dsl::*;
+    let conn = &mut establish_connection();
+    staffs
+        .filter(role.eq("sales associate"))
+        .load::<Staff>(conn)
+        .map_err(|e| e.to_string())
+}
+
 pub fn get_staff(staffname: &str, pass: &str) -> Result<Staff, diesel::result::Error>{
     println!("getting staff {}", staffname);
     use crate::schema::staffs::dsl::*;
