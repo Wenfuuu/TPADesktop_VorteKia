@@ -95,7 +95,7 @@ export default function RestaurantView() {
     );
 
     //invoke backend
-    console.log(updatedRestaurant);
+    // console.log(updatedRestaurant);
     invoke("update_restaurant", {
       id: updatedRestaurant.restaurant_id,
       newName: updatedRestaurant.name,

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import StoreList from "./StoreList";
 import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
+import EditStoreDialog from "./EditStoreDialog";
 
 export default function StoreView() {
     const [stores, setStores] = useState<Store[]>([]);
@@ -13,7 +14,22 @@ export default function StoreView() {
 
     const fetchStores = async () => {
         const storeData: Store[] = await invoke("get_all_stores");
-        setStores(storeData);
+
+        const storeWithStaff = await Promise.all(
+            storeData.map(async (store) => {
+                const allocatedStaff: Staff[] = await invoke(
+                    "get_allocated_staff_in_store",
+                    { storeid: store.store_id }
+                );
+
+                return {
+                    ...store,
+                    assigned_staff: allocatedStaff || [],
+                };
+            })
+        )
+
+        setStores(storeWithStaff);
     }
 
     const handleAddSouvernir = async (storeId: string, newSouvenir: Omit<Souvenir, "souvenir_id">) => {
@@ -66,6 +82,40 @@ export default function StoreView() {
         }
     }
 
+    const updateStore = (updatedStore: Store) => {
+      setStores((prevStores) =>
+        prevStores.map((store) =>
+          store.store_id === updatedStore.store_id ? updatedStore : store
+        )
+      );
+
+      invoke("update_store", {
+        id: updatedStore.store_id,
+        newName: updatedStore.name,
+        newOpeningHours: updatedStore.opening_hours,
+        newClosingHours: updatedStore.closing_hours,
+        newStatus: updatedStore.status,
+        newimagedata: updatedStore.image,
+      }).then((success) => {
+        if (success) toast("Store has been updated!");
+      });
+
+      //invoke backend for staff allocation if exists
+      if (
+        updatedStore.assigned_staff &&
+        updatedStore.assigned_staff.length > 0
+      ) {
+        invoke("allocate_store_staff", {
+            storeId: updatedStore.store_id,
+            staffIds: updatedStore.assigned_staff.map(
+              (staff) => staff.staff_id
+            ),
+        }).then((success) => {
+          if (success) toast("Staff has been allocated!");
+        });
+      }
+    }
+
     return (
       <div className="container mx-auto p-6">
         <StoreList 
@@ -75,7 +125,14 @@ export default function StoreView() {
         onUpdateSouvenir={handleUpdateSouvenir}
         onRemoveSouvenir={handleRemoveSouvenir}/>
         {/* Edit Store Dialog */}
-        
+        {editingStore && (
+            <EditStoreDialog
+                store={editingStore}
+                onUpdateStore={updateStore}
+                onClose={() => setEditingStore(null)}
+                open={true}
+            />
+        )}
       </div>
     );
 }

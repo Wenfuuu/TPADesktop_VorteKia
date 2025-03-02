@@ -1,4 +1,4 @@
-use crate::models::restaurant_staff::RestaurantStaff;
+use crate::models::{restaurant_staff::RestaurantStaff, store_staff::StoreStaff};
 use crate::db::establish_connection;
 use crate::diesel::prelude::*;
 use crate::models::staff::Staff;
@@ -47,6 +47,18 @@ pub fn register_staff(staffname: &str, pass: &str, staffrole: &str) -> bool {
         .execute(conn)
         .map(|_| true)
         .unwrap_or(false)
+}
+
+#[tauri::command]
+pub fn get_allocated_staff_in_store(storeid: &str) -> Result<Vec<StoreStaff>, String> {
+    println!("getting allocated staffs in store {}", storeid);
+    use crate::schema::store_staffs::dsl::*;
+    let conn = &mut establish_connection();
+
+    store_staffs
+        .filter(store_id.eq(storeid))
+        .load::<StoreStaff>(conn)
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]

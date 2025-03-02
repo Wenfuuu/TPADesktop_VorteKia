@@ -100,6 +100,15 @@ diesel::table! {
 }
 
 diesel::table! {
+    store_staffs (store_id, staff_id) {
+        #[max_length = 255]
+        store_id -> Varchar,
+        #[max_length = 255]
+        staff_id -> Varchar,
+    }
+}
+
+diesel::table! {
     stores (store_id) {
         #[max_length = 255]
         store_id -> Varchar,
@@ -117,6 +126,8 @@ diesel::joinable!(menus -> restaurants (restaurant_id));
 diesel::joinable!(restaurant_staffs -> restaurants (restaurant_id));
 diesel::joinable!(restaurant_staffs -> staffs (staff_id));
 diesel::joinable!(souvenirs -> stores (store_id));
+diesel::joinable!(store_staffs -> staffs (staff_id));
+diesel::joinable!(store_staffs -> stores (store_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     customers,
@@ -126,5 +137,6 @@ diesel::allow_tables_to_appear_in_same_query!(
     restaurants,
     souvenirs,
     staffs,
+    store_staffs,
     stores,
 );

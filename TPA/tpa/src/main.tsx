@@ -47,14 +47,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <Route path="chat" element={} /> */}
         </Route>
 
-        <Route
-          path="/store"
-          element={
-            // <RestaurantProvider>
-              <StoreUI />
-            // {/* </RestaurantProvider> */}
-          }
-        >
+        <Route path="/store" element={<StoreUI />}>
           <Route path="view" element={<StoreView />} />
           {/* <Route path="propose" element={} />
           <Route path="chat" element={} /> */}
