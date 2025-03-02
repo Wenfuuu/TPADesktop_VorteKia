@@ -9,6 +9,7 @@ use crate::handler::restaurant_handler::*;
 use crate::handler::menu_handler::*;
 use crate::handler::store_handler::*;
 use crate::handler::souvenir_handler::*;
+use crate::handler::proposal_handler::*;
 
 extern crate diesel;
 
@@ -91,6 +92,7 @@ pub fn run() {
             add_souvenir,
             update_souvenir,
             delete_souvenir,
+            propose_store_removal,
             test_backend
         ])
         .run(tauri::generate_context!())

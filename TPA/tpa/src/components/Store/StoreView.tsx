@@ -3,14 +3,26 @@ import StoreList from "./StoreList";
 import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
 import EditStoreDialog from "./EditStoreDialog";
+import RemoveStoreDialog from "./RemoveStoreDialog";
 
 export default function StoreView() {
     const [stores, setStores] = useState<Store[]>([]);
     const [editingStore, setEditingStore] = useState<Store | null>(null);
+    const [removingStore, setRemovingStore] = useState<Store | null>(null);
+    const [staff, setStaff] = useState<Staff | null>(null);
 
     useEffect(() =>{
         fetchStores();
+        get_staff();
     }, [])
+
+    const get_staff = async () => {
+      // setUser(await invoke("get_current_user"))
+      const response = await invoke("get_current_staff");
+      if (response !== null) {
+        setStaff(response as Staff);
+      }
+    }
 
     const fetchStores = async () => {
         const storeData: Store[] = await invoke("get_all_stores");
@@ -116,11 +128,26 @@ export default function StoreView() {
       }
     }
 
+    const proposeRemoveStore = (store: Store, reason: string) => {
+      // invoke backend
+      invoke("propose_store_removal", {
+        storeid: store.store_id,
+        staffid: staff?.staff_id,
+        removereason: reason,
+      }).then((success) => {
+        if (success) toast("Store removal has been proposed!");
+      }).catch(e =>{
+        console.log(e);
+        toast("Failed to propose store removal");
+      })
+    }
+
     return (
       <div className="container mx-auto p-6">
         <StoreList 
         stores={stores}
         onEdit={setEditingStore}
+        onRemove={setRemovingStore}
         onAddSouvenir={handleAddSouvernir}
         onUpdateSouvenir={handleUpdateSouvenir}
         onRemoveSouvenir={handleRemoveSouvenir}/>
@@ -130,6 +157,15 @@ export default function StoreView() {
                 store={editingStore}
                 onUpdateStore={updateStore}
                 onClose={() => setEditingStore(null)}
+                open={true}
+            />
+        )}
+
+        {removingStore && (
+            <RemoveStoreDialog
+                store={removingStore}
+                onRemoveStore={proposeRemoveStore}
+                onClose={() => setRemovingStore(null)}
                 open={true}
             />
         )}

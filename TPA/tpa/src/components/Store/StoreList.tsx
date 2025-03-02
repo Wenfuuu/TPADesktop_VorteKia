@@ -8,6 +8,7 @@ import EditSouvenirDialog from "./EditSouvenirDialog"; // Assuming you have this
 type Props = {
   stores: Store[];
   onEdit: (store: Store) => void;
+  onRemove: (store: Store) => void;
   onAddSouvenir: (
     storeId: string,
     souvenir: Omit<Souvenir, "souvenir_id">
@@ -22,6 +23,7 @@ type Props = {
 export default function StoreList({
   stores,
   onEdit,
+  onRemove,
   onAddSouvenir,
   onUpdateSouvenir,
   onRemoveSouvenir,
@@ -166,13 +168,23 @@ export default function StoreList({
                     </p>
                   </div>
 
-                  <Button
-                    onClick={() => onEdit(store)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    View Details
-                  </Button>
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      onClick={() => onEdit(store)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer flex justify-around"
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      View Details
+                    </Button>
+
+                    <Button
+                      onClick={() => onRemove(store)}
+                      className="bg-red-600 hover:bg-red-700 text-white cursor-pointer flex justify-around"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Propose Removal
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="mt-2 pt-4 border-t border-gray-200">

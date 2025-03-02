@@ -4,15 +4,15 @@ use crate::diesel::prelude::*;
 use crate::models::staff::Staff;
 use crate::models::user::CurrentUser;
 use argon2::{password_hash::{rand_core::OsRng, PasswordHasher, PasswordVerifier, SaltString}, Argon2, PasswordHash};
-use serde::Serialize;
+// use serde::Serialize;
 use tauri::State;
 use uuid::Uuid;
 
-#[derive(Queryable, Serialize)]
-pub struct StaffInfo {
-    pub name: String,
-    pub role: String,
-}
+// #[derive(Queryable, Serialize)]
+// pub struct StaffInfo {
+//     pub name: String,
+//     pub role: String,
+// }
 
 #[tauri::command]
 pub fn get_current_staff(current_user: State<CurrentUser>) -> Option<Staff>{

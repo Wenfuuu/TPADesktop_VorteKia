@@ -5,3 +5,4 @@ pub mod restaurant_handler;
 pub mod menu_handler;
 pub mod store_handler;
 pub mod souvenir_handler;
+pub mod proposal_handler;

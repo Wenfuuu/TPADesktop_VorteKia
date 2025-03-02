@@ -8,3 +8,4 @@ pub mod restaurant_staff;
 pub mod store;
 pub mod souvenir;
 pub mod store_staff;
+pub mod store_removal_proposal;
