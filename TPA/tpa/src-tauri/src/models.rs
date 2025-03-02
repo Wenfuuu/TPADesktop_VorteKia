@@ -9,3 +9,6 @@ pub mod store;
 pub mod souvenir;
 pub mod store_staff;
 pub mod store_removal_proposal;
+pub mod ride;
+pub mod ride_staff;
+pub mod ride_removal_proposal;

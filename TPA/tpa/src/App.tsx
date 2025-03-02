@@ -23,9 +23,10 @@ function App() {
 
   useEffect(() =>{
     if(deviceId){
-      if(deviceId === "ST-002") setUIType("Lost and Found UI")
-      else if(deviceId === "ST-001") setUIType("Restaurant UI")
-      else if(deviceId === "ST-003") setUIType("Store UI")
+      // if(deviceId === "ST-002") setUIType("Lost and Found UI")
+      // else if(deviceId === "ST-001") setUIType("Restaurant UI")
+      // else if(deviceId === "ST-003") setUIType("Store UI")
+      if(deviceId.startsWith("ST")) setUIType("Staff UI")
     }
   }, [deviceId])
 
@@ -33,7 +34,8 @@ function App() {
     <div>
       {/* {uiType === "Lost and Found UI" && <LostAndFoundUI/>} */}
       
-      {deviceId?.startsWith("ST") && <StaffLoginPage uiType={uiType} />}
+      {/* {deviceId?.startsWith("ST") && <StaffLoginPage uiType={uiType} />} */}
+      {deviceId?.startsWith("ST") && <StaffLoginPage />}
 
       {/* <StaffLoginPage uiType={uiType} /> */}
     </div>

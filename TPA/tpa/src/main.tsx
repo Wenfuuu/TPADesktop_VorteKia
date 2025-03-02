@@ -8,11 +8,13 @@ import { LostAndFoundProvider } from "./components/context/LostAndFoundContext";
 import LostAndFoundView from "./components/LostAndFound/LostAndFoundView";
 import { Toaster } from "sonner";
 import ChatBox from "./components/Chatbox";
-import RestaurantUI from "./ui/RestaurantUI";
 import RestaurantView from "./components/Restaurant/RestaurantView";
 import { RestaurantProvider } from "./components/context/RestaurantContext";
-import StoreUI from "./ui/StoreUI";
 import StoreView from "./components/Store/StoreView";
+import StaffRestaurantUI from "./ui/StaffRestaurantUI";
+import StaffStoreUI from "./ui/StaffStoreUI";
+import StaffRideUI from "./ui/StaffRideUI";
+import RideView from "./components/Ride/RideView";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
@@ -38,7 +40,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           path="/restaurant"
           element={
             <RestaurantProvider>
-              <RestaurantUI />
+              <StaffRestaurantUI />
             </RestaurantProvider>
           }
         >
@@ -47,8 +49,14 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <Route path="chat" element={} /> */}
         </Route>
 
-        <Route path="/store" element={<StoreUI />}>
+        <Route path="/store" element={<StaffStoreUI />}>
           <Route path="view" element={<StoreView />} />
+          {/* <Route path="propose" element={} />
+          <Route path="chat" element={} /> */}
+        </Route>
+
+        <Route path="/ride" element={<StaffRideUI/>}>
+          <Route path="view" element={<RideView />} />
           {/* <Route path="propose" element={} />
           <Route path="chat" element={} /> */}
         </Route>

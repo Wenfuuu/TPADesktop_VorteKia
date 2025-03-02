@@ -3,7 +3,7 @@ import { Button } from "../ui/button";
 import { Edit, Trash2 } from "lucide-react";
 import AddSouvenirDialog from "./AddSouvenirDialog";
 import { invoke } from "@tauri-apps/api/core";
-import EditSouvenirDialog from "./EditSouvenirDialog"; // Assuming you have this component
+import EditSouvenirDialog from "./EditSouvenirDialog";
 
 type Props = {
   stores: Store[];

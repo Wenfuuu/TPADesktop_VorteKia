@@ -17,7 +17,6 @@ export default function StoreView() {
     }, [])
 
     const get_staff = async () => {
-      // setUser(await invoke("get_current_user"))
       const response = await invoke("get_current_staff");
       if (response !== null) {
         setStaff(response as Staff);

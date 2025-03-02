@@ -72,6 +72,44 @@ diesel::table! {
 }
 
 diesel::table! {
+    ride_removal_proposals (proposal_id) {
+        #[max_length = 255]
+        proposal_id -> Varchar,
+        #[max_length = 255]
+        ride_id -> Nullable<Varchar>,
+        #[max_length = 255]
+        staff_id -> Varchar,
+        #[max_length = 255]
+        reason -> Varchar,
+        created_at -> Nullable<Timestamp>,
+    }
+}
+
+diesel::table! {
+    ride_staffs (ride_id, staff_id) {
+        #[max_length = 255]
+        ride_id -> Varchar,
+        #[max_length = 255]
+        staff_id -> Varchar,
+    }
+}
+
+diesel::table! {
+    rides (ride_id) {
+        #[max_length = 255]
+        ride_id -> Varchar,
+        #[max_length = 255]
+        name -> Varchar,
+        price -> Int4,
+        opening_hours -> Time,
+        closing_hours -> Time,
+        #[max_length = 255]
+        status -> Varchar,
+        image -> Nullable<Bytea>,
+    }
+}
+
+diesel::table! {
     souvenirs (souvenir_id) {
         #[max_length = 255]
         souvenir_id -> Varchar,
@@ -139,6 +177,10 @@ diesel::table! {
 diesel::joinable!(menus -> restaurants (restaurant_id));
 diesel::joinable!(restaurant_staffs -> restaurants (restaurant_id));
 diesel::joinable!(restaurant_staffs -> staffs (staff_id));
+diesel::joinable!(ride_removal_proposals -> rides (ride_id));
+diesel::joinable!(ride_removal_proposals -> staffs (staff_id));
+diesel::joinable!(ride_staffs -> rides (ride_id));
+diesel::joinable!(ride_staffs -> staffs (staff_id));
 diesel::joinable!(souvenirs -> stores (store_id));
 diesel::joinable!(store_removal_proposals -> staffs (staff_id));
 diesel::joinable!(store_removal_proposals -> stores (store_id));
@@ -151,6 +193,9 @@ diesel::allow_tables_to_appear_in_same_query!(
     menus,
     restaurant_staffs,
     restaurants,
+    ride_removal_proposals,
+    ride_staffs,
+    rides,
     souvenirs,
     staffs,
     store_removal_proposals,

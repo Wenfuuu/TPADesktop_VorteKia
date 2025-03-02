@@ -2,7 +2,7 @@ import StaffNavbar from "@/components/StaffNavbar";
 import { Outlet, useNavigate } from "react-router";
 
 
-export default function StoreUI() {
+export default function StaffStoreUI() {
     const navigate = useNavigate();
 
     const navItems = [

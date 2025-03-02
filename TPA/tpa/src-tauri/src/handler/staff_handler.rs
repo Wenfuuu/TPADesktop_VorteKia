@@ -1,3 +1,4 @@
+use crate::models::ride_staff::RideStaff;
 use crate::models::{restaurant_staff::RestaurantStaff, store_staff::StoreStaff};
 use crate::db::establish_connection;
 use crate::diesel::prelude::*;
@@ -74,6 +75,18 @@ pub fn get_allocated_staff_in_restaurant(restaurantid: &str) -> Result<Vec<Resta
 }
 
 #[tauri::command]
+pub fn get_allocated_staff_in_ride(rideid: &str) -> Result<Vec<RideStaff>, String>{
+    println!("getting allocated staffs in ride {}", rideid);
+    use crate::schema::ride_staffs::dsl::*;
+    let conn = &mut establish_connection();
+
+    ride_staffs
+        .filter(ride_id.eq(rideid))
+        .load::<RideStaff>(conn)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 pub fn get_all_staffs() -> Result<Vec<Staff>, String> {
     println!("getting all staffs");
     use crate::schema::staffs::dsl::*;
@@ -101,6 +114,17 @@ pub fn get_all_store_staffs() -> Result<Vec<Staff>, String> {
     let conn = &mut establish_connection();
     staffs
         .filter(role.eq("sales associate"))
+        .load::<Staff>(conn)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn get_all_ride_staffs() -> Result<Vec<Staff>, String> {
+    println!("getting all ride staffs");
+    use crate::schema::staffs::dsl::*;
+    let conn = &mut establish_connection();
+    staffs
+        .filter(role.eq("ride staff"))
         .load::<Staff>(conn)
         .map_err(|e| e.to_string())
 }

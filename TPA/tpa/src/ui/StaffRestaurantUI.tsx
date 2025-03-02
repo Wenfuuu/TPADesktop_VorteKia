@@ -1,7 +1,7 @@
 import StaffNavbar from "@/components/StaffNavbar";
 import { Outlet, useNavigate } from "react-router";
 
-export default function RestaurantUI() {
+export default function StaffRestaurantUI() {
   const navigate = useNavigate();
 
   const navItems = [
