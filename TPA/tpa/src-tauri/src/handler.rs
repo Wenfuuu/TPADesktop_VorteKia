@@ -7,3 +7,4 @@ pub mod store_handler;
 pub mod souvenir_handler;
 pub mod proposal_handler;
 pub mod ride_handler;
+pub mod maintenance_handler;

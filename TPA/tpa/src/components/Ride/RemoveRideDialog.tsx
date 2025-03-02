@@ -47,7 +47,7 @@ export default function RemoveRideDialog({
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Remove Ride</DialogTitle>
+          <DialogTitle>Propose Ride Removal</DialogTitle>
         </DialogHeader>
 
         {errors && (
@@ -57,7 +57,7 @@ export default function RemoveRideDialog({
         <div className="grid grid-cols-1 gap-3 py-2">
           <div className="space-y-1">
             <div className="mb-2">
-              Are you sure you want to remove{" "}
+              Are you sure you want to propose a removal for{" "}
               <span className="font-semibold">{ride.name}</span>? This action
               cannot be undone.
             </div>
@@ -81,7 +81,7 @@ export default function RemoveRideDialog({
             onClick={handleRemove}
             className="sm:order-2"
           >
-            Remove Ride
+            Propose Removal
           </Button>
         </DialogFooter>
       </DialogContent>

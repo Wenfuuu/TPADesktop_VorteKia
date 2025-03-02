@@ -1,7 +1,7 @@
 -- Your SQL goes here
 CREATE TABLE ride_removal_proposals(
     proposal_id VARCHAR(255) PRIMARY KEY,
-    ride_id VARCHAR(255),
+    ride_id VARCHAR(255) NOT NULL,
     staff_id VARCHAR(255) NOT NULL,
     reason VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

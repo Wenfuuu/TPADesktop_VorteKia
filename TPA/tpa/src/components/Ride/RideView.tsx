@@ -4,11 +4,13 @@ import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
 import EditRideDialog from "./EditRideDialog";
 import RemoveRideDialog from "./RemoveRideDialog";
+import MaintenanceDialog from "./MaintenanceDialog";
 
 export default function RideView() {
     const [rides, setRides] = useState<Ride[]>([]);
     const [editingRide, setEditingRide] = useState<Ride | null>(null);
     const [removingRide, setRemovingRide] = useState<Ride | null>(null);
+    const [maintenanceRide, setMaintenanceRide] = useState<Ride | null>(null);
     const [staff, setStaff] = useState<Staff | null>(null);
 
     useEffect(() =>{
@@ -90,12 +92,26 @@ export default function RideView() {
         })
     }
 
+    const requestMaintenance = (ride: Ride, reason: string) => {
+        invoke("request_maintenance", {
+          rideid: ride.ride_id,
+          staffid: staff?.staff_id,
+          maintenancereason: reason,
+        }).then((success) => {
+          if (success) toast("Ride maintenance has been requested!");
+        }).catch((e) =>{
+            console.log(e);
+            toast("Failed to request ride maintenance!");
+        })
+    }
+
     return (
       <div className="container mx-auto px-6">
         <RideList
           rides={rides}
           onEdit={setEditingRide}
           onRemove={setRemovingRide}
+          onMaintenance={setMaintenanceRide}
         />
 
         {editingRide && (
@@ -105,6 +121,15 @@ export default function RideView() {
             onClose={() => setEditingRide(null)}
             open={true}
           />
+        )}
+
+        {maintenanceRide && (
+            <MaintenanceDialog
+                ride={maintenanceRide}
+                onMaintenanceRide={requestMaintenance}
+                onClose={() => setMaintenanceRide(null)}
+                open={true}
+            />
         )}
 
         {removingRide && (

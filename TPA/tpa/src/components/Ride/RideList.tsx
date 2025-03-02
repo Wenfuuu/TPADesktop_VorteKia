@@ -6,9 +6,10 @@ type Props = {
   rides: Ride[];
   onEdit: (ride: Ride) => void;
   onRemove: (ride: Ride) => void;
+  onMaintenance: (ride: Ride) => void;
 };
 
-export default function RideList({ rides, onEdit, onRemove }: Props) {
+export default function RideList({ rides, onEdit, onRemove, onMaintenance }: Props) {
   const [imageUrls, setImageUrls] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
@@ -105,7 +106,7 @@ export default function RideList({ rides, onEdit, onRemove }: Props) {
                     </Button>
 
                     <Button
-                      onClick={() => {}}
+                      onClick={() => onMaintenance(ride)}
                       className="bg-yellow-500 hover:bg-yellow-600 text-white cursor-pointer flex justify-around"
                     >
                       <Wrench className="w-4 h-4 mr-2" />

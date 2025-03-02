@@ -34,6 +34,20 @@ diesel::table! {
 }
 
 diesel::table! {
+    maintenances (maintenance_id) {
+        #[max_length = 255]
+        maintenance_id -> Varchar,
+        #[max_length = 255]
+        ride_id -> Varchar,
+        #[max_length = 255]
+        staff_id -> Varchar,
+        #[max_length = 255]
+        reason -> Varchar,
+        created_at -> Nullable<Timestamp>,
+    }
+}
+
+diesel::table! {
     menus (menu_id) {
         #[max_length = 255]
         menu_id -> Varchar,
@@ -76,7 +90,7 @@ diesel::table! {
         #[max_length = 255]
         proposal_id -> Varchar,
         #[max_length = 255]
-        ride_id -> Nullable<Varchar>,
+        ride_id -> Varchar,
         #[max_length = 255]
         staff_id -> Varchar,
         #[max_length = 255]
@@ -174,6 +188,8 @@ diesel::table! {
     }
 }
 
+diesel::joinable!(maintenances -> rides (ride_id));
+diesel::joinable!(maintenances -> staffs (staff_id));
 diesel::joinable!(menus -> restaurants (restaurant_id));
 diesel::joinable!(restaurant_staffs -> restaurants (restaurant_id));
 diesel::joinable!(restaurant_staffs -> staffs (staff_id));
@@ -190,6 +206,7 @@ diesel::joinable!(store_staffs -> stores (store_id));
 diesel::allow_tables_to_appear_in_same_query!(
     customers,
     lostandfounditems,
+    maintenances,
     menus,
     restaurant_staffs,
     restaurants,

@@ -11,6 +11,7 @@ use crate::handler::store_handler::*;
 use crate::handler::souvenir_handler::*;
 use crate::handler::proposal_handler::*;
 use crate::handler::ride_handler::*;
+use crate::handler::maintenance_handler::*;
 
 extern crate diesel;
 
@@ -107,6 +108,7 @@ pub fn run() {
             allocate_ride_staff,
             get_allocated_staff_in_ride,
             propose_ride_removal,
+            request_maintenance,
             test_backend
         ])
         .run(tauri::generate_context!())
