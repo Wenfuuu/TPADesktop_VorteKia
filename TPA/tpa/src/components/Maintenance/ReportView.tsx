@@ -23,13 +23,46 @@ export default function ReportView(){
     const fetchReports = async () => {
       const reportData: Reports[] = await invoke("get_all_reports");
 
-      setReports(reportData);
+      const reportWithStaff = await Promise.all(
+        reportData.map(async (report) => {
+          if (report.status !== "Approved") {
+            return {
+              ...report,
+              assigned_staff_id: "", // Empty string for non-approved reports
+            };
+          }
+
+          try {
+            // Try to get the allocated staff
+            const allocatedStaff: Staff = await invoke(
+              "get_allocated_staff_in_report",
+              { reportid: report.report_id }
+            );
+
+            return {
+              ...report,
+              assigned_staff_id: allocatedStaff.staff_id,
+            };
+          } catch (error) {
+            // Handle case when no staff is allocated
+            console.log(`No staff assigned for report ${report.report_id}`);
+            return {
+              ...report,
+              assigned_staff_id: "", // Empty string when no staff is assigned
+            };
+          }
+        })
+      );
+
+      console.log(reportWithStaff)
+      setReports(reportWithStaff);
     };
 
     const handleAccept = (report: Reports, staff_id: string) => {
       invoke("accept_report", {
         reportid: report.report_id,
         rideid: report.ride_id,
+        staffid: staff_id
       }).then((success) => {
         if (success) {
           toast("Request has been accepted!");

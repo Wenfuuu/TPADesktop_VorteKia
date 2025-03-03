@@ -19,20 +19,6 @@ import {
 import { Label } from "../ui/label";
 import { invoke } from "@tauri-apps/api/core";
 
-type Reports = {
-  report_id: string;
-  ride_id: string;
-  staff_id: string;
-  reason: string;
-  status: string;
-};
-
-type Staff = {
-  staff_id: string;
-  name: string;
-  role: string;
-};
-
 type Props = {
   reports: Reports[];
   onAccept: (report: Reports, assignedStaffId: string) => void;
@@ -68,10 +54,11 @@ export default function ReportList({ reports, onAccept, onReject }: Props) {
 
   const handleConfirmAssignment = () => {
     if (selectedReport && selectedStaffId) {
-      onAccept(selectedReport, selectedStaffId);
-      setIsDialogOpen(false);
+        selectedReport.assigned_staff_id = selectedStaffId;
+        onAccept(selectedReport, selectedStaffId);
+        setIsDialogOpen(false);
     } else {
-      setErrors("Please select a staff member");
+        setErrors("Please select a staff member");
     }
   };
 
@@ -104,12 +91,16 @@ export default function ReportList({ reports, onAccept, onReject }: Props) {
                       {report.ride_id}
                     </p>
                     <p className="text-sm text-gray-600 mt-1">
-                      <span className="font-medium">Staff ID:</span>{" "}
+                      <span className="font-medium">Source:</span>{" "}
                       {report.staff_id}
                     </p>
                     <p className="text-sm text-gray-600 mt-1">
                       <span className="font-medium">Reason:</span>{" "}
                       {report.reason}
+                    </p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      <span className="font-medium">Assigned:</span>{" "}
+                      {report.assigned_staff_id ? report.assigned_staff_id : "Not assigned yet"}
                     </p>
                     <p
                       className={`text-white rounded-full px-3 py-1 mt-2 text-xs font-medium inline-block ${

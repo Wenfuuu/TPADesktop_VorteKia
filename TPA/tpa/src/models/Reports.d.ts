@@ -4,4 +4,5 @@ type Reports = {
     staff_id: string,
     reason: string,
     status: string,
+    assigned_staff_id: string
 }

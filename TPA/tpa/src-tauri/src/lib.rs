@@ -114,6 +114,7 @@ pub fn run() {
             get_all_reports,
             accept_report,
             reject_report,
+            get_allocated_staff_in_report,
             propose_new_ride,
             test_backend
         ])

@@ -4,6 +4,8 @@ use crate::handler::ride_handler::set_ride_maintenance;
 use crate::models::report::Report;
 use crate::db::establish_connection;
 use crate::diesel::prelude::*;
+use crate::models::report_staff::ReportStaff;
+use crate::schema::report_staffs;
 
 #[tauri::command]
 pub fn request_maintenance(
@@ -31,7 +33,7 @@ pub fn request_maintenance(
 }
 
 #[tauri::command]
-pub fn accept_report(reportid: &str, rideid: &str) -> Result<bool, String>{
+pub fn accept_report(reportid: &str, rideid: &str, staffid: &str) -> Result<bool, String>{
     println!("accepting report {}", reportid);
     use crate::schema::reports::dsl::*;
     let conn = &mut establish_connection();
@@ -40,8 +42,16 @@ pub fn accept_report(reportid: &str, rideid: &str) -> Result<bool, String>{
         .filter(report_id.eq(reportid))
         .set(status.eq("Approved".to_string()));
 
-    //create tasks
-    
+    //assign staff
+    let new_report_staff = ReportStaff {
+        report_id: reportid.to_string(),
+        staff_id: staffid.to_string()
+    };
+
+    diesel::insert_into(report_staffs::table)
+        .values(&new_report_staff)
+        .execute(conn)
+        .map_err(|e| format!("Error assigning staff: {}", e))?;
 
     match set_ride_maintenance(rideid) {
         Ok(_) => (),

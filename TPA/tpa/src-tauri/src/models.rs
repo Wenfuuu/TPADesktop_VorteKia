@@ -14,3 +14,4 @@ pub mod ride_staff;
 pub mod ride_removal_proposal;
 pub mod report;
 pub mod new_ride_proposal;
+pub mod report_staff;
