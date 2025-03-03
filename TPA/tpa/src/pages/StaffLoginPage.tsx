@@ -35,7 +35,7 @@ export default function StaffLoginPage() {
     } else if (staffData.role === "ride manager") {
       navigate("/ride/view");
     } else if (staffData.role === "maintenance manager") {
-      navigate("/maintenance/view")
+      navigate("/maintenance/reports")
     } else {
       // console.warn("Unknown staff role:", staffData.role);
       toast("Unknown staff role.");

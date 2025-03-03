@@ -5,8 +5,8 @@ export default function MaintenanceUI() {
     const navigate = useNavigate();
 
     const navItems = [
-      { name: "View Maintenances", onClick: () => navigate("/maintenance/view") },
       { name: "View Reports", onClick: () => navigate("/maintenance/reports") },
+      { name: "View Tasks", onClick: () => navigate("/maintenance/tasks") },
       { name: "Chat", onClick: () => navigate("/maintenance/chat") },
     ];
 

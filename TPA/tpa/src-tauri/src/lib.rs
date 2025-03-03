@@ -11,7 +11,7 @@ use crate::handler::store_handler::*;
 use crate::handler::souvenir_handler::*;
 use crate::handler::proposal_handler::*;
 use crate::handler::ride_handler::*;
-use crate::handler::maintenance_handler::*;
+use crate::handler::report_handler::*;
 
 extern crate diesel;
 
@@ -55,6 +55,7 @@ fn seeding(){
     // register_staff("octa", "ov24-2", "ride staff");
     // register_staff("om", "gn24-2", "maintenance manager");
     // register_staff("tommy", "mm24-2", "maintenance staff");
+    // register_staff("ireng", "vd24-2", "maintenance staff");
     // create_customer("paula");
     // create_lost_item("tribbie", "anak kecil", "red", "hsr", "paula", "Missing");
 }
@@ -86,6 +87,7 @@ pub fn run() {
             get_all_restaurant_staffs,
             get_all_store_staffs,
             get_all_ride_staffs,
+            get_all_maintenance_staffs,
             get_all_restaurants,
             get_menus_by_restaurant,
             allocate_restaurant_staff,
@@ -109,9 +111,9 @@ pub fn run() {
             get_allocated_staff_in_ride,
             propose_ride_removal,
             request_maintenance,
-            get_all_maintenances,
-            accept_maintenance,
-            reject_maintenance,
+            get_all_reports,
+            accept_report,
+            reject_report,
             propose_new_ride,
             test_backend
         ])
