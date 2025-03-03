@@ -34,9 +34,11 @@ export default function StaffLoginPage() {
       navigate("/lostandfound/report");
     } else if (staffData.role === "ride manager") {
       navigate("/ride/view");
+    } else if (staffData.role === "maintenance manager") {
+      navigate("/maintenance/view")
     } else {
-      console.warn("Unknown staff role:", staffData.role);
-      toast("Unknown staff role. Please contact support.");
+      // console.warn("Unknown staff role:", staffData.role);
+      toast("Unknown staff role.");
     }
   };
 

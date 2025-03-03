@@ -43,6 +43,8 @@ diesel::table! {
         staff_id -> Varchar,
         #[max_length = 255]
         reason -> Varchar,
+        #[max_length = 255]
+        status -> Varchar,
         created_at -> Nullable<Timestamp>,
     }
 }

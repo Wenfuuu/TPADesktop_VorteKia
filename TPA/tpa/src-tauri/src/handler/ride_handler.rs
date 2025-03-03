@@ -29,6 +29,20 @@ pub fn allocate_ride_staff(ride_id: &str, staff_ids: Vec<&str>) -> Result<bool, 
     Ok(true)
 }
 
+pub fn set_ride_maintenance(rideid: &str) -> Result<bool, String>{
+    use crate::schema::rides::dsl::*;
+    let conn = &mut establish_connection();
+
+    let update_query = diesel::update(rides)
+        .filter(ride_id.eq(rideid))
+        .set(status.eq("Maintenance".to_string()));
+
+    match update_query.execute(conn) {
+        Ok(_) => Ok(true),
+        Err(e) => Err(format!("Error updating ride: {}", e)),
+    }
+}
+
 #[tauri::command]
 pub fn update_ride(
     id: &str,

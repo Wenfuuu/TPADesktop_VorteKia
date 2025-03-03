@@ -1,3 +1,4 @@
+use chrono::NaiveDateTime;
 use serde::{Serialize, Deserialize};
 use crate::schema::maintenances;
 use diesel::prelude::*;
@@ -9,4 +10,5 @@ pub struct Maintenance{
     pub ride_id: String,
     pub staff_id: String,
     pub reason: String,
+    pub status: String,
 }

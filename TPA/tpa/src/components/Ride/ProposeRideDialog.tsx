@@ -75,13 +75,7 @@ export default function ProposeRideDialog() {
     e.preventDefault();
 
     // Validate form
-    if (!validateForm()) {
-    //   setErrors((prev) => ({
-    //     ...prev,
-    //     form: "Please fix the errors before submitting",
-    //   }));
-      return;
-    }
+    if (!validateForm()) return;
 
     setErrors({});
 

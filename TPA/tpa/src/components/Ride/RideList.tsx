@@ -106,6 +106,7 @@ export default function RideList({ rides, onEdit, onRemove, onMaintenance }: Pro
                     </Button>
 
                     <Button
+                      disabled={ride.status === "Maintenance"}
                       onClick={() => onMaintenance(ride)}
                       className="bg-yellow-500 hover:bg-yellow-600 text-white cursor-pointer flex justify-around"
                     >
