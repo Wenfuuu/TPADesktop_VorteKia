@@ -61,6 +61,21 @@ diesel::table! {
 }
 
 diesel::table! {
+    new_ride_proposals (proposal_id) {
+        #[max_length = 255]
+        proposal_id -> Varchar,
+        #[max_length = 255]
+        staff_id -> Varchar,
+        #[max_length = 255]
+        ride_name -> Varchar,
+        #[max_length = 255]
+        description -> Varchar,
+        image -> Nullable<Bytea>,
+        created_at -> Nullable<Timestamp>,
+    }
+}
+
+diesel::table! {
     restaurant_staffs (restaurant_id, staff_id) {
         #[max_length = 255]
         restaurant_id -> Varchar,
@@ -191,6 +206,7 @@ diesel::table! {
 diesel::joinable!(maintenances -> rides (ride_id));
 diesel::joinable!(maintenances -> staffs (staff_id));
 diesel::joinable!(menus -> restaurants (restaurant_id));
+diesel::joinable!(new_ride_proposals -> staffs (staff_id));
 diesel::joinable!(restaurant_staffs -> restaurants (restaurant_id));
 diesel::joinable!(restaurant_staffs -> staffs (staff_id));
 diesel::joinable!(ride_removal_proposals -> rides (ride_id));
@@ -208,6 +224,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     lostandfounditems,
     maintenances,
     menus,
+    new_ride_proposals,
     restaurant_staffs,
     restaurants,
     ride_removal_proposals,

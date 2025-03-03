@@ -109,6 +109,7 @@ pub fn run() {
             get_allocated_staff_in_ride,
             propose_ride_removal,
             request_maintenance,
+            propose_new_ride,
             test_backend
         ])
         .run(tauri::generate_context!())

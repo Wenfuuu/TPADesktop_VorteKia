@@ -15,6 +15,7 @@ import StaffRestaurantUI from "./ui/StaffRestaurantUI";
 import StaffStoreUI from "./ui/StaffStoreUI";
 import StaffRideUI from "./ui/StaffRideUI";
 import RideView from "./components/Ride/RideView";
+import ProposeRideDialog from "./components/Ride/ProposeRideDialog";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
@@ -57,8 +58,8 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 
         <Route path="/ride" element={<StaffRideUI/>}>
           <Route path="view" element={<RideView />} />
-          {/* <Route path="propose" element={} />
-          <Route path="chat" element={} /> */}
+          <Route path="propose" element={<ProposeRideDialog />} />
+          {/* <Route path="chat" element={} /> */}
         </Route>
       </Routes>
     </BrowserRouter>
