@@ -8,9 +8,14 @@ export default function ReportView(){
     const [staff, setStaff] = useState<Staff | null>(null);
 
     useEffect(() => {
-      fetchReports();
       get_staff();
     }, []);
+
+    useEffect(() => {
+      if (staff) {
+        fetchReports();
+      }
+    }, [staff]);
 
     const get_staff = async () => {
       const response = await invoke("get_current_staff");
@@ -20,7 +25,16 @@ export default function ReportView(){
     };
 
     const fetchReports = async () => {
-      const reportData: Reports[] = await invoke("get_all_reports");
+      if (!staff) return;
+      let reportData: Reports[];
+
+      if (staff.role === "maintenance staff") {
+        reportData = await invoke("get_assigned_reports", {
+          staffid: staff.staff_id,
+        });
+      } else {
+        reportData = await invoke("get_all_reports");
+      }
 
       console.log(reportData)
       setReports(reportData);
@@ -56,12 +70,27 @@ export default function ReportView(){
         })
     }
 
+    const submitReport = (report: Reports) => {
+        invoke("submit_report", {
+            reportid: report.report_id
+        }).then((success) => {
+          if (success){
+            toast("Report has been submitted!");
+            fetchReports()
+          }
+        }).catch((e) =>{
+            console.log(e);
+            toast("Failed to submit report!");
+        })
+    }
+
     return (
       <div className="container mx-auto px-6">
         <ReportList
           reports={reports}
           onAccept={handleAccept}
           onReject={handleReject}
+          onSubmit={submitReport}
         />
       </div>
     );

@@ -40,7 +40,7 @@ pub fn accept_report(reportid: &str, rideid: &str, staffid: &str) -> Result<bool
     let update_query = diesel::update(reports)
         .filter(report_id.eq(reportid))
         .set((
-            status.eq("Approved".to_string()),
+            status.eq("In Progress".to_string()),
             assigned_to.eq(staffid.to_string())
         ));
 
@@ -53,6 +53,22 @@ pub fn accept_report(reportid: &str, rideid: &str, staffid: &str) -> Result<bool
     match update_query.execute(conn) {
         Ok(_) => Ok(true), // Successfully updated
         Err(e) => Err(format!("Error accepting report: {}", e)),
+    }
+}
+
+#[tauri::command]
+pub fn submit_report(reportid: &str) -> Result<bool, String>{
+    println!("submitting report {}", reportid);
+    use crate::schema::reports::dsl::*;
+    let conn = &mut establish_connection();
+
+    let update_query = diesel::update(reports)
+        .filter(report_id.eq(reportid))
+        .set(status.eq("Submitted".to_string()));
+
+    match update_query.execute(conn) {
+        Ok(_) => Ok(true), // Successfully updated
+        Err(e) => Err(format!("Error rejecting report: {}", e)),
     }
 }
 
@@ -70,6 +86,18 @@ pub fn reject_report(reportid: &str) -> Result<bool, String>{
         Ok(_) => Ok(true), // Successfully updated
         Err(e) => Err(format!("Error rejecting report: {}", e)),
     }
+}
+
+#[tauri::command]
+pub fn get_assigned_reports(staffid: &str) -> Result<Vec<Report>, String>{
+    println!("getting all assigned reports");
+    use crate::schema::reports::dsl::*;
+    let conn = &mut establish_connection();
+
+    reports
+        .filter(assigned_to.eq(staffid))
+        .load::<Report>(conn)
+        .map_err(|err| format!("Database error: {}", err))
 }
 
 #[tauri::command]

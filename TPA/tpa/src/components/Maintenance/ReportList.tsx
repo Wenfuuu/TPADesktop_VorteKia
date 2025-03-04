@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, Send } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -23,18 +23,37 @@ type Props = {
   reports: Reports[];
   onAccept: (report: Reports, assignedStaffId: string) => void;
   onReject: (report: Reports) => void;
+  onSubmit?: (report: Reports) => void;
 };
 
-export default function ReportList({ reports, onAccept, onReject }: Props) {
+export default function ReportList({
+  reports,
+  onAccept,
+  onReject,
+  onSubmit,
+}: Props) {
   const [allStaff, setAllStaff] = useState<Staff[]>([]);
+  const [allRides, setAllRides] = useState<{ ride_id: string; name: string }[]>(
+    []
+  );
   const [errors, setErrors] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<Reports | null>(null);
   const [selectedStaffId, setSelectedStaffId] = useState("");
+  const [currentStaff, setCurrentStaff] = useState<Staff | null>(null);
 
   useEffect(() => {
     fetchStaff();
+    fetchRides();
+    get_staff();
   }, []);
+
+  const get_staff = async () => {
+    const response = await invoke("get_current_staff");
+    if (response !== null) {
+      setCurrentStaff(response as Staff);
+    }
+  };
 
   async function fetchStaff() {
     try {
@@ -46,6 +65,28 @@ export default function ReportList({ reports, onAccept, onReject }: Props) {
     }
   }
 
+  async function fetchRides() {
+    try {
+      const fetchedRides = await invoke("get_all_rides");
+      setAllRides(fetchedRides as { ride_id: string; name: string }[]);
+    } catch (error) {
+      console.error("Failed to fetch rides:", error);
+      setErrors("Failed to load rides. Please try again.");
+    }
+  }
+
+  // Helper function to get staff name by ID
+  const getStaffNameById = (staffId: string): string => {
+    const staff = allStaff.find((s) => s.staff_id === staffId);
+    return staff ? staff.name : staffId;
+  };
+
+  // Helper function to get ride name by ID
+  const getRideNameById = (rideId: string): string => {
+    const ride = allRides.find((r) => r.ride_id === rideId);
+    return ride ? ride.name : rideId;
+  };
+
   const handleAcceptClick = (report: Reports) => {
     setSelectedReport(report);
     setSelectedStaffId("");
@@ -54,11 +95,17 @@ export default function ReportList({ reports, onAccept, onReject }: Props) {
 
   const handleConfirmAssignment = () => {
     if (selectedReport && selectedStaffId) {
-        selectedReport.assigned_to = selectedStaffId;
-        onAccept(selectedReport, selectedStaffId);
-        setIsDialogOpen(false);
+      selectedReport.assigned_to = selectedStaffId;
+      onAccept(selectedReport, selectedStaffId);
+      setIsDialogOpen(false);
     } else {
-        setErrors("Please select a staff member");
+      setErrors("Please select a staff member");
+    }
+  };
+
+  const handleSubmit = (report: Reports) => {
+    if (onSubmit) {
+      onSubmit(report);
     }
   };
 
@@ -87,8 +134,8 @@ export default function ReportList({ reports, onAccept, onReject }: Props) {
                       Report ID: {report.report_id}
                     </p>
                     <p className="text-sm text-gray-600">
-                      <span className="font-medium">Ride ID:</span>{" "}
-                      {report.ride_id}
+                      <span className="font-medium">Ride:</span>{" "}
+                      {getRideNameById(report.ride_id)}
                     </p>
                     <p className="text-sm text-gray-600 mt-1">
                       <span className="font-medium">Source:</span>{" "}
@@ -100,14 +147,20 @@ export default function ReportList({ reports, onAccept, onReject }: Props) {
                     </p>
                     <p className="text-sm text-gray-600 mt-1">
                       <span className="font-medium">Assigned:</span>{" "}
-                      {report.assigned_to ? report.assigned_to : "Not assigned yet"}
+                      {report.assigned_to
+                        ? getStaffNameById(report.assigned_to)
+                        : "Not assigned yet"}
                     </p>
                     <p
                       className={`text-white rounded-full px-3 py-1 mt-2 text-xs font-medium inline-block ${
                         report.status === "Pending"
                           ? "bg-yellow-500"
-                          : report.status === "Approved"
+                          : report.status === "Completed"
                           ? "bg-green-500"
+                          : report.status === "In Progress"
+                          ? "bg-blue-500"
+                          : report.status === "Submitted"
+                          ? "bg-emerald-500"
                           : "bg-red-500"
                       }`}
                     >
@@ -116,23 +169,36 @@ export default function ReportList({ reports, onAccept, onReject }: Props) {
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <Button
-                      onClick={() => handleAcceptClick(report)}
-                      className="bg-green-600 hover:bg-green-700 text-white cursor-pointer flex justify-around"
-                      disabled={report.status !== "Pending"}
-                    >
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Accept Request
-                    </Button>
+                    {currentStaff?.role === "maintenance staff" ? (
+                      <Button
+                        onClick={() => handleSubmit(report)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer flex justify-around"
+                        disabled={report.status !== "In Progress"}
+                      >
+                        <Send className="w-4 h-4 mr-2" />
+                        Submit
+                      </Button>
+                    ) : (
+                      <div className="flex flex-col gap-2">
+                        <Button
+                          onClick={() => handleAcceptClick(report)}
+                          className="bg-green-600 hover:bg-green-700 text-white cursor-pointer flex justify-around"
+                          disabled={report.status !== "Pending"}
+                        >
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Accept Request
+                        </Button>
 
-                    <Button
-                      onClick={() => onReject(report)}
-                      className="bg-red-600 hover:bg-red-700 text-white cursor-pointer flex justify-around"
-                      disabled={report.status !== "Pending"}
-                    >
-                      <XCircle className="w-4 h-4 mr-2" />
-                      Reject Request
-                    </Button>
+                        <Button
+                          onClick={() => onReject(report)}
+                          className="bg-red-600 hover:bg-red-700 text-white cursor-pointer flex justify-around"
+                          disabled={report.status !== "Pending"}
+                        >
+                          <XCircle className="w-4 h-4 mr-2" />
+                          Reject Request
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </li>
