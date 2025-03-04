@@ -36,6 +36,25 @@ pub fn create_task(
 }
 
 #[tauri::command]
+pub fn submit_task(taskid: &str) -> Result<bool, String>{
+    println!("submitting task {}", taskid);
+    use crate::schema::tasks::dsl::*;
+    let conn = &mut establish_connection();
+
+    let update_query = diesel::update(tasks)
+        .filter(task_id.eq(taskid))
+        .set(status.eq("Submitted".to_string()));
+
+    //add to maintenance logs
+        
+
+    match update_query.execute(conn) {
+        Ok(_) => Ok(true), // Successfully updated
+        Err(e) => Err(format!("Error rejecting report: {}", e)),
+    }
+}
+
+#[tauri::command]
 pub fn update_task_schedule(
     id: &str,
     new_start_time: &str,
@@ -65,8 +84,27 @@ pub fn update_task_schedule(
 }
 
 #[tauri::command]
+pub fn get_assigned_tasks(staffid: &str) -> Result<Vec<TaskDTO>, String> {
+    println!("getting all assigned tasks");
+    use crate::schema::tasks::dsl::*;
+    let conn = &mut establish_connection();
+
+    match tasks.filter(assigned_to.eq(staffid))
+    .load::<Task>(conn) {
+        Ok(results) => {
+            let dto_results: Vec<TaskDTO> = results.into_iter().map(|s| s.into()).collect();
+            Ok(dto_results)
+        }
+        Err(e) => {
+            eprintln!("Error fetching stores: {}", e);
+            Err(e.to_string())
+        }
+    }
+}
+
+#[tauri::command]
 pub fn get_all_tasks() -> Result<Vec<TaskDTO>, String> {
-    println!("Fetching all tasks");
+    println!("getting all tasks");
     use crate::schema::tasks::dsl::*;
     let conn = &mut establish_connection();
 

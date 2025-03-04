@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
-import { PlusCircle, Clock, Edit } from "lucide-react";
+import { PlusCircle, Clock, Edit, Send } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -24,15 +24,17 @@ type Props = {
   tasks: Task[];
   onAdd: (task: Omit<Task, "task_id">) => void;
   onUpdate: (task: Task) => void;
+  onSubmit?: (task: Task) => void;
 };
 
-export default function TaskList({ tasks, onAdd, onUpdate }: Props) {
+export default function TaskList({ tasks, onAdd, onUpdate, onSubmit }: Props) {
   const [allStaff, setAllStaff] = useState<Staff[]>([]);
   const [allRides, setAllRides] = useState<{ ride_id: string; name: string }[]>([]);
   const [errors, setErrors] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null)
+  const [currentStaff, setCurrentStaff] = useState<Staff | null>(null);
 
   const [updatedTimes, setUpdatedTimes] = useState({
     start_time: "",
@@ -51,7 +53,15 @@ export default function TaskList({ tasks, onAdd, onUpdate }: Props) {
   useEffect(() => {
     fetchStaff();
     fetchRides();
+    get_staff();
   }, []);
+
+  const get_staff = async () => {
+    const response = await invoke("get_current_staff");
+    if (response !== null) {
+      setCurrentStaff(response as Staff);
+    }
+  };
 
   async function fetchStaff() {
     try {
@@ -143,6 +153,12 @@ export default function TaskList({ tasks, onAdd, onUpdate }: Props) {
     });
   };
 
+  const handleSubmit = (task: Task) => {
+    if (onSubmit) {
+      onSubmit(task);
+    }
+  };
+
   // Helper function to get staff name by ID
   const getStaffNameById = (staffId: string): string => {
     const staff = allStaff.find((s) => s.staff_id === staffId);
@@ -163,16 +179,18 @@ export default function TaskList({ tasks, onAdd, onUpdate }: Props) {
   return (
     <>
       <div className="bg-white shadow-lg rounded-lg p-6 mb-6 max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Maintenance Tasks</h2>
-          <Button
-            onClick={() => setIsDialogOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Create New Task
-          </Button>
-        </div>
+        {currentStaff?.role === "maintenance manager" && (
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">Maintenance Tasks</h2>
+            <Button
+              onClick={() => setIsDialogOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Create New Task
+            </Button>
+          </div>
+        )}
 
         {tasks.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-40 bg-gray-50 rounded-lg border border-dashed border-gray-300">
@@ -190,7 +208,7 @@ export default function TaskList({ tasks, onAdd, onUpdate }: Props) {
                 key={task.task_id}
                 className="p-5 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 flex gap-4 flex-col bg-gray-50"
               >
-                <div className="flex justify-between items-start gap-6">
+                <div className="flex justify-between items-center gap-6">
                   <div className="flex-1">
                     <p className="font-semibold text-lg text-black">
                       Ride: {getRideNameById(task.ride_id)}
@@ -223,7 +241,7 @@ export default function TaskList({ tasks, onAdd, onUpdate }: Props) {
                           ? "bg-green-500"
                           : task.status === "In Progress"
                           ? "bg-blue-500"
-                          : "bg-gray-500"
+                          : "bg-emerald-500"
                       }`}
                     >
                       {task.status}
@@ -231,13 +249,22 @@ export default function TaskList({ tasks, onAdd, onUpdate }: Props) {
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    {task.status !== "Completed" && (
+                    {currentStaff?.role === "maintenance manager" ? (
                       <Button
                         className="bg-green-600 hover:bg-green-700 text-white cursor-pointer flex justify-around"
                         onClick={() => handleOpenEditDialog(task)}
                       >
                         <Edit className="w-4 h-4 mr-2" />
                         Edit Schedule
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => handleSubmit(task)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer flex justify-around"
+                        disabled={task.status !== "In Progress"}
+                      >
+                        <Send className="w-4 h-4 mr-2" />
+                        Submit
                       </Button>
                     )}
                   </div>

@@ -66,6 +66,9 @@ pub fn submit_report(reportid: &str) -> Result<bool, String>{
         .filter(report_id.eq(reportid))
         .set(status.eq("Submitted".to_string()));
 
+    //add to maintenance logs
+    
+
     match update_query.execute(conn) {
         Ok(_) => Ok(true), // Successfully updated
         Err(e) => Err(format!("Error rejecting report: {}", e)),

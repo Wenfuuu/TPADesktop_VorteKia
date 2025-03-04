@@ -9,9 +9,14 @@ export default function TaskView(){
     const [staff, setStaff] = useState<Staff | null>(null);
 
     useEffect(() => {
-      fetchTasks();
       get_staff();
     }, []);
+
+    useEffect(() => {
+      if (staff) {
+        fetchTasks();
+      }
+    }, [staff]);
 
     const get_staff = async () => {
       const response = await invoke("get_current_staff");
@@ -21,8 +26,18 @@ export default function TaskView(){
     };
 
     const fetchTasks = async () => {
-        const taskData: Task[] = await invoke("get_all_tasks");
-        setTasks(taskData);
+        if(!staff) return;
+        let taskData: Task[]
+
+        if (staff.role === "maintenance staff") {
+          taskData = await invoke("get_assigned_tasks", {
+            staffid: staff.staff_id,
+          });
+        } else {
+          taskData = await invoke("get_all_tasks");
+        }
+
+        setTasks(taskData)
     };
 
     const addTask = (newTask: Omit<Task, "task_id">) => {
@@ -59,12 +74,27 @@ export default function TaskView(){
         })
     }
 
+    const submitTask = (task: Task) => {
+        invoke("submit_task", {
+            taskid: task.task_id
+        }).then((success) => {
+          if (success){
+            toast("Task has been submitted!");
+            fetchTasks()
+          }
+        }).catch((e) =>{
+            console.log(e);
+            toast("Failed to submit task!");
+        })
+    }
+
     return(
         <div className="container mx-auto px-6 text-white">
             <TaskList
             tasks={tasks}
             onAdd={addTask}
             onUpdate={updateTask}
+            onSubmit={submitTask}
             />
         </div>
     )

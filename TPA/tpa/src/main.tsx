@@ -69,6 +69,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <Route path="reports" element={<ReportView />} />
           <Route path="tasks" element={<TaskView />} />
           <Route path="staff_reports" element={<ReportView />} />
+          <Route path="staff_tasks" element={<TaskView />} />
           {/* <Route path="chat" element={} /> */}
         </Route>
       </Routes>

@@ -119,8 +119,10 @@ pub fn run() {
             submit_report,
             propose_new_ride,
             get_all_tasks,
+            get_assigned_tasks,
             update_task_schedule,
             create_task,
+            submit_task,
             test_backend
         ])
         .run(tauri::generate_context!())
