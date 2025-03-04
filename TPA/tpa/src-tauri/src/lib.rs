@@ -129,6 +129,8 @@ pub fn run() {
             get_all_logs,
             approve_task_log,
             approve_report_log,
+            revise_task_log,
+            revise_report_log,
             test_backend
         ])
         .run(tauri::generate_context!())

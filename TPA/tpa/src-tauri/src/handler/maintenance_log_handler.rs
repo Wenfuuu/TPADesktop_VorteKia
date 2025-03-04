@@ -1,6 +1,7 @@
 use uuid::Uuid;
 
-use crate::handler::report_handler::complete_report;
+use crate::handler::report_handler::{complete_report, reassign_report};
+use crate::handler::task_handler::reassign_task;
 use crate::models::maintenance_log::MaintenanceLog;
 use crate::db::establish_connection;
 use crate::diesel::prelude::*;
@@ -56,6 +57,28 @@ pub fn add_task_log(
 }
 
 #[tauri::command]
+pub fn revise_task_log(logid: &str, taskid: &str) -> Result<bool, String> {
+    println!("revising task log");
+    use crate::schema::maintenance_logs::dsl::*;
+    let conn = &mut establish_connection();
+
+    let update_query = diesel::update(maintenance_logs)
+        .filter(log_id.eq(logid))
+        .set(status.eq("Revised".to_string()));
+
+    // set task to in progress again
+    match reassign_task(taskid) {
+        Ok(_) => (),
+        Err(e) => return Err(format!("Error reassigning task: {}", e)),
+    }
+
+    match update_query.execute(conn) {
+        Ok(_) => Ok(true),
+        Err(e) => Err(format!("Error revising log: {}", e)),
+    }
+}
+
+#[tauri::command]
 pub fn approve_task_log(logid: &str, taskid: &str) -> Result<bool, String> {
     println!("approving task log");
     use crate::schema::maintenance_logs::dsl::*;
@@ -74,6 +97,28 @@ pub fn approve_task_log(logid: &str, taskid: &str) -> Result<bool, String> {
     match update_query.execute(conn) {
         Ok(_) => Ok(true),
         Err(e) => Err(format!("Error approving log: {}", e)),
+    }
+}
+
+#[tauri::command]
+pub fn revise_report_log(logid: &str, reportid: &str) -> Result<bool, String> {
+    println!("reassigning report log");
+    use crate::schema::maintenance_logs::dsl::*;
+    let conn = &mut establish_connection();
+
+    let update_query = diesel::update(maintenance_logs)
+        .filter(log_id.eq(logid))
+        .set(status.eq("Revised".to_string()));
+
+    // set report to completed
+    match reassign_report(reportid) {
+        Ok(_) => (),
+        Err(e) => return Err(format!("Error reassigning report: {}", e)),
+    }
+
+    match update_query.execute(conn) {
+        Ok(_) => Ok(true),
+        Err(e) => Err(format!("Error revising log: {}", e)),
     }
 }
 

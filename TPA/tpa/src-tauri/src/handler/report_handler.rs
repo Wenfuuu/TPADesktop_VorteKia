@@ -57,6 +57,21 @@ pub fn accept_report(reportid: &str, rideid: &str, staffid: &str) -> Result<bool
     }
 }
 
+pub fn reassign_report(reportid: &str) ->  Result<bool, String> {
+    println!("reassigning task {}", reportid);
+    use crate::schema::reports::dsl::*;
+    let conn = &mut establish_connection();
+
+    let update_query = diesel::update(reports)
+        .filter(report_id.eq(reportid))
+        .set(status.eq("In Progress".to_string()));
+
+    match update_query.execute(conn) {
+        Ok(_) => Ok(true),
+        Err(e) => Err(format!("Error reassigning task: {}", e)),
+    }
+}
+
 pub fn complete_report(reportid: &str) ->  Result<bool, String> {
     println!("completing task {}", reportid);
     use crate::schema::reports::dsl::*;

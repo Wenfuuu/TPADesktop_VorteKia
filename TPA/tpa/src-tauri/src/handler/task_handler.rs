@@ -36,6 +36,21 @@ pub fn create_task(
         .map_err(|err| format!("Database error: {}", err))
 }
 
+pub fn reassign_task(taskid: &str) ->  Result<bool, String> {
+    println!("reassigning task {}", taskid);
+    use crate::schema::tasks::dsl::*;
+    let conn = &mut establish_connection();
+
+    let update_query = diesel::update(tasks)
+        .filter(task_id.eq(taskid))
+        .set(status.eq("In Progress".to_string()));
+
+    match update_query.execute(conn) {
+        Ok(_) => Ok(true),
+        Err(e) => Err(format!("Error reassigning task: {}", e)),
+    }
+}
+
 pub fn complete_task(taskid: &str) ->  Result<bool, String> {
     println!("completing task {}", taskid);
     use crate::schema::tasks::dsl::*;

@@ -65,7 +65,36 @@ export default function LogView(){
     }
 
     const reviseLog = (log: MaintenanceLog) => {
-        toast("revise log");
+        if(log.task_id){
+            invoke("revise_task_log", {
+                logid: log.log_id,
+                taskid: log.task_id
+            })
+            .then((success) => {
+                if(success){
+                    toast("Revising Task log!");
+                    fetchLogs()
+                }
+            }).catch((e) =>{
+                console.log(e);
+                toast("Failed to revise log!");
+            })
+        }
+        else if(log.report_id){
+            invoke("revise_report_log", { 
+                logid: log.log_id,
+                reportid: log.report_id
+            })
+            .then((success) => {
+                if(success){
+                    toast("Revising Report log!");
+                    fetchLogs()
+                }
+            }).catch((e) =>{
+                console.log(e);
+                toast("Failed to revise log!");
+            })
+        }
     }
 
     return(
