@@ -2,6 +2,7 @@ use crate::models::ride_staff::RideStaff;
 use crate::models::{restaurant_staff::RestaurantStaff, store_staff::StoreStaff};
 use crate::db::establish_connection;
 use crate::diesel::prelude::*;
+use diesel::dsl::*;
 use crate::models::staff::Staff;
 use crate::models::user::CurrentUser;
 use argon2::{password_hash::{rand_core::OsRng, PasswordHasher, PasswordVerifier, SaltString}, Argon2, PasswordHash};
@@ -127,9 +128,22 @@ pub fn get_all_ride_staffs() -> Result<Vec<Staff>, String> {
 pub fn get_all_maintenance_staffs() -> Result<Vec<Staff>, String> {
     println!("getting all maintenance staffs");
     use crate::schema::staffs::dsl::*;
+    use crate::schema::tasks::dsl as tasks_dsl;;
+    use crate::schema::reports::dsl as reports_dsl;;
     let conn = &mut establish_connection();
+
+    let in_progress_or_submitted_tasks = tasks_dsl::tasks
+        .filter(tasks_dsl::status.eq_any(vec!["In Progress", "Submitted"]))
+        .select(tasks_dsl::assigned_to);
+
+    let in_progress_or_submitted_reports = reports_dsl::reports
+        .filter(reports_dsl::status.eq_any(vec!["In Progress", "Submitted"]))
+        .select(reports_dsl::assigned_to.nullable());
+
     staffs
         .filter(role.eq("maintenance staff"))
+        .filter(not(exists(in_progress_or_submitted_tasks.filter(tasks_dsl::assigned_to.eq(staff_id)))))
+        .filter(not(exists(in_progress_or_submitted_reports.filter(reports_dsl::assigned_to.eq(staff_id.nullable())))))
         .load::<Staff>(conn)
         .map_err(|e| e.to_string())
 }

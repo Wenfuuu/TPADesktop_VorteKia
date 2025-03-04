@@ -33,6 +33,7 @@ export default function ReportList({
   onSubmit,
 }: Props) {
   const [allStaff, setAllStaff] = useState<Staff[]>([]);
+  const [maintenanceStaff, setMaintenanceStaff] = useState<Staff[]>([]);
   const [allRides, setAllRides] = useState<{ ride_id: string; name: string }[]>(
     []
   );
@@ -43,7 +44,8 @@ export default function ReportList({
   const [currentStaff, setCurrentStaff] = useState<Staff | null>(null);
 
   useEffect(() => {
-    fetchStaff();
+    fetchAllStaff()
+    fetchMaintenanceStaff();
     fetchRides();
     get_staff();
   }, []);
@@ -55,10 +57,20 @@ export default function ReportList({
     }
   };
 
-  async function fetchStaff() {
+  const fetchAllStaff = async () => {
+    try {
+      const fetchedStaff: Staff[] = await invoke("get_all_staffs");
+      setAllStaff(fetchedStaff);
+    } catch (error) {
+      console.error("Failed to fetch staff:", error);
+      setErrors("Failed to load all staff. Please try again.");
+    }
+  }
+
+  async function fetchMaintenanceStaff() {
     try {
       const fetchedStaff: Staff[] = await invoke("get_all_maintenance_staffs");
-      setAllStaff(fetchedStaff);
+      setMaintenanceStaff(fetchedStaff);
     } catch (error) {
       console.error("Failed to fetch staff:", error);
       setErrors("Failed to load maintenance staff. Please try again.");
@@ -141,8 +153,8 @@ export default function ReportList({
                       {getRideNameById(report.ride_id)}
                     </p>
                     <p className="text-sm text-gray-600 mt-1">
-                      <span className="font-medium">Source:</span>{" "}
-                      {report.reported_by}
+                      <span className="font-medium">Reported by:</span>{" "}
+                      {getStaffNameById(report.reported_by)}
                     </p>
                     <p className="text-sm text-gray-600 mt-1">
                       <span className="font-medium">Reason:</span>{" "}
@@ -228,7 +240,7 @@ export default function ReportList({
                   <SelectValue placeholder="Select a staff member" />
                 </SelectTrigger>
                 <SelectContent>
-                  {allStaff.map((staff) => (
+                  {maintenanceStaff.map((staff) => (
                     <SelectItem key={staff.staff_id} value={staff.staff_id}>
                       {staff.name} - {staff.role}
                     </SelectItem>

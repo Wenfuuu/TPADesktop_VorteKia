@@ -29,6 +29,7 @@ type Props = {
 
 export default function TaskList({ tasks, onAdd, onUpdate, onSubmit }: Props) {
   const [allStaff, setAllStaff] = useState<Staff[]>([]);
+  const [maintenanceStaff, setMaintenanceStaff] = useState<Staff[]>([]);
   const [allRides, setAllRides] = useState<{ ride_id: string; name: string }[]>([]);
   const [errors, setErrors] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -51,7 +52,8 @@ export default function TaskList({ tasks, onAdd, onUpdate, onSubmit }: Props) {
   });
 
   useEffect(() => {
-    fetchStaff();
+    fetchAllStaff();
+    fetchMaintenanceStaff();
     fetchRides();
     get_staff();
   }, []);
@@ -63,10 +65,20 @@ export default function TaskList({ tasks, onAdd, onUpdate, onSubmit }: Props) {
     }
   };
 
-  async function fetchStaff() {
+  const fetchAllStaff = async () => {
+    try {
+      const fetchedStaff: Staff[] = await invoke("get_all_staffs");
+      setAllStaff(fetchedStaff);
+    } catch (error) {
+      console.error("Failed to fetch staff:", error);
+      setErrors("Failed to load all staff. Please try again.");
+    }
+  }
+
+  async function fetchMaintenanceStaff() {
     try {
       const fetchedStaff: Staff[] = await invoke("get_all_maintenance_staffs");
-      setAllStaff(fetchedStaff);
+      setMaintenanceStaff(fetchedStaff);
     } catch (error) {
       console.error("Failed to fetch staff:", error);
       setErrors("Failed to load maintenance staff. Please try again.");
@@ -141,6 +153,7 @@ export default function TaskList({ tasks, onAdd, onUpdate, onSubmit }: Props) {
     }
 
     onAdd(newTask)
+    fetchMaintenanceStaff()
 
     // Close dialog and reset form
     setIsDialogOpen(false);
@@ -253,6 +266,7 @@ export default function TaskList({ tasks, onAdd, onUpdate, onSubmit }: Props) {
                       <Button
                         className="bg-green-600 hover:bg-green-700 text-white cursor-pointer flex justify-around"
                         onClick={() => handleOpenEditDialog(task)}
+                        disabled={task.status !== "In Progress"}
                       >
                         <Edit className="w-4 h-4 mr-2" />
                         Edit Schedule
@@ -364,7 +378,7 @@ export default function TaskList({ tasks, onAdd, onUpdate, onSubmit }: Props) {
                   <SelectValue placeholder="Select a staff member" />
                 </SelectTrigger>
                 <SelectContent>
-                  {allStaff.map((staff) => (
+                  {maintenanceStaff.map((staff) => (
                     <SelectItem key={staff.staff_id} value={staff.staff_id}>
                       {staff.name} - {staff.role}
                     </SelectItem>
