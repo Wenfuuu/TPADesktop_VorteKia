@@ -4,8 +4,6 @@ use crate::handler::ride_handler::set_ride_maintenance;
 use crate::models::report::Report;
 use crate::db::establish_connection;
 use crate::diesel::prelude::*;
-use crate::models::report_staff::ReportStaff;
-use crate::schema::report_staffs;
 
 #[tauri::command]
 pub fn request_maintenance(
@@ -20,7 +18,8 @@ pub fn request_maintenance(
     let new_report = Report {
         report_id: format!("RPRT-{}", &Uuid::new_v4().to_string()[..8]),
         ride_id: rideid.to_string(),
-        staff_id: staffid.to_string(),
+        reported_by: staffid.to_string(),
+        assigned_to: None,
         reason: maintenancereason.to_string(),
         status: "Pending".to_string()
     };
@@ -40,19 +39,12 @@ pub fn accept_report(reportid: &str, rideid: &str, staffid: &str) -> Result<bool
 
     let update_query = diesel::update(reports)
         .filter(report_id.eq(reportid))
-        .set(status.eq("Approved".to_string()));
+        .set((
+            status.eq("Approved".to_string()),
+            assigned_to.eq(staffid.to_string())
+        ));
 
-    //assign staff
-    let new_report_staff = ReportStaff {
-        report_id: reportid.to_string(),
-        staff_id: staffid.to_string()
-    };
-
-    diesel::insert_into(report_staffs::table)
-        .values(&new_report_staff)
-        .execute(conn)
-        .map_err(|e| format!("Error assigning staff: {}", e))?;
-
+    //set ride to maintenance status
     match set_ride_maintenance(rideid) {
         Ok(_) => (),
         Err(e) => return Err(format!("Error setting ride maintenance: {}", e)),

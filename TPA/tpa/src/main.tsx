@@ -18,6 +18,7 @@ import RideView from "./components/Ride/RideView";
 import ProposeRideDialog from "./components/Ride/ProposeRideDialog";
 import MaintenanceUI from "./ui/MaintenanceUI";
 import ReportView from "./components/Maintenance/ReportView";
+import TaskView from "./components/Maintenance/TaskView";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
@@ -66,7 +67,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 
         <Route path="/maintenance" element={<MaintenanceUI />}>
           <Route path="reports" element={<ReportView />} />
-          {/* <Route path="reports" element={} /> */}
+          <Route path="tasks" element={<TaskView />} />
           {/* <Route path="chat" element={} /> */}
         </Route>
       </Routes>

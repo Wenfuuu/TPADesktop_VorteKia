@@ -12,6 +12,7 @@ use crate::handler::souvenir_handler::*;
 use crate::handler::proposal_handler::*;
 use crate::handler::ride_handler::*;
 use crate::handler::report_handler::*;
+use crate::handler::task_handler::*;
 
 extern crate diesel;
 
@@ -114,8 +115,10 @@ pub fn run() {
             get_all_reports,
             accept_report,
             reject_report,
-            get_allocated_staff_in_report,
             propose_new_ride,
+            get_all_tasks,
+            update_task_schedule,
+            create_task,
             test_backend
         ])
         .run(tauri::generate_context!())

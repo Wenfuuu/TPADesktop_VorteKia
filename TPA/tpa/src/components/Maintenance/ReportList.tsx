@@ -54,7 +54,7 @@ export default function ReportList({ reports, onAccept, onReject }: Props) {
 
   const handleConfirmAssignment = () => {
     if (selectedReport && selectedStaffId) {
-        selectedReport.assigned_staff_id = selectedStaffId;
+        selectedReport.assigned_to = selectedStaffId;
         onAccept(selectedReport, selectedStaffId);
         setIsDialogOpen(false);
     } else {
@@ -92,7 +92,7 @@ export default function ReportList({ reports, onAccept, onReject }: Props) {
                     </p>
                     <p className="text-sm text-gray-600 mt-1">
                       <span className="font-medium">Source:</span>{" "}
-                      {report.staff_id}
+                      {report.reported_by}
                     </p>
                     <p className="text-sm text-gray-600 mt-1">
                       <span className="font-medium">Reason:</span>{" "}
@@ -100,7 +100,7 @@ export default function ReportList({ reports, onAccept, onReject }: Props) {
                     </p>
                     <p className="text-sm text-gray-600 mt-1">
                       <span className="font-medium">Assigned:</span>{" "}
-                      {report.assigned_staff_id ? report.assigned_staff_id : "Not assigned yet"}
+                      {report.assigned_to ? report.assigned_to : "Not assigned yet"}
                     </p>
                     <p
                       className={`text-white rounded-full px-3 py-1 mt-2 text-xs font-medium inline-block ${

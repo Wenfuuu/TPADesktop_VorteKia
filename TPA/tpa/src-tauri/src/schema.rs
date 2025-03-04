@@ -34,6 +34,21 @@ diesel::table! {
 }
 
 diesel::table! {
+    maintenance_logs (log_id) {
+        #[max_length = 255]
+        log_id -> Varchar,
+        #[max_length = 255]
+        staff_id -> Nullable<Varchar>,
+        #[max_length = 255]
+        report_id -> Nullable<Varchar>,
+        #[max_length = 255]
+        task_id -> Nullable<Varchar>,
+        #[max_length = 255]
+        status -> Varchar,
+    }
+}
+
+diesel::table! {
     menus (menu_id) {
         #[max_length = 255]
         menu_id -> Varchar,
@@ -62,22 +77,15 @@ diesel::table! {
 }
 
 diesel::table! {
-    report_staffs (report_id, staff_id) {
-        #[max_length = 255]
-        report_id -> Varchar,
-        #[max_length = 255]
-        staff_id -> Varchar,
-    }
-}
-
-diesel::table! {
     reports (report_id) {
         #[max_length = 255]
         report_id -> Varchar,
         #[max_length = 255]
         ride_id -> Varchar,
         #[max_length = 255]
-        staff_id -> Varchar,
+        reported_by -> Varchar,
+        #[max_length = 255]
+        assigned_to -> Nullable<Varchar>,
         #[max_length = 255]
         reason -> Varchar,
         #[max_length = 255]
@@ -220,20 +228,20 @@ diesel::table! {
         #[max_length = 255]
         ride_id -> Varchar,
         #[max_length = 255]
-        staff_id -> Varchar,
-        start_time -> Nullable<Timestamp>,
-        end_time -> Nullable<Timestamp>,
+        assigned_to -> Varchar,
+        start_time -> Timestamp,
+        end_time -> Timestamp,
         #[max_length = 255]
         status -> Varchar,
     }
 }
 
+diesel::joinable!(maintenance_logs -> reports (report_id));
+diesel::joinable!(maintenance_logs -> staffs (staff_id));
+diesel::joinable!(maintenance_logs -> tasks (task_id));
 diesel::joinable!(menus -> restaurants (restaurant_id));
 diesel::joinable!(new_ride_proposals -> staffs (staff_id));
-diesel::joinable!(report_staffs -> reports (report_id));
-diesel::joinable!(report_staffs -> staffs (staff_id));
 diesel::joinable!(reports -> rides (ride_id));
-diesel::joinable!(reports -> staffs (staff_id));
 diesel::joinable!(restaurant_staffs -> restaurants (restaurant_id));
 diesel::joinable!(restaurant_staffs -> staffs (staff_id));
 diesel::joinable!(ride_removal_proposals -> rides (ride_id));
@@ -246,14 +254,14 @@ diesel::joinable!(store_removal_proposals -> stores (store_id));
 diesel::joinable!(store_staffs -> staffs (staff_id));
 diesel::joinable!(store_staffs -> stores (store_id));
 diesel::joinable!(tasks -> rides (ride_id));
-diesel::joinable!(tasks -> staffs (staff_id));
+diesel::joinable!(tasks -> staffs (assigned_to));
 
 diesel::allow_tables_to_appear_in_same_query!(
     customers,
     lostandfounditems,
+    maintenance_logs,
     menus,
     new_ride_proposals,
-    report_staffs,
     reports,
     restaurant_staffs,
     restaurants,

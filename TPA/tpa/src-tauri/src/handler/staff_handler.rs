@@ -1,9 +1,8 @@
-use crate::models::report_staff::ReportStaff;
 use crate::models::ride_staff::RideStaff;
 use crate::models::{restaurant_staff::RestaurantStaff, store_staff::StoreStaff};
 use crate::db::establish_connection;
 use crate::diesel::prelude::*;
-use crate::models::staff::{self, Staff};
+use crate::models::staff::Staff;
 use crate::models::user::CurrentUser;
 use argon2::{password_hash::{rand_core::OsRng, PasswordHasher, PasswordVerifier, SaltString}, Argon2, PasswordHash};
 // use serde::Serialize;
@@ -78,18 +77,6 @@ pub fn get_allocated_staff_in_ride(rideid: &str) -> Result<Vec<RideStaff>, Strin
     ride_staffs
         .filter(ride_id.eq(rideid))
         .load::<RideStaff>(conn)
-        .map_err(|e| e.to_string())
-}
-
-#[tauri::command]
-pub fn get_allocated_staff_in_report(reportid: &str) -> Result<ReportStaff, String>{
-    println!("getting allocated staffs in reports {}", reportid);
-    use crate::schema::report_staffs::dsl::*;
-    let conn = &mut establish_connection();
-
-    report_staffs
-        .filter(report_id.eq(reportid))
-        .first::<ReportStaff>(conn)
         .map_err(|e| e.to_string())
 }
 
