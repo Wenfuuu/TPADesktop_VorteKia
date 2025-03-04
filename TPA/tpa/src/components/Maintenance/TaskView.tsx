@@ -76,7 +76,8 @@ export default function TaskView(){
 
     const submitTask = (task: Task) => {
         invoke("submit_task", {
-            taskid: task.task_id
+            taskid: task.task_id,
+            staffid: task.assigned_to
         }).then((success) => {
           if (success){
             toast("Task has been submitted!");

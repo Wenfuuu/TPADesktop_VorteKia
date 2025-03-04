@@ -38,7 +38,7 @@ diesel::table! {
         #[max_length = 255]
         log_id -> Varchar,
         #[max_length = 255]
-        staff_id -> Nullable<Varchar>,
+        staff_id -> Varchar,
         #[max_length = 255]
         report_id -> Nullable<Varchar>,
         #[max_length = 255]

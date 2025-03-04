@@ -1,3 +1,4 @@
+use crate::handler::maintenance_log_handler::add_task_log;
 use crate::models::task::{Task, TaskDTO};
 use crate::db::establish_connection;
 use crate::diesel::prelude::*;
@@ -35,8 +36,23 @@ pub fn create_task(
         .map_err(|err| format!("Database error: {}", err))
 }
 
+pub fn complete_task(taskid: &str) ->  Result<bool, String> {
+    println!("completing task {}", taskid);
+    use crate::schema::tasks::dsl::*;
+    let conn = &mut establish_connection();
+
+    let update_query = diesel::update(tasks)
+        .filter(task_id.eq(taskid))
+        .set(status.eq("Completed".to_string()));
+
+    match update_query.execute(conn) {
+        Ok(_) => Ok(true),
+        Err(e) => Err(format!("Error completing task: {}", e)),
+    }
+}
+
 #[tauri::command]
-pub fn submit_task(taskid: &str) -> Result<bool, String>{
+pub fn submit_task(taskid: &str, staffid: &str) -> Result<bool, String>{
     println!("submitting task {}", taskid);
     use crate::schema::tasks::dsl::*;
     let conn = &mut establish_connection();
@@ -46,11 +62,14 @@ pub fn submit_task(taskid: &str) -> Result<bool, String>{
         .set(status.eq("Submitted".to_string()));
 
     //add to maintenance logs
-        
+    match add_task_log(taskid, staffid) {
+        Ok(_) => (),
+        Err(e) => return Err(format!("Error adding task log: {}", e)),
+    }                                                  
 
     match update_query.execute(conn) {
         Ok(_) => Ok(true), // Successfully updated
-        Err(e) => Err(format!("Error rejecting report: {}", e)),
+        Err(e) => Err(format!("Error submitting task: {}", e)),
     }
 }
 

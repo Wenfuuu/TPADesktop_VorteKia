@@ -13,6 +13,7 @@ use crate::handler::proposal_handler::*;
 use crate::handler::ride_handler::*;
 use crate::handler::report_handler::*;
 use crate::handler::task_handler::*;
+use crate::handler::maintenance_log_handler::*;
 
 extern crate diesel;
 
@@ -123,6 +124,11 @@ pub fn run() {
             update_task_schedule,
             create_task,
             submit_task,
+            add_task_log,
+            add_report_log,
+            get_all_logs,
+            approve_task_log,
+            approve_report_log,
             test_backend
         ])
         .run(tauri::generate_context!())

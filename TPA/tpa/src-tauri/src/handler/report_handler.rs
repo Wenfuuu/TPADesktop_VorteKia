@@ -1,5 +1,6 @@
 use uuid::Uuid;
 
+use crate::handler::maintenance_log_handler::add_report_log;
 use crate::handler::ride_handler::set_ride_maintenance;
 use crate::models::report::Report;
 use crate::db::establish_connection;
@@ -56,8 +57,23 @@ pub fn accept_report(reportid: &str, rideid: &str, staffid: &str) -> Result<bool
     }
 }
 
+pub fn complete_report(reportid: &str) ->  Result<bool, String> {
+    println!("completing task {}", reportid);
+    use crate::schema::reports::dsl::*;
+    let conn = &mut establish_connection();
+
+    let update_query = diesel::update(reports)
+        .filter(report_id.eq(reportid))
+        .set(status.eq("Completed".to_string()));
+
+    match update_query.execute(conn) {
+        Ok(_) => Ok(true),
+        Err(e) => Err(format!("Error completing task: {}", e)),
+    }
+}
+
 #[tauri::command]
-pub fn submit_report(reportid: &str) -> Result<bool, String>{
+pub fn submit_report(reportid: &str, staffid: &str) -> Result<bool, String>{
     println!("submitting report {}", reportid);
     use crate::schema::reports::dsl::*;
     let conn = &mut establish_connection();
@@ -67,7 +83,10 @@ pub fn submit_report(reportid: &str) -> Result<bool, String>{
         .set(status.eq("Submitted".to_string()));
 
     //add to maintenance logs
-    
+    match add_report_log(reportid, staffid) {
+        Ok(_) => (),
+        Err(e) => return Err(format!("Error adding report log: {}", e)),
+    }
 
     match update_query.execute(conn) {
         Ok(_) => Ok(true), // Successfully updated

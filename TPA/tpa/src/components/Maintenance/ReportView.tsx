@@ -72,7 +72,8 @@ export default function ReportView(){
 
     const submitReport = (report: Reports) => {
         invoke("submit_report", {
-            reportid: report.report_id
+            reportid: report.report_id,
+            staffid: report.assigned_to
         }).then((success) => {
           if (success){
             toast("Report has been submitted!");

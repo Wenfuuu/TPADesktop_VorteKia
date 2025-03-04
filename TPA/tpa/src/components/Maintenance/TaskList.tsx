@@ -179,9 +179,9 @@ export default function TaskList({ tasks, onAdd, onUpdate, onSubmit }: Props) {
   return (
     <>
       <div className="bg-white shadow-lg rounded-lg p-6 mb-6 max-w-6xl mx-auto">
-        {currentStaff?.role === "maintenance manager" && (
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">Maintenance Tasks</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-black">Maintenance Tasks</h2>
+          {currentStaff?.role === "maintenance manager" && (
             <Button
               onClick={() => setIsDialogOpen(true)}
               className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -189,8 +189,8 @@ export default function TaskList({ tasks, onAdd, onUpdate, onSubmit }: Props) {
               <PlusCircle className="w-4 h-4 mr-2" />
               Create New Task
             </Button>
-          </div>
-        )}
+          )}
+        </div>
 
         {tasks.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-40 bg-gray-50 rounded-lg border border-dashed border-gray-300">

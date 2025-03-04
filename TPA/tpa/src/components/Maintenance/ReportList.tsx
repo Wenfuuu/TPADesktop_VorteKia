@@ -112,6 +112,9 @@ export default function ReportList({
   return (
     <>
       <div className="bg-white shadow-lg rounded-lg p-6 mb-6 max-w-6xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-black">Maintenance Reports</h2>
+        </div>
         {reports.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-40 bg-gray-50 rounded-lg border border-dashed border-gray-300">
             <p className="text-gray-500 mb-2">
