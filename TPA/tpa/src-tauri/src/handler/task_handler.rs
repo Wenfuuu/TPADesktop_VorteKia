@@ -45,10 +45,10 @@ pub fn update_task_schedule(
     use crate::schema::tasks::dsl::*;
     let conn = &mut establish_connection();
 
-    let starttime = NaiveDateTime::parse_from_str(new_start_time, "%Y-%m-%d %H:%M:%S")
+    let starttime = NaiveDateTime::parse_from_str(new_start_time, "%Y-%m-%dT%H:%M:%S")
     .map_err(|e| format!("Invalid start time format: {}", e))?;
-    let endtime = NaiveDateTime::parse_from_str(new_end_time, "%Y-%m-%d %H:%M:%S")
-    .map_err(|e| format!("Invalid start time format: {}", e))?;
+    let endtime = NaiveDateTime::parse_from_str(new_end_time, "%Y-%m-%dT%H:%M:%S")
+    .map_err(|e| format!("Invalid end time format: {}", e))?;
 
     //update query
     let update_query = diesel::update(tasks)

@@ -82,15 +82,33 @@ export default function TaskList({ tasks, onAdd, onUpdate }: Props) {
     setErrors("");
   };
 
+  const handleOpenEditDialog = (task: Task) => {
+    setEditTask(task);
+    setIsEditDialogOpen(true);
+  };
+
   const handleUpdateTask = () => {
     if(editTask){
-        setEditTask({
-            ...editTask,
-            start_time: updatedTimes.start_time,
-            end_time: updatedTimes.end_time
-        })
-        onUpdate(editTask)
+        if(
+            !updatedTimes.start_time ||
+            !updatedTimes.end_time
+        ){
+            setErrors("Please fill both start and end time")
+            return
+        }
+
+        const updatedTask = {
+          ...editTask,
+          start_time: updatedTimes.start_time,
+          end_time: updatedTimes.end_time,
+        };
+        onUpdate(updatedTask);
         setEditTask(null)
+        setUpdatedTimes({
+            start_time: "",
+            end_time: "",
+        });
+        setIsEditDialogOpen(false);
     }
   }
 
@@ -216,10 +234,7 @@ export default function TaskList({ tasks, onAdd, onUpdate }: Props) {
                     {task.status !== "Completed" && (
                       <Button
                         className="bg-green-600 hover:bg-green-700 text-white cursor-pointer flex justify-around"
-                        onClick={() => {
-                            setEditTask(task)
-                            setIsEditDialogOpen(true);
-                        }}
+                        onClick={() => handleOpenEditDialog(task)}
                       >
                         <Edit className="w-4 h-4 mr-2" />
                         Edit Schedule

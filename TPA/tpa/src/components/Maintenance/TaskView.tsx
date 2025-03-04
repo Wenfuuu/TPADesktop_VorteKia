@@ -43,10 +43,11 @@ export default function TaskView(){
     }
 
     const updateTask = (updatedTask: Task) => {
+        console.log(updatedTask)
         invoke("update_task_schedule", {
             id: updatedTask.task_id,
-            newStartTime: updatedTask.start_time,
-            newEndTime: updatedTask.end_time
+            newStartTime: updatedTask.start_time+":00",
+            newEndTime: updatedTask.end_time+":00"
         }).then((success) =>{
             if(success){
                 toast("Task has been rescheduled!")
@@ -54,7 +55,7 @@ export default function TaskView(){
             }
         }).catch((e) =>{
             console.log(e);
-            toast("Failed to reschedule task!");
+            toast(e);
         })
     }
 
