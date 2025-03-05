@@ -15,6 +15,7 @@ use crate::handler::report_handler::*;
 use crate::handler::task_handler::*;
 use crate::handler::maintenance_log_handler::*;
 use crate::handler::ride_queue_handler::*;
+use crate::handler::chat_handler::*;
 
 extern crate diesel;
 
@@ -48,22 +49,6 @@ fn test_backend(){
 #[warn(dead_code)]
 fn seeding(){
     println!("seeding data");
-    // register_staff("titi", "ti24-2", "f&b supervisor");
-    // register_staff("betty", "bt24-2", "chef");
-    // register_staff("kepin", "kh24-2", "waiter");
-    // register_staff("aldric", "ac24-2", "lost and found staff");
-    // register_staff("liman", "ws24-2", "retail manager");
-    // register_staff("ryu", "ru24-2", "sales associate");
-    // register_staff("aceh", "ww24-2", "ride manager");
-    // register_staff("octa", "ov24-2", "ride staff");
-    // register_staff("om", "gn24-2", "maintenance manager");
-    // register_staff("tommy", "mm24-2", "maintenance staff");
-    // register_staff("ireng", "vd24-2", "maintenance staff");
-    // create_customer("paula");
-    // create_customer("yudhis");
-    // create_customer("budi");
-    // create_customer("pliz");
-    // create_lost_item("tribbie", "anak kecil", "red", "hsr", "paula", "Missing");
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -78,6 +63,7 @@ pub fn run() {
 
     tauri::Builder::default()
         .manage(current_user)
+        .manage(init_firebase_client()) // Initialize Firebase client
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             get_device_id,
@@ -140,6 +126,8 @@ pub fn run() {
             add_queue,
             update_queue,
             remove_queue,
+            send_chat_message,
+            get_chat_messages,
             test_backend
         ])
         .run(tauri::generate_context!())

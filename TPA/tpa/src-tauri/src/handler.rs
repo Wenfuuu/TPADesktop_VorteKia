@@ -11,3 +11,4 @@ pub mod report_handler;
 pub mod task_handler;
 pub mod maintenance_log_handler;
 pub mod ride_queue_handler;
+pub mod chat_handler;
