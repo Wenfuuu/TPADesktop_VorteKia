@@ -25,6 +25,12 @@ pub fn request_maintenance(
         status: "Pending".to_string()
     };
 
+    //set ride to maintenance status
+    match set_ride_maintenance(rideid) {
+        Ok(_) => (),
+        Err(e) => return Err(format!("Error setting ride maintenance: {}", e)),
+    }
+
     diesel::insert_into(reports)
         .values(&new_report)
         .execute(conn)

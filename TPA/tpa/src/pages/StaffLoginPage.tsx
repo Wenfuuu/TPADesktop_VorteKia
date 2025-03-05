@@ -34,6 +34,8 @@ export default function StaffLoginPage() {
       navigate("/lostandfound/report");
     } else if (staffData.role === "ride manager") {
       navigate("/ride/view");
+    } else if (staffData.role === "ride staff") {
+      navigate("/ride/staff_view");
     } else if (staffData.role === "maintenance manager") {
       navigate("/maintenance/reports");
     } else if (staffData.role === "maintenance staff") {

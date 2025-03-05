@@ -3,7 +3,7 @@ use crate::schema::rides;
 use diesel::prelude::*;
 use chrono::NaiveTime;
 
-#[derive(Debug, Queryable, Insertable, AsChangeset, Clone)]
+#[derive(Debug, Queryable, Insertable, AsChangeset, Clone, Selectable)]
 #[diesel(table_name = rides)]
 pub struct Ride{
     pub ride_id: String,

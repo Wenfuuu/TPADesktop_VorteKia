@@ -6,6 +6,7 @@ diesel::table! {
         customer_id -> Varchar,
         #[max_length = 255]
         name -> Varchar,
+        balance -> Int4,
     }
 }
 
@@ -115,6 +116,18 @@ diesel::table! {
         #[max_length = 255]
         status -> Varchar,
         image -> Nullable<Bytea>,
+    }
+}
+
+diesel::table! {
+    ride_queues (queue_id) {
+        #[max_length = 255]
+        queue_id -> Varchar,
+        #[max_length = 255]
+        ride_id -> Varchar,
+        #[max_length = 255]
+        customer_id -> Varchar,
+        position -> Int4,
     }
 }
 
@@ -244,6 +257,8 @@ diesel::joinable!(new_ride_proposals -> staffs (staff_id));
 diesel::joinable!(reports -> rides (ride_id));
 diesel::joinable!(restaurant_staffs -> restaurants (restaurant_id));
 diesel::joinable!(restaurant_staffs -> staffs (staff_id));
+diesel::joinable!(ride_queues -> customers (customer_id));
+diesel::joinable!(ride_queues -> rides (ride_id));
 diesel::joinable!(ride_removal_proposals -> rides (ride_id));
 diesel::joinable!(ride_removal_proposals -> staffs (staff_id));
 diesel::joinable!(ride_staffs -> rides (ride_id));
@@ -265,6 +280,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     reports,
     restaurant_staffs,
     restaurants,
+    ride_queues,
     ride_removal_proposals,
     ride_staffs,
     rides,

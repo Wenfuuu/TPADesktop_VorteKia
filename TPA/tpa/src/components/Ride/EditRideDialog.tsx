@@ -44,10 +44,23 @@ export default function EditRideDialog({
   });
   const [allStaff, setAllStaff] = useState<Staff[]>([]);
   const [errors, setErrors] = useState("");
+  const [staff, setStaff] = useState<Staff | null>(null);
+
+  useEffect(() => {
+    get_staff();
+  }, []);
+
+  const get_staff = async () => {
+    const response = await invoke("get_current_staff");
+    if (response !== null) {
+      setStaff(response as Staff);
+    }
+  };
 
   async function fetchStaff() {
     try {
       const fetchedStaff: Staff[] = await invoke("get_all_ride_staffs");
+      console.log(fetchedStaff)
       setAllStaff(fetchedStaff);
     } catch (error) {
       console.error("Failed to fetch staff:", error);
@@ -313,7 +326,10 @@ export default function EditRideDialog({
         </div>
 
         <DialogFooter>
-          <Button onClick={handleUpdate} className="w-full">
+          <Button 
+          onClick={handleUpdate} 
+          className="w-full"
+          disabled={staff?.role === "ride staff"}>
             Save Changes
           </Button>
         </DialogFooter>

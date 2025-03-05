@@ -6,7 +6,8 @@ use diesel::prelude::*;
 #[diesel(table_name = customers)]
 pub struct Customer{
     pub customer_id: String,
-    pub name: String
+    pub name: String,
+    pub balance: i32
 }
 
 // impl From<Customer> for User{

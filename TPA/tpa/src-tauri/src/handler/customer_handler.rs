@@ -21,7 +21,8 @@ pub fn create_customer(new_name: &str) -> bool{
 
     let new_customer = Customer{
         customer_id: format!("CUST-{}", &Uuid::new_v4().to_string()[..8]),
-        name: new_name.to_string()
+        name: new_name.to_string(),
+        balance: 100000
     };
 
     diesel::insert_into(customers)

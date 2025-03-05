@@ -1,6 +1,15 @@
 import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { Edit, Trash2, Wrench } from "lucide-react";
+import { invoke } from "@tauri-apps/api/core";
+import { RideQueueDialog } from "./RideQueueDialog";
+
+type RideQueue = {
+  queue_id: string;
+  ride_id: string;
+  customer_id: string;
+  position: number;
+};
 
 type Props = {
   rides: Ride[];
@@ -9,8 +18,64 @@ type Props = {
   onMaintenance: (ride: Ride) => void;
 };
 
-export default function RideList({ rides, onEdit, onRemove, onMaintenance }: Props) {
+export default function RideList({
+  rides,
+  onEdit,
+  onRemove,
+  onMaintenance,
+}: Props) {
   const [imageUrls, setImageUrls] = useState<{ [key: string]: string }>({});
+  const [staff, setStaff] = useState<Staff | null>(null);
+  const [queue, setQueue] = useState<RideQueue[]>([]);
+
+  const [assignedRide, setAssignedRide] = useState<Ride | null>(null);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+
+  useEffect(() => {
+    get_staff();
+    fetchCustomers();
+  }, []);
+
+  useEffect(() => {
+    fetchAssignedRide();
+  }, [staff]);
+
+  useEffect(() => {
+    fetchQueue();
+  }, [assignedRide]);
+
+  const fetchAssignedRide = async () => {
+    const ride: Ride = await invoke("get_assigned_ride", {
+      staffid: staff?.staff_id,
+    });
+    if (ride !== null) {
+      console.log(ride);
+      setAssignedRide(ride);
+    }
+  };
+
+  const get_staff = async () => {
+    const response = await invoke("get_current_staff");
+    if (response !== null) {
+      setStaff(response as Staff);
+    }
+  };
+
+  const fetchQueue = async () => {
+    if (assignedRide?.ride_id) {
+      const queueData: RideQueue[] = await invoke("get_ride_queue", {
+        rideid: assignedRide?.ride_id,
+      });
+      console.log(queueData);
+      setQueue(queueData);
+    }
+  };
+
+  const fetchCustomers = async () => {
+    const customerData: Customer[] = await invoke("get_all_customers");
+    console.log(customerData);
+    setCustomers(customerData);
+  };
 
   useEffect(() => {
     // Process ride images
@@ -105,22 +170,36 @@ export default function RideList({ rides, onEdit, onRemove, onMaintenance }: Pro
                       View Details
                     </Button>
 
-                    <Button
-                      disabled={ride.status === "Maintenance"}
-                      onClick={() => onMaintenance(ride)}
-                      className="bg-yellow-500 hover:bg-yellow-600 text-white cursor-pointer flex justify-around"
-                    >
-                      <Wrench className="w-4 h-4 mr-2" />
-                      Request Maintenance
-                    </Button>
+                    {staff?.role === "ride manager" ? (
+                      <div className="flex flex-col gap-2">
+                        <Button
+                          disabled={ride.status === "Maintenance"}
+                          onClick={() => onMaintenance(ride)}
+                          className="bg-yellow-500 hover:bg-yellow-600 text-white cursor-pointer flex justify-around"
+                        >
+                          <Wrench className="w-4 h-4 mr-2" />
+                          Request Maintenance
+                        </Button>
 
-                    <Button
-                      onClick={() => onRemove(ride)}
-                      className="bg-red-600 hover:bg-red-700 text-white cursor-pointer flex justify-around"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Propose Removal
-                    </Button>
+                        <Button
+                          onClick={() => onRemove(ride)}
+                          className="bg-red-600 hover:bg-red-700 text-white cursor-pointer flex justify-around"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Propose Removal
+                        </Button>
+                      </div>
+                    ) : (
+                      // Only show Edit Queue for the assigned ride
+                      assignedRide?.ride_id === ride.ride_id && (
+                        <RideQueueDialog
+                          ride={ride}
+                          customers={customers}
+                          queue={queue}
+                          onQueueRefresh={fetchQueue}
+                        />
+                      )
+                    )}
                   </div>
                 </div>
               </li>

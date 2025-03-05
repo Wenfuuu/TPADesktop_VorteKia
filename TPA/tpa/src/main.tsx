@@ -63,6 +63,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         <Route path="/ride" element={<StaffRideUI />}>
           <Route path="view" element={<RideView />} />
           <Route path="propose" element={<ProposeRideDialog />} />
+          <Route path="staff_view" element={<RideView />} />
           {/* <Route path="chat" element={} /> */}
         </Route>
 

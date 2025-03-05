@@ -6,7 +6,6 @@ use diesel::dsl::*;
 use crate::models::staff::Staff;
 use crate::models::user::CurrentUser;
 use argon2::{password_hash::{rand_core::OsRng, PasswordHasher, PasswordVerifier, SaltString}, Argon2, PasswordHash};
-// use serde::Serialize;
 use tauri::State;
 use uuid::Uuid;
 
@@ -71,7 +70,7 @@ pub fn get_allocated_staff_in_restaurant(restaurantid: &str) -> Result<Vec<Resta
 
 #[tauri::command]
 pub fn get_allocated_staff_in_ride(rideid: &str) -> Result<Vec<RideStaff>, String>{
-    println!("getting allocated staffs in ride {}", rideid);
+    println!("plz getting allocated staffs in ride {}", rideid);
     use crate::schema::ride_staffs::dsl::*;
     let conn = &mut establish_connection();
 
@@ -118,6 +117,9 @@ pub fn get_all_ride_staffs() -> Result<Vec<Staff>, String> {
     println!("getting all ride staffs");
     use crate::schema::staffs::dsl::*;
     let conn = &mut establish_connection();
+
+    
+
     staffs
         .filter(role.eq("ride staff"))
         .load::<Staff>(conn)
@@ -128,8 +130,8 @@ pub fn get_all_ride_staffs() -> Result<Vec<Staff>, String> {
 pub fn get_all_maintenance_staffs() -> Result<Vec<Staff>, String> {
     println!("getting all maintenance staffs");
     use crate::schema::staffs::dsl::*;
-    use crate::schema::tasks::dsl as tasks_dsl;;
-    use crate::schema::reports::dsl as reports_dsl;;
+    use crate::schema::tasks::dsl as tasks_dsl;
+    use crate::schema::reports::dsl as reports_dsl;
     let conn = &mut establish_connection();
 
     let in_progress_or_submitted_tasks = tasks_dsl::tasks

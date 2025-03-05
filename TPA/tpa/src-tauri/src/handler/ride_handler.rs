@@ -29,6 +29,23 @@ pub fn allocate_ride_staff(ride_id: &str, staff_ids: Vec<&str>) -> Result<bool, 
     Ok(true)
 }
 
+#[tauri::command]
+pub fn get_assigned_ride(staffid: &str) -> Result<RideDTO, String> {
+    println!("getting assigned ride");
+    use crate::schema::rides;
+    use crate::schema::ride_staffs;
+    let conn = &mut establish_connection();
+
+    let ride = rides::table
+        .inner_join(ride_staffs::table.on(rides::ride_id.eq(ride_staffs::ride_id)))
+        .filter(ride_staffs::staff_id.eq(staffid))
+        .select(Ride::as_select())
+        .first::<Ride>(conn)
+        .map_err(|e| e.to_string())?;
+
+    Ok(RideDTO::from(ride))
+}
+
 pub fn set_ride_maintenance(rideid: &str) -> Result<bool, String>{
     use crate::schema::rides::dsl::*;
     let conn = &mut establish_connection();

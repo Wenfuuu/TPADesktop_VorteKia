@@ -14,6 +14,7 @@ use crate::handler::ride_handler::*;
 use crate::handler::report_handler::*;
 use crate::handler::task_handler::*;
 use crate::handler::maintenance_log_handler::*;
+use crate::handler::ride_queue_handler::*;
 
 extern crate diesel;
 
@@ -59,6 +60,9 @@ fn seeding(){
     // register_staff("tommy", "mm24-2", "maintenance staff");
     // register_staff("ireng", "vd24-2", "maintenance staff");
     // create_customer("paula");
+    // create_customer("yudhis");
+    // create_customer("budi");
+    // create_customer("pliz");
     // create_lost_item("tribbie", "anak kecil", "red", "hsr", "paula", "Missing");
 }
 
@@ -131,6 +135,11 @@ pub fn run() {
             approve_report_log,
             revise_task_log,
             revise_report_log,
+            get_assigned_ride,
+            get_ride_queue,
+            add_queue,
+            update_queue,
+            remove_queue,
             test_backend
         ])
         .run(tauri::generate_context!())
