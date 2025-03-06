@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import EditRideDialog from "./EditRideDialog";
 import RemoveRideDialog from "./RemoveRideDialog";
 import MaintenanceDialog from "./MaintenanceDialog";
+import { useTime } from "../context/TimeContext";
 
 export default function RideView() {
     const [rides, setRides] = useState<Ride[]>([]);
@@ -12,11 +13,52 @@ export default function RideView() {
     const [removingRide, setRemovingRide] = useState<Ride | null>(null);
     const [maintenanceRide, setMaintenanceRide] = useState<Ride | null>(null);
     const [staff, setStaff] = useState<Staff | null>(null);
+    const {currentTime} = useTime();
 
     useEffect(() =>{
         fetchRides();
         get_staff();
     }, [])
+
+    useEffect(() => {
+        rides.forEach(async (ride) => {
+            // Parse opening and closing times (assumed format "HH:MM:SS")
+            const [openHour, openMin, openSec] = ride.opening_hours
+                .split(":")
+                .map(Number);
+            const [closeHour, closeMin, closeSec] = ride.closing_hours
+                .split(":")
+                .map(Number);
+
+            const today = new Date(currentTime);
+            const openTime = new Date(today);
+            openTime.setHours(openHour, openMin, openSec, 0);
+
+            const closeTime = new Date(today);
+            closeTime.setHours(closeHour, closeMin, closeSec, 0);
+
+            // Determine desired state
+            const shouldBeOpen = currentTime >= openTime && currentTime < closeTime;
+            const desiredStatus = shouldBeOpen ? "Open" : "Closed";
+
+            // Only invoke backend if status is different and not maintenance.
+            if (ride.status !== desiredStatus && ride.status !== "Maintenance") {
+                try {
+                    const success = await invoke("update_ride_status", {
+                        rideid: ride.ride_id,
+                        newstatus: desiredStatus,
+                    });
+                    if (success) {
+                        fetchRides();
+                        if(desiredStatus === "Open") toast(`Ride ${ride.name} is now Open`);
+                        else toast(`Ride ${ride.name} is now Closed`);
+                    }
+                } catch (error) {
+                    console.error("Failed to update ride status:", error);
+                }
+            }
+        });
+    }, [currentTime, rides, setRides]);
 
     const get_staff = async () => {
       const response = await invoke("get_current_staff");

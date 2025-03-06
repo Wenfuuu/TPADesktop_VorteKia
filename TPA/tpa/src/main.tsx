@@ -22,6 +22,7 @@ import TaskView from "./components/Maintenance/TaskView";
 import LogView from "./components/Maintenance/LogView";
 import Chatbox from "./components/Chatbox";
 import StaffLoginPage from "./pages/StaffLoginPage";
+import { TimeProvider } from "./components/context/TimeContext";
 
 const lostAndFoundGroups = ["All Staff", "Lost and Found Staff"];
 const rideManagerGroups = ["All Staff", "Operational Division", "requestmaintenance"];
@@ -34,60 +35,77 @@ const executiveGroups = ["All Staff", "Executive Division"]
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <Toaster />
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
+    <TimeProvider>
+      <Toaster />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<App />} />
 
-        <Route
-          path="/lostandfound"
-          element={
-            <LostAndFoundProvider>
-              <LostAndFoundUI />
-            </LostAndFoundProvider>
-          }
-        >
-          <Route path="report" element={<LostAndFoundForm />} />
-          <Route path="view" element={<LostAndFoundView />} />
-          <Route path="chat" element={<ChatBox groupNames={lostAndFoundGroups}/>} />
-        </Route>
+          <Route
+            path="/lostandfound"
+            element={
+              <LostAndFoundProvider>
+                <LostAndFoundUI />
+              </LostAndFoundProvider>
+            }
+          >
+            <Route path="report" element={<LostAndFoundForm />} />
+            <Route path="view" element={<LostAndFoundView />} />
+            <Route
+              path="chat"
+              element={<ChatBox groupNames={lostAndFoundGroups} />}
+            />
+          </Route>
 
-        <Route
-          path="/restaurant"
-          element={
-            <RestaurantProvider>
-              <StaffRestaurantUI />
-            </RestaurantProvider>
-          }
-        >
-          <Route path="view" element={<RestaurantView />} />
-          {/* <Route path="propose" element={} /> */}
-          <Route path="chat" element={<Chatbox groupNames={consumptionGroups}/>} />
-        </Route>
+          <Route
+            path="/restaurant"
+            element={
+              <RestaurantProvider>
+                <StaffRestaurantUI />
+              </RestaurantProvider>
+            }
+          >
+            <Route path="view" element={<RestaurantView />} />
+            {/* <Route path="propose" element={} /> */}
+            <Route
+              path="chat"
+              element={<Chatbox groupNames={consumptionGroups} />}
+            />
+          </Route>
 
-        <Route path="/store" element={<StaffStoreUI />}>
-          <Route path="view" element={<StoreView />} />
-          {/* <Route path="propose" element={} /> */}
-          <Route path="chat" element={<ChatBox groupNames={marketingGroups}/>} />
-        </Route>
+          <Route path="/store" element={<StaffStoreUI />}>
+            <Route path="view" element={<StoreView />} />
+            {/* <Route path="propose" element={} /> */}
+            <Route
+              path="chat"
+              element={<ChatBox groupNames={marketingGroups} />}
+            />
+          </Route>
 
-        <Route path="/ride" element={<StaffRideUI />}>
-          <Route path="view" element={<RideView />} />
-          <Route path="propose" element={<ProposeRideDialog />} />
-          <Route path="staff_view" element={<RideView />} />
-          <Route path="chat" element={<ChatBox groupNames={rideManagerGroups}/>} />
-          <Route path="staff_chat" element={<ChatBox groupNames={rideStaffGroups}/>} />
-        </Route>
+          <Route path="/ride" element={<StaffRideUI />}>
+            <Route path="view" element={<RideView />} />
+            <Route path="propose" element={<ProposeRideDialog />} />
+            <Route path="staff_view" element={<RideView />} />
+            <Route
+              path="chat"
+              element={<ChatBox groupNames={rideManagerGroups} />}
+            />
+            <Route
+              path="staff_chat"
+              element={<ChatBox groupNames={rideStaffGroups} />}
+            />
+          </Route>
 
-        <Route path="/maintenance" element={<MaintenanceUI />}>
-          <Route path="reports" element={<ReportView />} />
-          <Route path="tasks" element={<TaskView />} />
-          <Route path="logs" element={<LogView />} />
-          <Route path="staff_reports" element={<ReportView />} />
-          <Route path="staff_tasks" element={<TaskView />} />
-          {/* <Route path="chat" element={} /> */}
-        </Route>
-      </Routes>
-    </BrowserRouter>
+          <Route path="/maintenance" element={<MaintenanceUI />}>
+            <Route path="reports" element={<ReportView />} />
+            <Route path="tasks" element={<TaskView />} />
+            <Route path="logs" element={<LogView />} />
+            <Route path="staff_reports" element={<ReportView />} />
+            <Route path="staff_tasks" element={<TaskView />} />
+            {/* <Route path="chat" element={} /> */}
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </TimeProvider>
   </React.StrictMode>
 );

@@ -4,17 +4,59 @@ import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
 import EditStoreDialog from "./EditStoreDialog";
 import RemoveStoreDialog from "./RemoveStoreDialog";
+import { useTime } from "../context/TimeContext";
 
 export default function StoreView() {
     const [stores, setStores] = useState<Store[]>([]);
     const [editingStore, setEditingStore] = useState<Store | null>(null);
     const [removingStore, setRemovingStore] = useState<Store | null>(null);
     const [staff, setStaff] = useState<Staff | null>(null);
+    const {currentTime} = useTime();
 
     useEffect(() =>{
         fetchStores();
         get_staff();
     }, [])
+
+    useEffect(() => {
+        stores.forEach(async (store) => {
+            // Parse opening and closing times (assumed format "HH:MM:SS")
+            const [openHour, openMin, openSec] = store.opening_hours
+                .split(":")
+                .map(Number);
+            const [closeHour, closeMin, closeSec] = store.closing_hours
+                .split(":")
+                .map(Number);
+
+            const today = new Date(currentTime);
+            const openTime = new Date(today);
+            openTime.setHours(openHour, openMin, openSec, 0);
+
+            const closeTime = new Date(today);
+            closeTime.setHours(closeHour, closeMin, closeSec, 0);
+
+            // Determine desired state
+            const shouldBeOpen = currentTime >= openTime && currentTime < closeTime;
+            const desiredStatus = shouldBeOpen ? "Open" : "Closed";
+
+            // Only invoke backend if status is different.
+            if (store.status !== desiredStatus) {
+                try {
+                    const success = await invoke("update_store_status", {
+                        storeid: store.store_id,
+                        newstatus: desiredStatus,
+                    });
+                    if (success) {
+                        fetchStores();
+                        if(desiredStatus === "Open") toast(`Store ${store.name} is now Open`);
+                        else toast(`Store ${store.name} is now Closed`);
+                    }
+                } catch (error) {
+                    console.error("Failed to update store status:", error);
+                }
+            }
+        });
+    }, [currentTime, stores, setStores]);
 
     const get_staff = async () => {
       const response = await invoke("get_current_staff");

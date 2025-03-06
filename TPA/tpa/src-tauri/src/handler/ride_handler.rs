@@ -46,13 +46,14 @@ pub fn get_assigned_ride(staffid: &str) -> Result<RideDTO, String> {
     Ok(RideDTO::from(ride))
 }
 
-pub fn set_ride_maintenance(rideid: &str) -> Result<bool, String>{
+#[tauri::command]
+pub fn update_ride_status(rideid: &str, newstatus: &str) -> Result<bool, String> {
     use crate::schema::rides::dsl::*;
     let conn = &mut establish_connection();
 
     let update_query = diesel::update(rides)
         .filter(ride_id.eq(rideid))
-        .set(status.eq("Maintenance".to_string()));
+        .set(status.eq(newstatus.to_string()));
 
     match update_query.execute(conn) {
         Ok(_) => Ok(true),

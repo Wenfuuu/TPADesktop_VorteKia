@@ -4,12 +4,14 @@ import RestaurantList from "./RestaurantList";
 import UpdateRestaurantModal from "./UpdateRestaurantModal";
 import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
+import { useTime } from "../context/TimeContext";
 
 export default function RestaurantView() {
   const { restaurants, setRestaurants } = useRestaurant();
   const [editingRestaurant, setEditingRestaurant] = useState<Restaurant | null>(
     null
   );
+  const {currentTime} = useTime();
 
   useEffect(() => {
     fetchRestaurants();
@@ -19,6 +21,47 @@ export default function RestaurantView() {
     const restaurantData: Restaurant[] = await invoke("get_all_restaurants");
     setRestaurants(restaurantData);
   }
+
+  useEffect(() => {
+    restaurants.forEach(async (restaurant) => {
+      // Parse opening and closing times (assumed format "HH:MM:SS")
+      const [openHour, openMin, openSec] = restaurant.opening_hours
+        .split(":")
+        .map(Number);
+      const [closeHour, closeMin, closeSec] = restaurant.closing_hours
+        .split(":")
+        .map(Number);
+
+      const today = new Date(currentTime);
+      const openTime = new Date(today);
+      openTime.setHours(openHour, openMin, openSec, 0);
+
+      const closeTime = new Date(today);
+      closeTime.setHours(closeHour, closeMin, closeSec, 0);
+
+      // Determine desired state
+      const shouldBeOpen = currentTime >= openTime && currentTime < closeTime;
+      const desiredStatus = shouldBeOpen ? "Open" : "Closed";
+
+      // Only invoke backend if status is different.
+      if (restaurant.status !== desiredStatus) {
+        try {
+          const success = await invoke("update_restaurant_status", {
+            restaurantid: restaurant.restaurant_id,
+            newstatus: desiredStatus,
+          });
+          if (success) {
+            // Optionally update local restaurant status:
+            fetchRestaurants();
+            if(desiredStatus === "Open") toast(`Restaurant ${restaurant.name} is now Open`);
+            else toast("Restaurant ${restaurant.name} is now Closed");
+          }
+        } catch (error) {
+          console.error("Failed to update restaurant status:", error);
+        }
+      }
+    });
+  }, [currentTime, restaurants, setRestaurants]);
 
   // Handle menu addition
   const handleAddMenu = async (

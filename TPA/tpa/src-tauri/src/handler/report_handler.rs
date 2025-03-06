@@ -1,7 +1,7 @@
 use uuid::Uuid;
 
 use crate::handler::maintenance_log_handler::add_report_log;
-use crate::handler::ride_handler::set_ride_maintenance;
+use crate::handler::ride_handler::update_ride_status;
 use crate::models::report::Report;
 use crate::db::establish_connection;
 use crate::diesel::prelude::*;
@@ -26,7 +26,7 @@ pub fn request_maintenance(
     };
 
     //set ride to maintenance status
-    match set_ride_maintenance(rideid) {
+    match update_ride_status(rideid, "Maintenance") {
         Ok(_) => (),
         Err(e) => return Err(format!("Error setting ride maintenance: {}", e)),
     }
@@ -39,7 +39,7 @@ pub fn request_maintenance(
 }
 
 #[tauri::command]
-pub fn accept_report(reportid: &str, rideid: &str, staffid: &str) -> Result<bool, String>{
+pub fn accept_report(reportid: &str, staffid: &str) -> Result<bool, String>{
     println!("accepting report {}", reportid);
     use crate::schema::reports::dsl::*;
     let conn = &mut establish_connection();
@@ -52,10 +52,10 @@ pub fn accept_report(reportid: &str, rideid: &str, staffid: &str) -> Result<bool
         ));
 
     //set ride to maintenance status
-    match set_ride_maintenance(rideid) {
-        Ok(_) => (),
-        Err(e) => return Err(format!("Error setting ride maintenance: {}", e)),
-    }
+    // match update_ride_status(rideid, "Maintenance") {
+    //     Ok(_) => (),
+    //     Err(e) => return Err(format!("Error setting ride maintenance: {}", e)),
+    // }
 
     match update_query.execute(conn) {
         Ok(_) => Ok(true), // Successfully updated
@@ -124,6 +124,17 @@ pub fn reject_report(reportid: &str) -> Result<bool, String>{
     let update_query = diesel::update(reports)
         .filter(report_id.eq(reportid))
         .set(status.eq("Rejected".to_string()));
+
+    let report = reports
+        .filter(report_id.eq(reportid))
+        .first::<Report>(conn)
+        .map_err(|e| e.to_string())?;
+
+    //set ride to open status
+    match update_ride_status(&report.ride_id, "Open") {
+        Ok(_) => (),
+        Err(e) => return Err(format!("Error setting ride open: {}", e)),
+    }
 
     match update_query.execute(conn) {
         Ok(_) => Ok(true), // Successfully updated

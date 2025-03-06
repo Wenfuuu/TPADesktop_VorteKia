@@ -5,6 +5,25 @@ use crate::schema::restaurant_staffs;
 use chrono::NaiveTime;
 
 #[tauri::command]
+pub fn update_restaurant_status(
+    restaurantid: &str,
+    newstatus: &str,
+) -> Result<bool, String> {
+    println!("test updating restaurant status {restaurantid}");
+    use crate::schema::restaurants::dsl::*;
+    let conn = &mut establish_connection();
+
+    let update_query = diesel::update(restaurants)
+        .filter(restaurant_id.eq(restaurantid))
+        .set(status.eq(newstatus.to_string()));
+
+    match update_query.execute(conn) {
+        Ok(_) => Ok(true), // Successfully updated
+        Err(e) => Err(format!("Error updating item: {}", e)),
+    }
+}
+
+#[tauri::command]
 pub fn allocate_restaurant_staff(restaurant_id: &str, staff_ids: Vec<&str>) -> Result<bool, String> {
     println!("Allocating staff to restaurant {restaurant_id}");
     let conn = &mut establish_connection();

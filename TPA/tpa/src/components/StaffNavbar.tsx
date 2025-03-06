@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
+import { useTime } from "./context/TimeContext";
 
 type NavItem = {
   name: string;
@@ -12,6 +13,7 @@ type StaffNavbarProps = {
 
 export default function StaffNavbar({navItems}: StaffNavbarProps) {
   const [staff, setStaff] = useState<Staff | null>(null);
+  const { currentTime } = useTime();
 
   async function get_staff() {
     // setUser(await invoke("get_current_user"))
@@ -42,15 +44,16 @@ export default function StaffNavbar({navItems}: StaffNavbarProps) {
 
         <div className="flex space-x-4 items-center">
           <h2 className="text-white font-bold text-xl">
+            {currentTime.toLocaleTimeString("en-US", { hour12: false })}
+          </h2>
+          <h2 className="text-white font-bold text-xl">
             Welcome, {staff?.name}
           </h2>
           <button
             className="text-white bg-gray-600 px-4 py-2 
                     rounded-lg hover:bg-gray-500 transition duration-200 ease-in-out
                     cursor-pointer"
-            onClick={() => {
-              
-            }}
+            onClick={() => {}}
           >
             Logout
           </button>

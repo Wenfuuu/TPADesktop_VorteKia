@@ -30,6 +30,22 @@ pub fn allocate_store_staff(store_id: &str, staff_ids: Vec<&str>) -> Result<bool
 }
 
 #[tauri::command]
+pub fn update_store_status(storeid: &str, newstatus: &str) -> Result<bool, String> {
+    println!("Updating store status {storeid}");
+    use crate::schema::stores::dsl::*;
+    let conn = &mut establish_connection();
+
+    let update_query = diesel::update(stores)
+        .filter(store_id.eq(storeid))
+        .set(status.eq(newstatus.to_string()));
+
+    match update_query.execute(conn) {
+        Ok(_) => Ok(true),
+        Err(e) => Err(format!("Error updating item: {}", e)),
+    }
+}
+
+#[tauri::command]
 pub fn update_store(
     id: &str,
     new_name: &str,
