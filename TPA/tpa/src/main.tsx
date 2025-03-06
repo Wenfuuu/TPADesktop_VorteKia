@@ -21,7 +21,6 @@ import ReportView from "./components/Maintenance/ReportView";
 import TaskView from "./components/Maintenance/TaskView";
 import LogView from "./components/Maintenance/LogView";
 import Chatbox from "./components/Chatbox";
-import StaffLoginPage from "./pages/StaffLoginPage";
 import { TimeProvider } from "./components/context/TimeContext";
 
 const lostAndFoundGroups = ["All Staff", "Lost and Found Staff"];
@@ -102,7 +101,8 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
             <Route path="logs" element={<LogView />} />
             <Route path="staff_reports" element={<ReportView />} />
             <Route path="staff_tasks" element={<TaskView />} />
-            {/* <Route path="chat" element={} /> */}
+            <Route path="chat" element={<ChatBox groupNames={maintenanceManagerGroups}/>} />
+            <Route path="staff_chat" element={<ChatBox groupNames={maintenanceStaffGroups}/>} />
           </Route>
         </Routes>
       </BrowserRouter>

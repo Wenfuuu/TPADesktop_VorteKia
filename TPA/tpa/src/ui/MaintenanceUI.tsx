@@ -29,7 +29,7 @@ export default function MaintenanceUI() {
     const staffNavItems = [
       { name: "View Reports", onClick: () => navigate("/maintenance/staff_reports") },
       { name: "View Tasks", onClick: () => navigate("/maintenance/staff_tasks") },
-      { name: "Chat", onClick: () => navigate("/maintenance/chat") },
+      { name: "Chat", onClick: () => navigate("/maintenance/staff_chat") },
     ];
 
     return (

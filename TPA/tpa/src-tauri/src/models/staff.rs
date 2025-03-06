@@ -10,12 +10,3 @@ pub struct Staff{
     pub password: String,
     pub role: String,
 }
-
-// impl From<Staff> for User{
-//     fn from(staff: Staff) -> Self{
-//         User {
-//             id: staff.staff_id,
-//             name: staff.name
-//         }
-//     }
-// }

@@ -117,8 +117,6 @@ pub fn get_all_ride_staffs() -> Result<Vec<Staff>, String> {
     println!("getting all ride staffs");
     use crate::schema::staffs::dsl::*;
     let conn = &mut establish_connection();
-
-
     staffs
         .filter(role.eq("ride staff"))
         .load::<Staff>(conn)
