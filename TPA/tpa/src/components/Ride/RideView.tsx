@@ -12,29 +12,16 @@ export default function RideView() {
     const [removingRide, setRemovingRide] = useState<Ride | null>(null);
     const [maintenanceRide, setMaintenanceRide] = useState<Ride | null>(null);
     const [staff, setStaff] = useState<Staff | null>(null);
-    const [assignedRide, setAssignedRide] = useState<Ride | null>(null)
 
     useEffect(() =>{
         fetchRides();
         get_staff();
     }, [])
 
-    useEffect(() => {
-      fetchAssignedRide()
-    }, [staff])
-
     const get_staff = async () => {
       const response = await invoke("get_current_staff");
       if (response !== null) {
         setStaff(response as Staff);
-      }
-    }
-
-    const fetchAssignedRide = async () => {
-      const ride: Ride = await invoke("get_assigned_ride", {staffid: staff?.staff_id})
-      if(ride !== null){
-        console.log(ride)
-        setAssignedRide(ride)
       }
     }
 

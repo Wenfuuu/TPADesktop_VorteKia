@@ -130,7 +130,8 @@ export default function EditStoreDialog({
       !updatedStore.name ||
       !updatedStore.opening_hours ||
       !updatedStore.closing_hours ||
-      !updatedStore.status
+      !updatedStore.status ||
+      !updatedStore.image
     ) {
       setErrors("There are empty form fields.");
       return;

@@ -26,11 +26,11 @@ export default function AddMenuDialog({
   const [menuName, setMenuName] = useState("");
   const [menuPrice, setMenuPrice] = useState("");
   const [menuImage, setMenuImage] = useState<Uint8Array | null>(null);
-  const [errors, setErrors] = useState<{ name?: string; price?: string }>();
+  const [errors, setErrors] = useState<{ name?: string; price?: string, image?: string }>();
 
   const handleSubmit = () => {
     // Validate form
-    const newErrors: { name?: string; price?: string } = {};
+    const newErrors: { name?: string; price?: string, image?: string } = {};
 
     if (!menuName.trim()) {
       newErrors.name = "Menu name is required";
@@ -40,6 +40,10 @@ export default function AddMenuDialog({
       newErrors.price = "Price is required";
     } else if (isNaN(Number(menuPrice)) || Number(menuPrice) <= 0) {
       newErrors.price = "Price must be a positive number";
+    }
+
+    if(!menuImage){
+      newErrors.image = "Image is required"
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -128,6 +132,9 @@ export default function AddMenuDialog({
                 onImageUpload={(image) => setMenuImage(image)}
               />
             </div>
+            {errors?.image && (
+              <p className="text-red-500 text-xs mt-1 text-center">{errors.image}</p>
+            )}
           </div>
         </div>
 

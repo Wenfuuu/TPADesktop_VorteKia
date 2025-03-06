@@ -32,6 +32,7 @@ export default function AddSouvenirDialog({
     name?: string;
     price?: string;
     description?: string;
+    image?: string;
   }>();
 
   const handleSubmit = () => {
@@ -40,6 +41,7 @@ export default function AddSouvenirDialog({
       name?: string;
       price?: string;
       description?: string;
+      image?: string;
     } = {};
 
     if (!souvenirName.trim()) {
@@ -54,6 +56,10 @@ export default function AddSouvenirDialog({
       newErrors.price = "Price is required";
     } else if (isNaN(Number(souvenirPrice)) || Number(souvenirPrice) <= 0) {
       newErrors.price = "Price must be a positive number";
+    }
+
+    if(!souvenirImage){
+      newErrors.image = "Image can't be empty"
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -159,6 +165,9 @@ export default function AddSouvenirDialog({
                 onImageUpload={(image) => setSouvenirImage(image)}
               />
             </div>
+            {errors?.image && (
+              <p className="text-red-500 text-xs mt-1 text-center">{errors.image}</p>
+            )}
           </div>
         </div>
 

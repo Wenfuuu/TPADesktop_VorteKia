@@ -145,7 +145,8 @@ export default function EditRideDialog({
       !updatedRide.closing_hours ||
       !updatedRide.status ||
       updatedRide.price === undefined ||
-      updatedRide.price === null
+      updatedRide.price === null ||
+      !updatedRide.image
     ) {
       setErrors("There are empty form fields.");
       return;

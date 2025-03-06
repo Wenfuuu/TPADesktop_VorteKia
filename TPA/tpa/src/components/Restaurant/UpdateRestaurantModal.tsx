@@ -133,7 +133,8 @@ export default function UpdateRestaurantModal({
       !updatedRestaurant.cuisine_type ||
       !updatedRestaurant.opening_hours ||
       !updatedRestaurant.closing_hours ||
-      !updatedRestaurant.status
+      !updatedRestaurant.status ||
+      !updatedRestaurant.image
     ) {
       setErrors("There are empty form fields.");
       return;

@@ -4,13 +4,6 @@ import { Edit, Trash2, Wrench } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { RideQueueDialog } from "./RideQueueDialog";
 
-type RideQueue = {
-  queue_id: string;
-  ride_id: string;
-  customer_id: string;
-  position: number;
-};
-
 type Props = {
   rides: Ride[];
   onEdit: (ride: Ride) => void;
