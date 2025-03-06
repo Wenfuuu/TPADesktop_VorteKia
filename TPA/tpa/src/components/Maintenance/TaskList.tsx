@@ -119,6 +119,11 @@ export default function TaskList({ tasks, onAdd, onUpdate, onSubmit }: Props) {
             return
         }
 
+        if(updatedTimes.start_time >= updatedTimes.end_time){
+          setErrors("Please set start time to be before the end time!")
+          return
+        }
+
         const updatedTask = {
           ...editTask,
           start_time: updatedTimes.start_time,

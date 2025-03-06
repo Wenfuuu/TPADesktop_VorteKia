@@ -26,7 +26,7 @@ export default function StaffRideUI() {
 
   const staffNavItems = [
     { name: "View Rides", onClick: () => navigate("/ride/staff_view") },
-    { name: "Chat", onClick: () => navigate("/ride/chat") },
+    { name: "Chat", onClick: () => navigate("/ride/staff_chat") },
   ];
 
   return (

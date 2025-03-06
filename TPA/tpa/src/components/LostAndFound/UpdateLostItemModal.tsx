@@ -50,7 +50,8 @@ export default function UpdateItemModal({
         !updatedItem.last_seen_location ||
         !updatedItem.owner ||
         !updatedItem.found_location ||
-        !updatedItem.finder
+        !updatedItem.finder ||
+        !updatedItem.image
       ) {
         setErrors("There are empty form fields.");
         return;
@@ -146,7 +147,7 @@ export default function UpdateItemModal({
                   Select Owner
                 </option>
                 {customers.map((c) => (
-                  <option key={c.id} value={c.id}>
+                  <option key={c.customer_id} value={c.customer_id}>
                     {c.name}
                   </option>
                 ))}
@@ -194,7 +195,7 @@ export default function UpdateItemModal({
               >
                 <option value="">Not found yet!</option>
                 {customers.map((c) => (
-                  <option key={c.id} value={c.id}>
+                  <option key={c.customer_id} value={c.customer_id}>
                     {c.name}
                   </option>
                 ))}

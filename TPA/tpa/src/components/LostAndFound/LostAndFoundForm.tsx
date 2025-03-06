@@ -14,7 +14,7 @@ const LostAndFoundForm = () => {
     status: "Missing",
   });
   const [errors, setErrors] = useState<string>("");
-  const [newCustomerName, setNewCustomerName] = useState<string>("");
+  // const [newCustomerName, setNewCustomerName] = useState<string>("");
 
   const { items, setItems, customers } = useLostAndFound();
 
@@ -57,17 +57,17 @@ const LostAndFoundForm = () => {
     });
   };
 
-  function createCustomer() {
-    toast("creating customer");
-    if (newCustomerName.trim() === "") return;
-    invoke("create_customer", {
-      newName: newCustomerName,
-    }).then((success) => {
-      if (success) {
-        setNewCustomerName("");
-      }
-    });
-  }
+  // function createCustomer() {
+  //   toast("creating customer");
+  //   if (newCustomerName.trim() === "") return;
+  //   invoke("create_customer", {
+  //     newName: newCustomerName,
+  //   }).then((success) => {
+  //     if (success) {
+  //       setNewCustomerName("");
+  //     }
+  //   });
+  // }
 
   return (
     <div className="bg-white shadow-md rounded-lg p-5 mb-6">
@@ -128,7 +128,7 @@ const LostAndFoundForm = () => {
         </button>
       </div>
 
-      <div className="flex flex-col gap-2">
+      {/* <div className="flex flex-col gap-2">
         <h2>test create customer</h2>
         <input
           type="text"
@@ -143,7 +143,7 @@ const LostAndFoundForm = () => {
         >
           create customer
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -20,6 +20,17 @@ import MaintenanceUI from "./ui/MaintenanceUI";
 import ReportView from "./components/Maintenance/ReportView";
 import TaskView from "./components/Maintenance/TaskView";
 import LogView from "./components/Maintenance/LogView";
+import Chatbox from "./components/Chatbox";
+import StaffLoginPage from "./pages/StaffLoginPage";
+
+const lostAndFoundGroups = ["All Staff", "Lost and Found Staff"];
+const rideManagerGroups = ["All Staff", "Operational Division", "requestmaintenance"];
+const rideStaffGroups = ["All Staff", "Operational Division"];
+const consumptionGroups = ["All Staff", "Consumption Division"];
+const maintenanceManagerGroups = ["All Staff", "Care and Maintenance Division", "respondrequest"]
+const maintenanceStaffGroups = ["All Staff", "Care and Maintenance Division"]
+const marketingGroups = ["All Staff", "Marketing Division"]
+const executiveGroups = ["All Staff", "Executive Division"]
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
@@ -38,7 +49,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         >
           <Route path="report" element={<LostAndFoundForm />} />
           <Route path="view" element={<LostAndFoundView />} />
-          <Route path="chat" element={<ChatBox />} />
+          <Route path="chat" element={<ChatBox groupNames={lostAndFoundGroups}/>} />
         </Route>
 
         <Route
@@ -50,21 +61,22 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           }
         >
           <Route path="view" element={<RestaurantView />} />
-          {/* <Route path="propose" element={} />
-          <Route path="chat" element={} /> */}
+          {/* <Route path="propose" element={} /> */}
+          <Route path="chat" element={<Chatbox groupNames={consumptionGroups}/>} />
         </Route>
 
         <Route path="/store" element={<StaffStoreUI />}>
           <Route path="view" element={<StoreView />} />
-          {/* <Route path="propose" element={} />
-          <Route path="chat" element={} /> */}
+          {/* <Route path="propose" element={} /> */}
+          <Route path="chat" element={<ChatBox groupNames={marketingGroups}/>} />
         </Route>
 
         <Route path="/ride" element={<StaffRideUI />}>
           <Route path="view" element={<RideView />} />
           <Route path="propose" element={<ProposeRideDialog />} />
           <Route path="staff_view" element={<RideView />} />
-          {/* <Route path="chat" element={} /> */}
+          <Route path="chat" element={<ChatBox groupNames={rideManagerGroups}/>} />
+          <Route path="staff_chat" element={<ChatBox groupNames={rideStaffGroups}/>} />
         </Route>
 
         <Route path="/maintenance" element={<MaintenanceUI />}>
