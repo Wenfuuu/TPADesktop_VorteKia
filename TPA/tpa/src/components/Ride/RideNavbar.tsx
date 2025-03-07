@@ -58,7 +58,7 @@ export default function RideNavbar({ navItems }: RideNavbarProps) {
           {customer ? (
             <>
               <h2 className="text-white font-bold text-xl">
-                Balance: ${customer.balance.toFixed(2)}
+                Balance: Rp{customer.balance.toFixed(2)}
               </h2>
               <h2 className="text-white font-bold text-xl">
                 Welcome, {customer.name}

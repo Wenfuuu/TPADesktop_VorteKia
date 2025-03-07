@@ -146,6 +146,7 @@ pub fn run() {
             get_assigned_ride,
             get_ride_queue,
             add_queue,
+            add_queue_from_customer,
             update_queue,
             remove_queue,
             send_chat_message,

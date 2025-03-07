@@ -1,9 +1,66 @@
 use uuid::Uuid;
 
+use crate::handler::transaction_handler::create_ride_transaction;
 use crate::models::ride_queue::RideQueue;
 use crate::db::establish_connection;
 use crate::diesel::prelude::*;
+use crate::schema::{customers, rides};
 use diesel::dsl::*;
+
+#[tauri::command]
+pub fn add_queue_from_customer(rideid: String, customerid: String) -> Result<bool, String> {
+    use crate::schema::ride_queues::dsl::*;
+    let conn = &mut establish_connection();
+
+    let next_position = ride_queues
+        .filter(ride_id.eq(&rideid))
+        .select(max(position))
+        .first::<Option<i32>>(conn)
+        .unwrap_or(Some(0))
+        .unwrap_or(0) + 1;
+
+    let new_queue = RideQueue {
+        queue_id: format!("QUEUE-{}", &Uuid::new_v4().to_string()[..8]),
+        ride_id: rideid.to_string(),
+        customer_id: customerid.to_string(),
+        position: next_position
+    };
+
+    //get ride price
+    let price = rides::table
+        .filter(rides::ride_id.eq(&rideid))
+        .select(rides::price)
+        .first::<i32>(conn)
+        .map_err(|err| format!("Database error: {}", err))?;
+
+    //get customer balance
+    let balance = customers::table
+        .filter(customers::customer_id.eq(&customerid))
+        .select(customers::balance)
+        .first::<i32>(conn)
+        .map_err(|err| format!("Database error: {}", err))?;
+
+    //check if customer has enough balance
+    if balance < price {
+        return Err("Not enough balance".to_string());
+    }
+
+    // deduct the price from customer balance
+    diesel::update(customers::table)
+        .filter(customers::customer_id.eq(&customerid))
+        .set(customers::balance.eq(customers::balance - price))
+        .execute(conn)
+        .map_err(|err| format!("Database error: {}", err))?;
+
+    // create transaction
+    create_ride_transaction(&customerid, &rideid, price)?;
+
+    diesel::insert_into(ride_queues)
+        .values(&new_queue)
+        .execute(conn)
+        .map(|_| true)
+        .map_err(|err| format!("Database error: {}", err))
+}
 
 #[tauri::command]
 pub fn add_queue(rideid: String, customerid: String) -> Result<bool, String> {

@@ -14,7 +14,8 @@ pub fn create_ride_transaction(
     let conn = &mut establish_connection();
 
     let new_transaction = RideTransaction {
-        transaction_id: Uuid::new_v4().to_string(),
+        // transaction_id: Uuid::new_v4().to_string(),
+        transaction_id: format!("TRANS-{}", &Uuid::new_v4().to_string()[..8]),
         customer_id: customerid.to_string(),
         ride_id: rideid.to_string(),
         amount: priceamount,

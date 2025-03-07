@@ -132,7 +132,7 @@ export default function RideList({
       }
 
       // Add customer to queue
-      await invoke("add_queue", {
+      await invoke("add_queue_from_customer", {
         rideid: ride.ride_id,
         customerid: customer.customer_id,
       });
