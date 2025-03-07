@@ -1,6 +1,8 @@
 use uuid::Uuid;
 
+use crate::models::new_restaurant_proposal::NewRestaurantProposal;
 use crate::models::new_ride_proposal::NewRideProposal;
+use crate::models::new_store_proposal::NewStoreProposal;
 use crate::models::ride_removal_proposal::RideRemovalProposal;
 use crate::db::establish_connection;
 use crate::diesel::prelude::*;
@@ -134,6 +136,60 @@ pub fn propose_ride_removal(
     };
 
     diesel::insert_into(ride_removal_proposals)
+        .values(&new_proposal)
+        .execute(conn)
+        .map(|_| true)
+        .map_err(|err| format!("Database error: {}", err))
+}
+
+#[tauri::command]
+pub fn propose_new_restaurant(
+    staffid: &str,
+    restaurantname: &str,
+    desc: &str,
+    newimagedata: Vec<u8>,
+)-> Result<bool, String> {
+    println!("test proposing new store with desc {}", desc);
+    use crate::schema::new_restaurant_proposals::dsl::*;
+    let conn = &mut establish_connection();
+
+    let new_proposal = NewRestaurantProposal {
+        proposal_id: format!("RSTNEW-{}", &Uuid::new_v4().to_string()[..8]),
+        staff_id: staffid.to_string(),
+        restaurant_name: restaurantname.to_string(),
+        description: desc.to_string(),
+        status: "Pending".to_string(),
+        image: newimagedata
+    };
+
+    diesel::insert_into(new_restaurant_proposals)
+        .values(&new_proposal)
+        .execute(conn)
+        .map(|_| true)
+        .map_err(|err| format!("Database error: {}", err))
+}
+
+#[tauri::command]
+pub fn propose_new_store(
+    staffid: &str,
+    storename: &str,
+    desc: &str,
+    newimagedata: Vec<u8>,
+)-> Result<bool, String> {
+    println!("test proposing new store with desc {}", desc);
+    use crate::schema::new_store_proposals::dsl::*;
+    let conn = &mut establish_connection();
+
+    let new_proposal = NewStoreProposal {
+        proposal_id: format!("STRNEW-{}", &Uuid::new_v4().to_string()[..8]),
+        staff_id: staffid.to_string(),
+        store_name: storename.to_string(),
+        description: desc.to_string(),
+        status: "Pending".to_string(),
+        image: newimagedata
+    };
+
+    diesel::insert_into(new_store_proposals)
         .values(&new_proposal)
         .execute(conn)
         .map(|_| true)

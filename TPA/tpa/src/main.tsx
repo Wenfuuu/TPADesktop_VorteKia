@@ -28,6 +28,8 @@ import CreateStaffForm from "./components/CreateStaffForm";
 import CustomerLoginPage from "./pages/CustomerLoginPage";
 import RideUI from "./ui/RideUI";
 import RideHistory from "./components/Ride/RideHistory";
+import ProposeRestaurantDialog from "./components/Restaurant/ProposeRestaurantDialog";
+import ProposeStoreDialog from "./components/Store/ProposeStoreDialog";
 
 const lostAndFoundGroups = ["All Staff", "Lost and Found Staff"];
 const rideManagerGroups = ["All Staff", "Operational Division", "requestmaintenance"];
@@ -73,7 +75,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
             }
           >
             <Route path="view" element={<RestaurantView />} />
-            {/* <Route path="propose" element={} /> */}
+            <Route path="propose" element={<ProposeRestaurantDialog />} />
             <Route
               path="chat"
               element={<Chatbox groupNames={consumptionGroups} />}
@@ -82,7 +84,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 
           <Route path="/store" element={<StaffStoreUI />}>
             <Route path="view" element={<StoreView />} />
-            {/* <Route path="propose" element={} /> */}
+            <Route path="propose" element={<ProposeStoreDialog />} />
             <Route
               path="chat"
               element={<ChatBox groupNames={marketingGroups} />}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
-import { Edit, Trash2, Wrench, Users, PlusCircle } from "lucide-react";
+import { Edit, Trash2, Wrench, Users, PlusCircle, DollarSign } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { RideQueueDialog } from "./RideQueueDialog";
 import {
@@ -18,6 +18,7 @@ type Props = {
   onEdit: (ride: Ride) => void;
   onRemove: (ride: Ride) => void;
   onMaintenance: (ride: Ride) => void;
+  onIncome: (ride: Ride) => void;
 };
 
 export default function RideList({
@@ -25,6 +26,7 @@ export default function RideList({
   onEdit,
   onRemove,
   onMaintenance,
+  onIncome
 }: Props) {
   const [imageUrls, setImageUrls] = useState<{ [key: string]: string }>({});
   const [staff, setStaff] = useState<Staff | null>(null);
@@ -347,6 +349,14 @@ export default function RideList({
                         >
                           <Trash2 className="w-4 h-4 mr-2" />
                           Propose Removal
+                        </Button>
+
+                        <Button
+                          onClick={() => onIncome(ride)}
+                          className="bg-green-600 hover:bg-green-700 text-white cursor-pointer flex justify-around"
+                        >
+                          <DollarSign className="w-4 h-4 mr-2" />
+                          View Income
                         </Button>
                       </div>
                     )}

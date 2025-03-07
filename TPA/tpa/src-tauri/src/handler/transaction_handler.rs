@@ -29,6 +29,17 @@ pub fn create_ride_transaction(
 }
 
 #[tauri::command]
+pub fn get_transaction_by_ride(rideid: &str) -> Result<Vec<RideTransaction>, String> {
+    use crate::schema::ride_transactions::dsl::*;
+    let conn = &mut establish_connection();
+
+    ride_transactions
+        .filter(ride_id.eq(rideid))
+        .load::<RideTransaction>(conn)
+        .map_err(|err| format!("Database error: {}", err))
+}
+
+#[tauri::command]
 pub fn get_all_customer_ride_transactions(customerid: &str) -> Result<Vec<RideTransaction>, String> {
     use crate::schema::ride_transactions::dsl::*;
     let conn = &mut establish_connection();

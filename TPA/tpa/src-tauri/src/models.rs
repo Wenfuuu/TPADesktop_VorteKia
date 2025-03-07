@@ -18,3 +18,5 @@ pub mod task;
 pub mod maintenance_log;
 pub mod ride_queue;
 pub mod ride_transaction;
+pub mod new_restaurant_proposal;
+pub mod new_store_proposal;

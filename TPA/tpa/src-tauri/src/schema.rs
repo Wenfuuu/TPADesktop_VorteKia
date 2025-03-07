@@ -63,6 +63,22 @@ diesel::table! {
 }
 
 diesel::table! {
+    new_restaurant_proposals (proposal_id) {
+        #[max_length = 255]
+        proposal_id -> Varchar,
+        #[max_length = 255]
+        staff_id -> Varchar,
+        #[max_length = 255]
+        restaurant_name -> Varchar,
+        #[max_length = 255]
+        description -> Varchar,
+        #[max_length = 255]
+        status -> Varchar,
+        image -> Bytea,
+    }
+}
+
+diesel::table! {
     new_ride_proposals (proposal_id) {
         #[max_length = 255]
         proposal_id -> Varchar,
@@ -70,6 +86,22 @@ diesel::table! {
         staff_id -> Varchar,
         #[max_length = 255]
         ride_name -> Varchar,
+        #[max_length = 255]
+        description -> Varchar,
+        #[max_length = 255]
+        status -> Varchar,
+        image -> Bytea,
+    }
+}
+
+diesel::table! {
+    new_store_proposals (proposal_id) {
+        #[max_length = 255]
+        proposal_id -> Varchar,
+        #[max_length = 255]
+        staff_id -> Varchar,
+        #[max_length = 255]
+        store_name -> Varchar,
         #[max_length = 255]
         description -> Varchar,
         #[max_length = 255]
@@ -268,7 +300,9 @@ diesel::joinable!(maintenance_logs -> reports (report_id));
 diesel::joinable!(maintenance_logs -> staffs (staff_id));
 diesel::joinable!(maintenance_logs -> tasks (task_id));
 diesel::joinable!(menus -> restaurants (restaurant_id));
+diesel::joinable!(new_restaurant_proposals -> staffs (staff_id));
 diesel::joinable!(new_ride_proposals -> staffs (staff_id));
+diesel::joinable!(new_store_proposals -> staffs (staff_id));
 diesel::joinable!(reports -> rides (ride_id));
 diesel::joinable!(restaurant_staffs -> restaurants (restaurant_id));
 diesel::joinable!(restaurant_staffs -> staffs (staff_id));
@@ -293,7 +327,9 @@ diesel::allow_tables_to_appear_in_same_query!(
     lostandfounditems,
     maintenance_logs,
     menus,
+    new_restaurant_proposals,
     new_ride_proposals,
+    new_store_proposals,
     reports,
     restaurant_staffs,
     restaurants,

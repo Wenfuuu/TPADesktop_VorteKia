@@ -162,6 +162,10 @@ pub fn run() {
             get_all_ride_transactions,
             get_all_customer_ride_transactions,
             create_ride_transaction,
+            get_transaction_by_ride,
+            get_ride_details,
+            propose_new_restaurant,
+            propose_new_store,
             test_backend
         ])
         .run(tauri::generate_context!())

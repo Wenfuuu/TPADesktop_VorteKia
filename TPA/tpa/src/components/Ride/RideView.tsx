@@ -6,6 +6,7 @@ import EditRideDialog from "./EditRideDialog";
 import RemoveRideDialog from "./RemoveRideDialog";
 import MaintenanceDialog from "./MaintenanceDialog";
 import { useTime } from "../context/TimeContext";
+import RideIncome from "./RideIncome";
 
 export default function RideView() {
     const [rides, setRides] = useState<Ride[]>([]);
@@ -14,6 +15,7 @@ export default function RideView() {
     const [maintenanceRide, setMaintenanceRide] = useState<Ride | null>(null);
     const [staff, setStaff] = useState<Staff | null>(null);
     const {currentTime} = useTime();
+    const [incomeRide, setIncomeRide] = useState<Ride | null>(null);
 
     useEffect(() =>{
         fetchRides();
@@ -158,6 +160,7 @@ export default function RideView() {
           onEdit={setEditingRide}
           onRemove={setRemovingRide}
           onMaintenance={setMaintenanceRide}
+          onIncome={setIncomeRide}
         />
 
         {editingRide && (
@@ -185,6 +188,11 @@ export default function RideView() {
                 onClose={() => setRemovingRide(null)}
                 open={true}
             />
+        )}
+
+        {incomeRide && (
+            // console.log(incomeRide),
+          <RideIncome rideId={incomeRide.ride_id}/>  
         )}
 
       </div>

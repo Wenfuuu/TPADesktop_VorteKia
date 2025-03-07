@@ -99,6 +99,21 @@ pub fn update_ride(
 }
 
 #[tauri::command]
+pub fn get_ride_details(rideid: &str) -> Result<RideDTO, String> {
+    println!("Fetching all rides");
+    use crate::schema::rides::dsl::*;
+    let conn = &mut establish_connection();
+
+    match rides.filter(ride_id.eq(rideid)).first::<Ride>(conn) {
+        Ok(ride) => Ok(ride.into()),
+        Err(e) => {
+            eprintln!("Error fetching ride: {}", e);
+            Err(e.to_string())
+        }
+    }
+}
+
+#[tauri::command]
 pub fn get_all_rides() -> Result<Vec<RideDTO>, String> {
     println!("Fetching all rides");
     use crate::schema::rides::dsl::*;
