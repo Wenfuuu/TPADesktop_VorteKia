@@ -27,6 +27,7 @@ import RideProposalView from "./components/Ride/RideProposalView";
 import CreateStaffForm from "./components/CreateStaffForm";
 import CustomerLoginPage from "./pages/CustomerLoginPage";
 import RideUI from "./ui/RideUI";
+import RideHistory from "./components/Ride/RideHistory";
 
 const lostAndFoundGroups = ["All Staff", "Lost and Found Staff"];
 const rideManagerGroups = ["All Staff", "Operational Division", "requestmaintenance"];
@@ -104,7 +105,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 
           <Route path="/customer_ride" element={<RideUI />}>
             <Route path="rides" element={<RideView />} />
-            {/* <Route path="history" element={} /> */}
+            <Route path="history" element={<RideHistory />} />
             {/* <Route path="chat" element={} /> */}
           </Route>
 
