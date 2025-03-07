@@ -41,6 +41,7 @@ export default function StoreView() {
 
             // Only invoke backend if status is different.
             if (store.status !== desiredStatus) {
+              if(desiredStatus === "Open" && store.assigned_staff?.length === 0) return
                 try {
                     const success = await invoke("update_store_status", {
                         storeid: store.store_id,

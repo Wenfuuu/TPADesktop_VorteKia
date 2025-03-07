@@ -4,7 +4,7 @@ CREATE TABLE new_ride_proposals(
     staff_id VARCHAR(255) NOT NULL,
     ride_name VARCHAR(255) NOT NULL,
     description VARCHAR(255) NOT NULL,
-    image BYTEA,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(255) NOT NULL,
+    image BYTEA NOT NULL,
     FOREIGN KEY (staff_id) REFERENCES staffs(staff_id) ON DELETE CASCADE
 )

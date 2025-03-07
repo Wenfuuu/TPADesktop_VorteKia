@@ -43,6 +43,7 @@ export default function RideView() {
 
             // Only invoke backend if status is different and not maintenance.
             if (ride.status !== desiredStatus && ride.status !== "Maintenance") {
+                if(desiredStatus === "Open" && ride.assigned_staff?.length === 0) return
                 try {
                     const success = await invoke("update_ride_status", {
                         rideid: ride.ride_id,

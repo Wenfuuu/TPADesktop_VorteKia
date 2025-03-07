@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 import { useTime } from "./context/TimeContext";
+import { useNavigate } from "react-router";
 
 type NavItem = {
   name: string;
@@ -12,6 +13,7 @@ type StaffNavbarProps = {
 }
 
 export default function StaffNavbar({navItems}: StaffNavbarProps) {
+  const navigate = useNavigate();
   const [staff, setStaff] = useState<Staff | null>(null);
   const { currentTime } = useTime();
 
@@ -53,7 +55,9 @@ export default function StaffNavbar({navItems}: StaffNavbarProps) {
             className="text-white bg-gray-600 px-4 py-2 
                     rounded-lg hover:bg-gray-500 transition duration-200 ease-in-out
                     cursor-pointer"
-            onClick={() => {}}
+            onClick={() => {
+              navigate("/")
+            }}
           >
             Logout
           </button>

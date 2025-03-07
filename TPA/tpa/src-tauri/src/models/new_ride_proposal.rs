@@ -9,5 +9,6 @@ pub struct NewRideProposal{
     pub staff_id: String,
     pub ride_name: String,
     pub description: String,
-    pub image: Option<Vec<u8>>,
+    pub status: String,
+    pub image: Vec<u8>,
 }

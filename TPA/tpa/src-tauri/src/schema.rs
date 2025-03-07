@@ -72,8 +72,9 @@ diesel::table! {
         ride_name -> Varchar,
         #[max_length = 255]
         description -> Varchar,
-        image -> Nullable<Bytea>,
-        created_at -> Nullable<Timestamp>,
+        #[max_length = 255]
+        status -> Varchar,
+        image -> Bytea,
     }
 }
 
@@ -141,7 +142,8 @@ diesel::table! {
         staff_id -> Varchar,
         #[max_length = 255]
         reason -> Varchar,
-        created_at -> Nullable<Timestamp>,
+        #[max_length = 255]
+        status -> Varchar,
     }
 }
 
@@ -207,7 +209,8 @@ diesel::table! {
         staff_id -> Varchar,
         #[max_length = 255]
         reason -> Varchar,
-        created_at -> Nullable<Timestamp>,
+        #[max_length = 255]
+        status -> Varchar,
     }
 }
 

@@ -38,6 +38,7 @@ export default function RideList({
   }, [assignedRide]);
 
   const fetchAssignedRide = async () => {
+    if(staff?.role !== "ride staff") return;
     const ride: Ride = await invoke("get_assigned_ride", {
       staffid: staff?.staff_id,
     });

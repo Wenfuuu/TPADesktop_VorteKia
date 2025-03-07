@@ -22,6 +22,9 @@ import TaskView from "./components/Maintenance/TaskView";
 import LogView from "./components/Maintenance/LogView";
 import Chatbox from "./components/Chatbox";
 import { TimeProvider } from "./components/context/TimeContext";
+import ExecutiveUI from "./ui/ExecutiveUI";
+import RideProposalView from "./components/Ride/RideProposalView";
+import CreateStaffForm from "./components/CreateStaffForm";
 
 const lostAndFoundGroups = ["All Staff", "Lost and Found Staff"];
 const rideManagerGroups = ["All Staff", "Operational Division", "requestmaintenance"];
@@ -101,8 +104,26 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
             <Route path="logs" element={<LogView />} />
             <Route path="staff_reports" element={<ReportView />} />
             <Route path="staff_tasks" element={<TaskView />} />
-            <Route path="chat" element={<ChatBox groupNames={maintenanceManagerGroups}/>} />
-            <Route path="staff_chat" element={<ChatBox groupNames={maintenanceStaffGroups}/>} />
+            <Route
+              path="chat"
+              element={<ChatBox groupNames={maintenanceManagerGroups} />}
+            />
+            <Route
+              path="staff_chat"
+              element={<ChatBox groupNames={maintenanceStaffGroups} />}
+            />
+          </Route>
+
+          <Route path="/coo" element={<ExecutiveUI />}>
+            <Route path="ride_view" element={<RideView />} />
+            <Route path="reports" element={<ReportView />} />
+            <Route path="tasks" element={<TaskView />} />
+            <Route path="ride_proposals" element={<RideProposalView />} />
+            <Route path="create_staff" element={<CreateStaffForm/>} />
+            <Route
+              path="chat"
+              element={<ChatBox groupNames={executiveGroups} />}
+            />
           </Route>
         </Routes>
       </BrowserRouter>

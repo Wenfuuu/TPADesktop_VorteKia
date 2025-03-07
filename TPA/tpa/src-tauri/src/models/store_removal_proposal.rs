@@ -9,4 +9,5 @@ pub struct StoreRemovalProposal{
     pub store_id: String,
     pub staff_id: String,
     pub reason: String,
+    pub status: String
 }

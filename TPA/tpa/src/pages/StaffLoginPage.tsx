@@ -40,6 +40,8 @@ export default function StaffLoginPage() {
       navigate("/maintenance/reports");
     } else if (staffData.role === "maintenance staff") {
       navigate("/maintenance/staff_reports");
+    } else if (staffData.role === "coo") {
+      navigate("/coo/ride_view");
     } else {
       // console.warn("Unknown staff role:", staffData.role);
       toast("Unknown staff role.");

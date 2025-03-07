@@ -45,6 +45,7 @@ export default function RestaurantView() {
 
       // Only invoke backend if status is different.
       if (restaurant.status !== desiredStatus) {
+        if (desiredStatus === "Open" && restaurant.assigned_staff?.length === 0) return;
         try {
           const success = await invoke("update_restaurant_status", {
             restaurantid: restaurant.restaurant_id,

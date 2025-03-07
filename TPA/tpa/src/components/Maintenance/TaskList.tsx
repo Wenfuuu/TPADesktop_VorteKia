@@ -267,7 +267,8 @@ export default function TaskList({ tasks, onAdd, onUpdate, onSubmit }: Props) {
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    {currentStaff?.role === "maintenance manager" ? (
+                    {currentStaff?.role === "maintenance manager"
+                    || currentStaff?.role === "coo" ? (
                       <Button
                         className="bg-green-600 hover:bg-green-700 text-white cursor-pointer flex justify-around"
                         onClick={() => handleOpenEditDialog(task)}

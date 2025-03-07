@@ -16,6 +16,7 @@ export default function MaintenanceUI() {
       const response = await invoke("get_current_staff");
       if (response !== null) {
         setStaff(response as Staff);
+        console.log(staff)
       }
     };
 

@@ -9,4 +9,5 @@ pub struct RideRemovalProposal{
     pub ride_id: String,
     pub staff_id: String,
     pub reason: String,
+    pub status: String
 }
