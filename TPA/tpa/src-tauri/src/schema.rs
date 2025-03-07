@@ -157,6 +157,18 @@ diesel::table! {
 }
 
 diesel::table! {
+    ride_transactions (transaction_id) {
+        #[max_length = 255]
+        transaction_id -> Varchar,
+        #[max_length = 255]
+        customer_id -> Varchar,
+        #[max_length = 255]
+        ride_id -> Varchar,
+        amount -> Int4,
+    }
+}
+
+diesel::table! {
     rides (ride_id) {
         #[max_length = 255]
         ride_id -> Varchar,
@@ -266,6 +278,8 @@ diesel::joinable!(ride_removal_proposals -> rides (ride_id));
 diesel::joinable!(ride_removal_proposals -> staffs (staff_id));
 diesel::joinable!(ride_staffs -> rides (ride_id));
 diesel::joinable!(ride_staffs -> staffs (staff_id));
+diesel::joinable!(ride_transactions -> customers (customer_id));
+diesel::joinable!(ride_transactions -> rides (ride_id));
 diesel::joinable!(souvenirs -> stores (store_id));
 diesel::joinable!(store_removal_proposals -> staffs (staff_id));
 diesel::joinable!(store_removal_proposals -> stores (store_id));
@@ -286,6 +300,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     ride_queues,
     ride_removal_proposals,
     ride_staffs,
+    ride_transactions,
     rides,
     souvenirs,
     staffs,

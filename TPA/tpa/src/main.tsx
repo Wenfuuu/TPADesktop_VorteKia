@@ -25,6 +25,8 @@ import { TimeProvider } from "./components/context/TimeContext";
 import ExecutiveUI from "./ui/ExecutiveUI";
 import RideProposalView from "./components/Ride/RideProposalView";
 import CreateStaffForm from "./components/CreateStaffForm";
+import CustomerLoginPage from "./pages/CustomerLoginPage";
+import RideUI from "./ui/RideUI";
 
 const lostAndFoundGroups = ["All Staff", "Lost and Found Staff"];
 const rideManagerGroups = ["All Staff", "Operational Division", "requestmaintenance"];
@@ -42,6 +44,8 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />} />
+
+          <Route path="/customer_login" element={<CustomerLoginPage />} />
 
           <Route
             path="/lostandfound"
@@ -98,6 +102,12 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
             />
           </Route>
 
+          <Route path="/customer_ride" element={<RideUI />}>
+            <Route path="rides" element={<RideView />} />
+            {/* <Route path="history" element={} /> */}
+            {/* <Route path="chat" element={} /> */}
+          </Route>
+
           <Route path="/maintenance" element={<MaintenanceUI />}>
             <Route path="reports" element={<ReportView />} />
             <Route path="tasks" element={<TaskView />} />
@@ -119,7 +129,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
             <Route path="reports" element={<ReportView />} />
             <Route path="tasks" element={<TaskView />} />
             <Route path="ride_proposals" element={<RideProposalView />} />
-            <Route path="create_staff" element={<CreateStaffForm/>} />
+            <Route path="create_staff" element={<CreateStaffForm />} />
             <Route
               path="chat"
               element={<ChatBox groupNames={executiveGroups} />}

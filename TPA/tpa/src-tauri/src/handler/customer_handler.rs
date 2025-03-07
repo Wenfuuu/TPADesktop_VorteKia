@@ -1,7 +1,40 @@
 use crate::models::customer::Customer;
 use crate::db::establish_connection;
 use crate::diesel::prelude::*;
+use crate::models::user::CurrentUser;
+use tauri::State;
 use uuid::Uuid;
+
+#[tauri::command]
+pub fn get_current_customer(current_user: State<CurrentUser>) -> Option<Customer>{
+    return current_user.customer.lock().unwrap().clone()
+}
+
+pub fn get_customer(customerid: &str) -> Result<Customer, diesel::result::Error> {
+    println!("getting customer {}", customerid);
+    use crate::schema::customers::dsl::*;
+    let conn = &mut establish_connection();
+
+    let customer = customers.filter(customer_id.eq(customerid))
+    .first::<Customer>(conn)?;
+
+    Ok(customer)
+}
+
+#[tauri::command]
+pub fn login_customer(customerid: &str, current_user: State<CurrentUser>) -> bool{
+    println!("logging in customer {}", customerid);
+    match get_customer(customerid) {
+        Ok(customer) =>{
+            current_user.customer.lock().unwrap().replace(customer);
+            true
+        },
+        Err(e) =>{
+            println!("Error: {}", e);
+            false
+        }
+    }
+}
 
 #[tauri::command]
 pub fn get_all_customers() -> Result<Vec<Customer>, String> {

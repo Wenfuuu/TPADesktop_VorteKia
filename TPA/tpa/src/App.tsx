@@ -2,44 +2,31 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { invoke } from "@tauri-apps/api/core";
 import StaffLoginPage from "./pages/StaffLoginPage";
+import { useNavigate } from "react-router";
 
 function App() {
-  // async function greet() {
-  //   // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-  //   setGreetMsg(await invoke("greet", { name }));
-  // }
-
-  const [deviceId, setDeviceId] = useState<string | null>(null)
-  const [uiType, setUIType] = useState<string>("")
+  const [deviceId, setDeviceId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     invoke<string>("get_device_id")
-      .then((id) =>{
-        if(id){
-          setDeviceId(id)
+      .then((id) => {
+        if (id) {
+          setDeviceId(id);
         }
       })
-  }, [])
+      .catch((error) => {
+        console.error("Error fetching device ID:", error);
+      });
+  }, []);
 
-  useEffect(() =>{
-    if(deviceId){
-      // if(deviceId === "ST-002") setUIType("Lost and Found UI")
-      // else if(deviceId === "ST-001") setUIType("Restaurant UI")
-      // else if(deviceId === "ST-003") setUIType("Store UI")
-      if(deviceId.startsWith("ST")) setUIType("Staff UI")
+  useEffect(() => {
+    if (deviceId?.startsWith("ID")) {
+      navigate("/customer_ride/rides");
     }
-  }, [deviceId])
+  }, [deviceId, navigate]); // Depend on `deviceId` to trigger navigation when it changes
 
-  return (
-    <div>
-      {/* {uiType === "Lost and Found UI" && <LostAndFoundUI/>} */}
-      
-      {/* {deviceId?.startsWith("ST") && <StaffLoginPage uiType={uiType} />} */}
-      {deviceId?.startsWith("ST") && <StaffLoginPage />}
-
-      {/* <StaffLoginPage uiType={uiType} /> */}
-    </div>
-  );
+  return <div>{deviceId?.startsWith("ST") && <StaffLoginPage />}</div>;
 }
 
 export default App;

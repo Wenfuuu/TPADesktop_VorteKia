@@ -16,6 +16,7 @@ use crate::handler::task_handler::*;
 use crate::handler::maintenance_log_handler::*;
 use crate::handler::ride_queue_handler::*;
 use crate::handler::chat_handler::*;
+use crate::handler::transaction_handler::*;
 
 extern crate diesel;
 
@@ -86,11 +87,13 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             get_device_id,
             get_all_customers,
+            get_current_customer,
             create_customer,
             get_all_lost_items,
             create_lost_item,
             update_lost_item,
             login_staff,
+            login_customer,
             get_current_staff,
             register_staff,
             get_all_staffs,
@@ -155,6 +158,9 @@ pub fn run() {
             reject_new_ride_proposal,
             accept_ride_removal_proposal,
             reject_ride_removal_proposal,
+            get_all_ride_transactions,
+            get_all_customer_ride_transactions,
+            create_ride_transaction,
             test_backend
         ])
         .run(tauri::generate_context!())

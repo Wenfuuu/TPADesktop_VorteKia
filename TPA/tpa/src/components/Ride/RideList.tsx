@@ -1,8 +1,17 @@
 import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
-import { Edit, Trash2, Wrench } from "lucide-react";
+import { Edit, Trash2, Wrench, Users, PlusCircle } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { RideQueueDialog } from "./RideQueueDialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "../ui/dialog";
+import { toast } from "sonner";
 
 type Props = {
   rides: Ride[];
@@ -24,8 +33,16 @@ export default function RideList({
   const [assignedRide, setAssignedRide] = useState<Ride | null>(null);
   const [customers, setCustomers] = useState<Customer[]>([]);
 
+  const [customer, setCustomer] = useState<Customer | null>(null);
+
+  // Dialog state
+  const [queueDialogOpen, setQueueDialogOpen] = useState(false);
+  const [selectedRide, setSelectedRide] = useState<Ride | null>(null);
+  const [isQueuing, setIsQueuing] = useState(false);
+
   useEffect(() => {
     get_staff();
+    get_customer();
     fetchCustomers();
   }, []);
 
@@ -37,8 +54,15 @@ export default function RideList({
     fetchQueue();
   }, [assignedRide]);
 
+  async function get_customer() {
+    const response = await invoke("get_current_customer");
+    if (response !== null) {
+      setCustomer(response as Customer);
+    }
+  }
+
   const fetchAssignedRide = async () => {
-    if(staff?.role !== "ride staff") return;
+    if (staff?.role !== "ride staff") return;
     const ride: Ride = await invoke("get_assigned_ride", {
       staffid: staff?.staff_id,
     });
@@ -56,7 +80,13 @@ export default function RideList({
   };
 
   const fetchQueue = async () => {
-    if (assignedRide?.ride_id) {
+    if (selectedRide?.ride_id) {
+      const queueData: RideQueue[] = await invoke("get_ride_queue", {
+        rideid: selectedRide?.ride_id,
+      });
+      console.log(queueData);
+      setQueue(queueData);
+    } else if (assignedRide?.ride_id) {
       const queueData: RideQueue[] = await invoke("get_ride_queue", {
         rideid: assignedRide?.ride_id,
       });
@@ -69,6 +99,84 @@ export default function RideList({
     const customerData: Customer[] = await invoke("get_all_customers");
     console.log(customerData);
     setCustomers(customerData);
+  };
+
+  // Modified function to handle viewing a ride's queue
+  const handleViewQueue = async (ride: Ride) => {
+    setSelectedRide(ride);
+    const queueData: RideQueue[] = await invoke("get_ride_queue", {
+      rideid: ride.ride_id,
+    });
+    setQueue(queueData);
+    setQueueDialogOpen(true);
+  };
+
+  // Function to handle queueing for a ride
+  const handleQueueForRide = async (ride: Ride) => {
+    if (!customer) {
+      toast("Login required");
+      return;
+    }
+
+    setIsQueuing(true);
+    try {
+      // Check if customer is already in queue
+      const customerInQueue = queue.some(
+        (item) => item.customer_id === customer.customer_id
+      );
+
+      if (customerInQueue) {
+        toast("Already in queue");
+        setIsQueuing(false);
+        return;
+      }
+
+      // Add customer to queue
+      await invoke("add_queue", {
+        rideid: ride.ride_id,
+        customerid: customer.customer_id,
+      });
+
+      // Refresh queue data
+      const updatedQueue: RideQueue[] = await invoke("get_ride_queue", {
+        rideid: ride.ride_id,
+      });
+      setQueue(updatedQueue);
+
+      toast("Added to queue");
+    } catch (error) {
+      toast("Failed to join queue");
+      console.error("Queue error:", error);
+    } finally {
+      setIsQueuing(false);
+    }
+  };
+
+  // Function to get customer name by ID
+  const getCustomerName = (customerId: string): string => {
+    const customer = customers.find((c) => c.customer_id === customerId);
+    return customer
+      ? `${customer.name}`
+      : "Unknown Customer";
+  };
+
+  // Function to check if the current customer is in the queue for a ride
+  const isCustomerInQueue = (rideId: string): boolean => {
+    if (!customer) return false;
+    return queue.some(
+      (item) =>
+        item.ride_id === rideId && item.customer_id === customer.customer_id
+    );
+  };
+
+  // Function to get the customer's position in the queue
+  const getCustomerPosition = (rideId: string): number | null => {
+    if (!customer) return null;
+    const queueItem = queue.find(
+      (item) =>
+        item.ride_id === rideId && item.customer_id === customer.customer_id
+    );
+    return queueItem ? queueItem.position : null;
   };
 
   useEffect(() => {
@@ -100,6 +208,9 @@ export default function RideList({
     };
   }, [rides]); // Only re-run when rides change
 
+  // Check if user is authenticated as staff or customer
+  const isAuthenticated = staff !== null || customer !== null;
+
   return (
     <div className="bg-white shadow-lg rounded-lg p-6 mb-6 max-w-6xl mx-auto">
       {rides.length === 0 ? (
@@ -111,6 +222,7 @@ export default function RideList({
         <ul className="space-y-6">
           {rides.map((ride) => {
             const imageUrl = imageUrls[ride.ride_id];
+            const customerQueuePosition = getCustomerPosition(ride.ride_id);
 
             return (
               <li
@@ -153,18 +265,72 @@ export default function RideList({
                     >
                       {ride.status}
                     </p>
+
+                    {/* Show position information if customer is in queue */}
+                    {customer && customerQueuePosition !== null && (
+                      <p className="mt-2 text-sm text-indigo-600 font-medium">
+                        Your position in queue: {customerQueuePosition}
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <Button
-                      onClick={() => onEdit(ride)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer flex justify-around"
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      View Details
-                    </Button>
+                    {/* GUEST VIEW - Only show View Queue button */}
+                    {!isAuthenticated && (
+                      <Button
+                        onClick={() => handleViewQueue(ride)}
+                        className="bg-purple-600 hover:bg-purple-700 text-white cursor-pointer flex justify-around"
+                        disabled={ride.status !== "Open"}
+                      >
+                        <Users className="w-4 h-4 mr-2" />
+                        View Queue
+                      </Button>
+                    )}
 
-                    {staff?.role === "ride manager" ? (
+                    {/* CUSTOMER VIEW - Show View Queue and Queue for Ride buttons */}
+                    {customer && (
+                      <>
+                        <Button
+                          onClick={() => handleViewQueue(ride)}
+                          className="bg-purple-600 hover:bg-purple-700 text-white cursor-pointer flex justify-around"
+                          disabled={ride.status !== "Open"}
+                        >
+                          <Users className="w-4 h-4 mr-2" />
+                          View Queue
+                        </Button>
+
+                        <Button
+                          onClick={() => handleQueueForRide(ride)}
+                          className="bg-green-600 hover:bg-green-700 text-white cursor-pointer flex justify-around"
+                          disabled={
+                            ride.status !== "Open" ||
+                            isCustomerInQueue(ride.ride_id) ||
+                            isQueuing
+                          }
+                        >
+                          <PlusCircle className="w-4 h-4 mr-2" />
+                          {isCustomerInQueue(ride.ride_id)
+                            ? "In Queue"
+                            : isQueuing
+                            ? "Joining..."
+                            : "Queue for Ride"}
+                        </Button>
+                      </>
+                    )}
+
+                    {/* STAFF VIEW - Show View Details button */}
+                    {staff && (
+                      <Button
+                        onClick={() => onEdit(ride)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer flex justify-around"
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        View Details
+                      </Button>
+                    )}
+
+                    {/* Ride Manager specific buttons */}
+                    {staff?.role === "ride manager" && (
                       <div className="flex flex-col gap-2">
                         <Button
                           disabled={ride.status === "Maintenance"}
@@ -183,8 +349,10 @@ export default function RideList({
                           Propose Removal
                         </Button>
                       </div>
-                    ) : (
-                      // Only show Edit Queue for the assigned ride
+                    )}
+
+                    {/* Ride Staff queue dialog */}
+                    {staff?.role === "ride staff" &&
                       assignedRide?.ride_id === ride.ride_id && (
                         <RideQueueDialog
                           ride={ride}
@@ -192,8 +360,7 @@ export default function RideList({
                           queue={queue}
                           onQueueRefresh={fetchQueue}
                         />
-                      )
-                    )}
+                      )}
                   </div>
                 </div>
               </li>
@@ -201,6 +368,109 @@ export default function RideList({
           })}
         </ul>
       )}
+
+      {/* Queue View Dialog */}
+      <Dialog open={queueDialogOpen} onOpenChange={setQueueDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Queue for {selectedRide?.name || "Ride"}</DialogTitle>
+            <DialogDescription>
+              Current queue positions and waiting customers
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-4">
+            {queue.length === 0 ? (
+              <div className="py-8 text-center bg-gray-50 rounded-md">
+                <p className="text-gray-500">
+                  No customers in queue at the moment.
+                </p>
+                {customer && selectedRide && selectedRide.status === "Open" && (
+                  <div className="mt-4">
+                    <Button
+                      onClick={() => handleQueueForRide(selectedRide)}
+                      disabled={isQueuing}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      {isQueuing ? "Joining..." : "Be the first to queue!"}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="border rounded-md overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Position
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Customer
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {queue
+                      .sort((a, b) => a.position - b.position)
+                      .map((queueItem) => (
+                        <tr
+                          key={queueItem.queue_id}
+                          className={
+                            customer &&
+                            queueItem.customer_id === customer.customer_id
+                              ? "bg-green-50"
+                              : ""
+                          }
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {queueItem.position}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {getCustomerName(queueItem.customer_id)}
+                            {customer &&
+                              queueItem.customer_id ===
+                                customer.customer_id && (
+                                <span className="ml-2 text-xs text-white bg-green-500 px-2 py-1 rounded-full">
+                                  You
+                                </span>
+                              )}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-between mt-4">
+            {customer &&
+              selectedRide &&
+              selectedRide.status === "Open" &&
+              !isCustomerInQueue(selectedRide.ride_id) && (
+                <Button
+                  onClick={() => handleQueueForRide(selectedRide)}
+                  disabled={isQueuing}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <PlusCircle className="w-4 h-4 mr-2" />
+                  {isQueuing ? "Joining..." : "Join Queue"}
+                </Button>
+              )}
+            <div className="flex-1"></div>
+            <DialogClose asChild>
+              <Button>Close</Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

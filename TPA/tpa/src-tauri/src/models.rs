@@ -17,3 +17,4 @@ pub mod new_ride_proposal;
 pub mod task;
 pub mod maintenance_log;
 pub mod ride_queue;
+pub mod ride_transaction;
