@@ -50,7 +50,7 @@ pub fn create_lost_item(
 
 #[tauri::command]
 pub fn update_lost_item(
-    id: &str,
+    itemid: &str,
     new_name: &str,
     new_item_type: &str,
     new_color: &str,
@@ -61,12 +61,12 @@ pub fn update_lost_item(
     new_status: &str,
     newimagedata: Option<Vec<u8>>,
 ) -> Result<bool, String> {
-    println!("updating item id {}", id);
+    println!("updating item id {}", itemid);
     use crate::schema::lostandfounditems::dsl::*;
     let conn = &mut establish_connection();
 
     let update_query = diesel::update(lostandfounditems)
-        .filter(item_id.eq(id))
+        .filter(item_id.eq(itemid))
         .set((
             name.eq(new_name),
             item_type.eq(new_item_type),

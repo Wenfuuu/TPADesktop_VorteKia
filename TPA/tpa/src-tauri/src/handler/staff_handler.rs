@@ -10,7 +10,7 @@ use tauri::State;
 use uuid::Uuid;
 
 #[tauri::command]
-pub fn get_current_staff(current_user: State<CurrentUser>) -> Option<Staff>{
+pub fn get_current_staff(current_user: State<CurrentUser>) -> Option<Staff>{    
     return current_user.staff.lock().unwrap().clone()
 }
 
