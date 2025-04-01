@@ -22,24 +22,26 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 type Props = {
-  restaurant: Restaurant;
+  allRestaurants: Restaurant[];
+  editRestaurant: Restaurant;
   onUpdate: (restaurant: Restaurant) => void;
   onClose: () => void;
   open: boolean;
 };
 
 export default function UpdateRestaurantModal({
-  restaurant,
+  allRestaurants,
+  editRestaurant,
   onUpdate,
   onClose,
   open,
 }: Props) {
-  if (!restaurant) return null;
+  if (!editRestaurant) return null;
 
   const [updatedRestaurant, setUpdatedRestaurant] = useState<Restaurant>({
-    ...restaurant,
-    assigned_staff: Array.isArray(restaurant.assigned_staff)
-      ? [...restaurant.assigned_staff]
+    ...editRestaurant,
+    assigned_staff: Array.isArray(editRestaurant.assigned_staff)
+      ? [...editRestaurant.assigned_staff]
       : [],
   });
   const [allStaff, setAllStaff] = useState<Staff[]>([]);
@@ -58,14 +60,14 @@ export default function UpdateRestaurantModal({
     if (open) {
       fetchStaff();
       setUpdatedRestaurant({
-        ...restaurant,
-        assigned_staff: Array.isArray(restaurant.assigned_staff)
-          ? [...restaurant.assigned_staff]
+        ...editRestaurant,
+        assigned_staff: Array.isArray(editRestaurant.assigned_staff)
+          ? [...editRestaurant.assigned_staff]
           : [],
       });
       setErrors("");
     }
-  }, [restaurant, open]);
+  }, [editRestaurant, open]);
 
   // Toggle staff selection
   function toggleStaffSelection(staff: Staff) {
@@ -116,13 +118,19 @@ export default function UpdateRestaurantModal({
     });
   }
 
-  // Check if a staff member is currently assigned
-  function isStaffAssigned(staffId: string): boolean {
+  // Check if a staff member is currently assigned in the selected restaurant
+  function isStaffAssignedHere(staffId: string): boolean {
     return (
       Array.isArray(updatedRestaurant.assigned_staff) &&
       updatedRestaurant.assigned_staff.some(
         (staff) => staff.staff_id === staffId
       )
+    );
+  }
+
+  function isStaffAssigned(staffId: string): boolean {
+    return allRestaurants.some((restaurant) =>
+      restaurant.assigned_staff?.some((staff) => staff.staff_id === staffId)
     );
   }
 
@@ -271,8 +279,9 @@ export default function UpdateRestaurantModal({
                     >
                       <Checkbox
                         id={staff.staff_id}
-                        checked={isStaffAssigned(staff.staff_id)}
+                        checked={isStaffAssignedHere(staff.staff_id)}
                         onCheckedChange={() => toggleStaffSelection(staff)}
+                        disabled={!isStaffAssignedHere(staff.staff_id) && isStaffAssigned(staff.staff_id)}
                       />
                       <Label
                         htmlFor={staff.staff_id}

@@ -24,6 +24,18 @@ pub fn update_restaurant_status(
 }
 
 #[tauri::command]
+pub fn delete_restaurant(restaurantid: &str) -> Result<bool, String> {
+    println!("test deleting restaurant {restaurantid}");
+    use crate::schema::restaurants::dsl::*;
+    let conn = &mut establish_connection();
+
+    match diesel::delete(restaurants).filter(restaurant_id.eq(restaurantid)).execute(conn) {
+        Ok(_) => Ok(true), // Successfully deleted
+        Err(e) => Err(format!("Error deleting item: {}", e)),
+    }
+}
+
+#[tauri::command]
 pub fn allocate_restaurant_staff(restaurant_id: &str, staff_ids: Vec<&str>) -> Result<bool, String> {
     println!("Allocating staff to restaurant {restaurant_id}");
     let conn = &mut establish_connection();

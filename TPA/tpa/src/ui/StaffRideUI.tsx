@@ -1,22 +1,10 @@
 import StaffNavbar from "@/components/StaffNavbar";
-import { invoke } from "@tauri-apps/api/core";
-import { useEffect, useState } from "react";
+import { useStaff } from "@/hooks/use-staff";
 import { Outlet, useNavigate } from "react-router";
 
 export default function StaffRideUI() {
   const navigate = useNavigate();
-  const [staff, setStaff] = useState<Staff | null>(null);
-
-  useEffect(() => {
-    get_staff();
-  });
-
-  const get_staff = async () => {
-    const response = await invoke("get_current_staff");
-    if (response !== null) {
-      setStaff(response as Staff);
-    }
-  };
+  const staff = useStaff();
 
   const managerNavItems = [
     { name: "View Rides", onClick: () => navigate("/ride/view") },

@@ -91,7 +91,7 @@ export default function EditMenuDialog({
         onClick={() => setOpen(true)}
         variant="outline"
         size="sm"
-        className="ml-2 h-8 w-8 p-0"
+        className="ml-2 h-8 w-8 p-0 cursor-pointer"
       >
         <Edit className="h-4 w-4" />
         <span className="sr-only">Edit menu</span>

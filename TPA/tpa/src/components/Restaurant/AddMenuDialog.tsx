@@ -81,7 +81,7 @@ export default function AddMenuDialog({
     >
       <DialogTrigger asChild>
         <Button
-          className="bg-green-600 hover:bg-green-700 text-white text-sm"
+          className="bg-green-600 hover:bg-green-700 text-white text-sm cursor-pointer"
           size="sm"
         >
           <PlusCircle className="w-4 h-4 mr-1" />

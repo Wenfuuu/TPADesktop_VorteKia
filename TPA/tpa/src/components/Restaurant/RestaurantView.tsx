@@ -5,22 +5,30 @@ import UpdateRestaurantModal from "./UpdateRestaurantModal";
 import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
 import { useTime } from "../context/TimeContext";
+import { useStaff } from "@/hooks/use-staff";
 
 export default function RestaurantView() {
   const { restaurants, setRestaurants } = useRestaurant();
   const [editingRestaurant, setEditingRestaurant] = useState<Restaurant | null>(
     null
   );
-  const {currentTime} = useTime();
+  const { currentTime } = useTime();
+  const [statusFilter, setStatusFilter] = useState("All");
+  const staff = useStaff();
 
   useEffect(() => {
     fetchRestaurants();
-  }, []);
+  }, [statusFilter]);
+
+  const filterRestaurant = (restaurants: Restaurant[]) => {
+    if (statusFilter === "All") return restaurants;
+    return restaurants.filter((restaurant) => restaurant.status === statusFilter);
+  }
 
   const fetchRestaurants = async () => {
     const restaurantData: Restaurant[] = await invoke("get_all_restaurants");
-    setRestaurants(restaurantData);
-  }
+    setRestaurants(filterRestaurant(restaurantData));
+  };
 
   useEffect(() => {
     restaurants.forEach(async (restaurant) => {
@@ -43,9 +51,31 @@ export default function RestaurantView() {
       const shouldBeOpen = currentTime >= openTime && currentTime < closeTime;
       const desiredStatus = shouldBeOpen ? "Open" : "Closed";
 
+      if (
+        restaurant.status === "Open" &&
+        restaurant.assigned_staff?.length === 0
+      ) {
+        try {
+          const success = await invoke("update_restaurant_status", {
+            restaurantid: restaurant.restaurant_id,
+            newstatus: "Closed",
+          });
+          if (success) {
+            fetchRestaurants();
+            toast(`restaurant ${restaurant.name} is now Closed`);
+          }
+        } catch (error) {
+          console.error("Failed to update restaurant status:", error);
+        }
+      }
+
       // Only invoke backend if status is different.
       if (restaurant.status !== desiredStatus) {
-        if (desiredStatus === "Open" && restaurant.assigned_staff?.length === 0) return;
+        if (
+          desiredStatus === "Open" &&
+          (!restaurant.assigned_staff || restaurant.assigned_staff.length === 0)
+        )
+          return;
         try {
           const success = await invoke("update_restaurant_status", {
             restaurantid: restaurant.restaurant_id,
@@ -54,15 +84,16 @@ export default function RestaurantView() {
           if (success) {
             // Optionally update local restaurant status:
             fetchRestaurants();
-            if(desiredStatus === "Open") toast(`Restaurant ${restaurant.name} is now Open`);
-            else toast("Restaurant ${restaurant.name} is now Closed");
+            if (desiredStatus === "Open")
+              toast(`Restaurant ${restaurant.name} is now Open`);
+            else toast(`Restaurant ${restaurant.name} is now Closed`);
           }
         } catch (error) {
           console.error("Failed to update restaurant status:", error);
         }
       }
     });
-  }, [currentTime, restaurants, setRestaurants]);
+  }, [currentTime, restaurants]);
 
   // Handle menu addition
   const handleAddMenu = async (
@@ -129,6 +160,20 @@ export default function RestaurantView() {
     }
   };
 
+  const removeRestaurant = async (restaurantId: string) => {
+    try {
+      await invoke("delete_restaurant", {
+        restaurantid: restaurantId,
+      });
+
+      fetchRestaurants();
+      toast("Restaurant has been removed!");
+    } catch (error) {
+      console.error("Failed to remove restaurant:", error);
+      toast("Failed to remove restaurant");
+    }
+  };
+
   const updateRestaurant = (updatedRestaurant: Restaurant) => {
     setRestaurants((prevRestaurants) =>
       prevRestaurants.map((restaurant) =>
@@ -170,15 +215,69 @@ export default function RestaurantView() {
 
   return (
     <div className="container mx-auto p-6">
-      <RestaurantList 
-      restaurants={restaurants} 
-      onEdit={setEditingRestaurant} 
-      onAddMenu={handleAddMenu}
-      onUpdateMenu={handleUpdateMenu}
-      onRemoveMenu={handleRemoveMenu}/>
+      {/* Filter controls */}
+      {/* Improved Filter UI */}
+      {staff?.role === "f&b supervisor" && (
+        <div className="mb-6 bg-white rounded-lg shadow-md p-4 mx-auto flex flex-col justify-center items-center max-w-2xl gap">
+          <h2 className="text-lg font-semibold mb-3 text-gray-800">
+            Filter Restaurants
+          </h2>
+          <div className="flex items-center">
+            <div className="flex space-x-2">
+              <button
+                className={`px-4 py-2 rounded-md transition-all duration-200 font-medium text-sm flex items-center cursor-pointer ${
+                  statusFilter === "All"
+                    ? "bg-blue-100 text-blue-700 ring-2 ring-blue-300"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+                onClick={() => setStatusFilter("All")}
+              >
+                All Restaurants
+              </button>
+              <button
+                className={`px-4 py-2 rounded-md transition-all duration-200 font-medium text-sm flex items-center cursor-pointer ${
+                  statusFilter === "Open"
+                    ? "bg-green-100 text-green-700 ring-2 ring-green-300"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+                onClick={() => setStatusFilter("Open")}
+              >
+                <span className="w-4 h-4 bg-green-500 rounded-full mr-2"></span>
+                Open
+              </button>
+              <button
+                className={`px-4 py-2 rounded-md transition-all duration-200 font-medium text-sm flex items-center cursor-pointer ${
+                  statusFilter === "Closed"
+                    ? "bg-red-100 text-red-700 ring-2 ring-red-300"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+                onClick={() => setStatusFilter("Closed")}
+              >
+                <span className="w-4 h-4 bg-red-500 rounded-full mr-2"></span>
+                Closed
+              </button>
+
+              <div className="flex items-center text-sm text-gray-500">
+                Showing {restaurants.length} of {restaurants.length} restaurants
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <RestaurantList
+        restaurants={restaurants}
+        onEdit={setEditingRestaurant}
+        onRemove={removeRestaurant}
+        onAddMenu={handleAddMenu}
+        onUpdateMenu={handleUpdateMenu}
+        onRemoveMenu={handleRemoveMenu}
+      />
+
       {editingRestaurant && (
         <UpdateRestaurantModal
-          restaurant={editingRestaurant}
+          allRestaurants={restaurants}
+          editRestaurant={editingRestaurant}
           onUpdate={updateRestaurant}
           onClose={() => setEditingRestaurant(null)}
           open={true}

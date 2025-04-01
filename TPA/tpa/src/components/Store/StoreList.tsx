@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
-import { Edit, Trash2 } from "lucide-react";
+import { DollarSign, Edit, Trash2 } from "lucide-react";
 import AddSouvenirDialog from "./AddSouvenirDialog";
 import { invoke } from "@tauri-apps/api/core";
 import EditSouvenirDialog from "./EditSouvenirDialog";
+import { useStaff } from "@/hooks/use-staff";
 
 type Props = {
   stores: Store[];
@@ -31,6 +32,7 @@ export default function StoreList({
   const [imageUrls, setImageUrls] = useState<{ [key: string]: string }>({});
   const [souvenirs, setSouvenirs] = useState<{ [key: string]: Souvenir[] }>({});
   const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
+  const staff = useStaff();
 
   const fetchSouvenirs = async (storeId: string) => {
     // Skip if already loading this store's souvenirs
@@ -178,12 +180,22 @@ export default function StoreList({
                     </Button>
 
                     <Button
-                      onClick={() => onRemove(store)}
-                      className="bg-red-600 hover:bg-red-700 text-white cursor-pointer flex justify-around"
+                      onClick={() => {}}
+                      className="bg-green-600 hover:bg-green-700 text-white cursor-pointer flex justify-around"
                     >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Propose Removal
+                      <DollarSign className="w-4 h-4 mr-2" />
+                      View Income
                     </Button>
+
+                    {staff?.role === "retail manager" && (
+                      <Button
+                        onClick={() => onRemove(store)}
+                        className="bg-red-600 hover:bg-red-700 text-white cursor-pointer flex justify-around"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Propose Removal
+                      </Button>
+                    )}
                   </div>
                 </div>
 
@@ -192,12 +204,14 @@ export default function StoreList({
                     <h2 className="font-semibold text-gray-800">
                       Souvenir Products
                     </h2>
-                    <AddSouvenirDialog
-                      storeId={store.store_id}
-                      onAddSouvenir={(souvenir) =>
-                        onAddSouvenir(store.store_id, souvenir)
-                      }
-                    />
+                    {staff?.role === "retail manager" && (
+                      <AddSouvenirDialog
+                        storeId={store.store_id}
+                        onAddSouvenir={(souvenir) =>
+                          onAddSouvenir(store.store_id, souvenir)
+                        }
+                      />
+                    )}
                   </div>
 
                   {isSouvenirLoading ? (
@@ -236,36 +250,40 @@ export default function StoreList({
                             </p>
                           </div>
                           <div className="flex items-center">
-                            {onUpdateSouvenir && (
-                              <EditSouvenirDialog
-                                souvenir={souvenir}
-                                onUpdateSouvenir={(
-                                  souvenirId,
-                                  updatedSouvenir
-                                ) =>
-                                  handleUpdateSouvenir(
+                            {staff?.role === "retail manager" &&
+                              onUpdateSouvenir && (
+                                <EditSouvenirDialog
+                                  souvenir={souvenir}
+                                  onUpdateSouvenir={(
                                     souvenirId,
                                     updatedSouvenir
-                                  )
-                                }
-                              />
-                            )}
-                            {onRemoveSouvenir && (
-                              <Button
-                                onClick={() =>
-                                  onRemoveSouvenir(
-                                    souvenir.souvenir_id,
-                                    store.store_id
-                                  )
-                                }
-                                variant="destructive"
-                                size="sm"
-                                className="ml-2 h-8 w-8 p-0 cursor-pointer"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                                <span className="sr-only">Delete souvenir</span>
-                              </Button>
-                            )}
+                                  ) =>
+                                    handleUpdateSouvenir(
+                                      souvenirId,
+                                      updatedSouvenir
+                                    )
+                                  }
+                                />
+                              )}
+                            {staff?.role === "retail manager" &&
+                              onRemoveSouvenir && (
+                                <Button
+                                  onClick={() =>
+                                    onRemoveSouvenir(
+                                      souvenir.souvenir_id,
+                                      store.store_id
+                                    )
+                                  }
+                                  variant="destructive"
+                                  size="sm"
+                                  className="ml-2 h-8 w-8 p-0 cursor-pointer"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                  <span className="sr-only">
+                                    Delete souvenir
+                                  </span>
+                                </Button>
+                              )}
                           </div>
                         </div>
                       ))}

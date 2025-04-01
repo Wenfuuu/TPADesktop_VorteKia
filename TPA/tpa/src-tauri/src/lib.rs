@@ -63,6 +63,8 @@ fn seeding(){
     // register_staff("tommy", "mm24-2", "maintenance staff");
     // register_staff("ireng", "vd24-2", "maintenance staff");
     // register_staff("helena", "as24-2", "coo");
+    // register_staff("celine", "ct24-2", "cfo");
+    // register_staff("brenda", "bd24-2", "ceo");
     // create_customer("paula");
     // create_customer("yudhis");
     // create_customer("budi");
@@ -106,11 +108,13 @@ pub fn run() {
             allocate_restaurant_staff,
             get_allocated_staff_in_restaurant,
             update_restaurant,
+            delete_restaurant,
             update_restaurant_status,
             add_menu,
             update_menu,
             delete_menu,
             get_all_stores,
+            get_assigned_store,
             update_store,
             allocate_store_staff,
             get_allocated_staff_in_store,

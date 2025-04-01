@@ -30,6 +30,8 @@ export default function StaffLoginPage() {
       navigate("/restaurant/view");
     } else if (staffData.role === "retail manager") {
       navigate("/store/view");
+    } else if (staffData.role === "sales associate") {
+      navigate("/store/staff_view");
     } else if (staffData.role === "lost and found staff") {
       navigate("/lostandfound/report");
     } else if (staffData.role === "ride manager") {

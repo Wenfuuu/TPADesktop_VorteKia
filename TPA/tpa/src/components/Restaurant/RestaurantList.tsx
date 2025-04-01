@@ -8,6 +8,7 @@ import EditMenuDialog from "./EditMenuDialog";
 type Props = {
   restaurants: Restaurant[];
   onEdit: (restaurant: Restaurant) => void;
+  onRemove: (restaurantId: string) => void;
   onAddMenu?: (restaurantId: string, menu: Omit<Menu, "menu_id">) => void;
   onUpdateMenu?: (menuId: string, updatedMenu: Partial<Menu>) => void;
   onRemoveMenu?: (menuId: string, restaurantId: string) => void;
@@ -16,6 +17,7 @@ type Props = {
 export default function RestaurantList({
   restaurants,
   onEdit,
+  onRemove,
   onAddMenu,
   onUpdateMenu,
   onRemoveMenu,
@@ -171,13 +173,23 @@ export default function RestaurantList({
                     </p>
                   </div>
 
-                  <Button
-                    onClick={() => onEdit(restaurant)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    View Details
-                  </Button>
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      onClick={() => onEdit(restaurant)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      View Details
+                    </Button>
+
+                    <Button
+                      onClick={() => onRemove(restaurant.restaurant_id)}
+                      className="bg-red-600 hover:bg-red-700 text-white cursor-pointer flex justify-around"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Remove Restaurant
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="mt-2 pt-4 border-t border-gray-200">
@@ -240,7 +252,7 @@ export default function RestaurantList({
                               }
                               variant="destructive"
                               size="sm"
-                              className="ml-2 h-8 w-8 p-0"
+                              className="ml-2 h-8 w-8 p-0 cursor-pointer"
                             >
                               <Trash2 className="h-4 w-4" />
                               <span className="sr-only">Delete menu</span>

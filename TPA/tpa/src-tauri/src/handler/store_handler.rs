@@ -1,12 +1,12 @@
 use crate::models::store::{Store, StoreDTO};
 use crate::db::establish_connection;
 use crate::diesel::prelude::*;
-use crate::schema::store_staffs;
 use chrono::NaiveTime;
 
 #[tauri::command]
 pub fn allocate_store_staff(store_id: &str, staff_ids: Vec<&str>) -> Result<bool, String> {
     println!("Allocating staff to store {store_id}");
+    use crate::schema::store_staffs;
     let conn = &mut establish_connection();
 
     // Remove existing staff
@@ -96,4 +96,21 @@ pub fn get_all_stores() -> Result<Vec<StoreDTO>, String> {
             Err(e.to_string())
         }
     }
+}
+
+#[tauri::command]
+pub fn get_assigned_store(staffid: &str) -> Result<StoreDTO, String> {
+    println!("getting assigned store for staff {staffid}");
+    use crate::schema::stores;
+    use crate::schema::store_staffs;
+    let conn = &mut establish_connection();
+
+    let store = store_staffs::table
+        .inner_join(stores::table.on(store_staffs::store_id.eq(stores::store_id)))
+        .filter(store_staffs::staff_id.eq(staffid))
+        .select(Store::as_select())
+        .first::<Store>(conn)
+        .map_err(|e| e.to_string())?;
+
+    Ok(StoreDTO::from(store))
 }

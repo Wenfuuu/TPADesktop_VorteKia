@@ -10,6 +10,11 @@ export default function StaffRestaurantUI() {
     { name: "Chat", onClick: () => navigate("/restaurant/chat") },
   ];
 
+  const staffNavItems = [
+    { name: "View Restaurants", onClick: () => navigate("/restaurant/staff_view") },
+    { name: "Chat", onClick: () => navigate("/restaurant/chat") },
+  ];
+
   return (
     <>
       <StaffNavbar navItems={navItems} />

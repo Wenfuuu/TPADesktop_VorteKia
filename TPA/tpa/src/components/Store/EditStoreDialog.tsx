@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useStaff } from "@/hooks/use-staff";
 
 type Props = {
   store: Store;
@@ -44,6 +45,7 @@ export default function EditStoreDialog({
   });
   const [allStaff, setAllStaff] = useState<Staff[]>([]);
   const [errors, setErrors] = useState("");
+  const staff = useStaff();
 
   async function fetchStaff() {
     try {
@@ -293,7 +295,7 @@ export default function EditStoreDialog({
         </div>
 
         <DialogFooter>
-          <Button onClick={handleUpdate} className="w-full">
+          <Button onClick={handleUpdate} disabled={staff?.role !== "retail manager"} className="w-full">
             Save Changes
           </Button>
         </DialogFooter>

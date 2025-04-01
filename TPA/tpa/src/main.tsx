@@ -75,6 +75,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
             }
           >
             <Route path="view" element={<RestaurantView />} />
+            <Route path="staff_view" element={<RestaurantView />} />
             <Route path="propose" element={<ProposeRestaurantDialog />} />
             <Route
               path="chat"
@@ -85,6 +86,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <Route path="/store" element={<StaffStoreUI />}>
             <Route path="view" element={<StoreView />} />
             <Route path="propose" element={<ProposeStoreDialog />} />
+            <Route path="staff_view" element={<StoreView />} />
             <Route
               path="chat"
               element={<ChatBox groupNames={marketingGroups} />}

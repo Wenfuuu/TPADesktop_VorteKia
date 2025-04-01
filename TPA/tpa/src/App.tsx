@@ -21,7 +21,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (deviceId?.startsWith("ID")) {
+    if (deviceId?.startsWith("RIDE")) {
       navigate("/customer_ride/rides");
     }
   }, [deviceId, navigate]); // Depend on `deviceId` to trigger navigation when it changes
