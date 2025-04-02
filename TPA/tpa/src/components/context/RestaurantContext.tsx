@@ -23,6 +23,7 @@ export const RestaurantProvider = ({ children }: { children: ReactNode }) => {
 
     const fetchData = async () => {
       const restaurantData: Restaurant[] = await invoke("get_all_restaurants");
+      console.log("kontol")
       // if (restaurantData) setRestaurants(restaurantData as Restaurant[]);
 
       // Map over each restaurant to fetch its allocated staff

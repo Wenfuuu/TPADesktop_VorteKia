@@ -11,6 +11,7 @@ import { Edit } from "lucide-react";
 import ImageUpload from "../ImageUpload";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useStaff } from "@/hooks/use-staff";
 
 type EditMenuDialogProps = {
   menu: Menu;
@@ -26,6 +27,7 @@ export default function EditMenuDialog({
   const [menuPrice, setMenuPrice] = useState("");
   const [menuImage, setMenuImage] = useState<Uint8Array | null>(null);
   const [errors, setErrors] = useState<{ name?: string; price?: string, image?: string }>();
+  const staff = useStaff();
 
   // Set initial values when menu changes or dialog opens
   useEffect(() => {
@@ -87,15 +89,17 @@ export default function EditMenuDialog({
         }
       }}
     >
-      <Button
-        onClick={() => setOpen(true)}
-        variant="outline"
-        size="sm"
-        className="ml-2 h-8 w-8 p-0 cursor-pointer"
-      >
-        <Edit className="h-4 w-4" />
-        <span className="sr-only">Edit menu</span>
-      </Button>
+      {staff?.role === "f&b supervisor" && (
+        <Button
+          onClick={() => setOpen(true)}
+          variant="outline"
+          size="sm"
+          className="ml-2 h-8 w-8 p-0 cursor-pointer"
+        >
+          <Edit className="h-4 w-4" />
+          <span className="sr-only">Edit menu</span>
+        </Button>
+      )}
 
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -141,7 +145,9 @@ export default function EditMenuDialog({
                 onImageUpload={(image) => setMenuImage(image)}
               />
             </div>
-            <div className="text-red-500 text-xs mt-1 text-center">{errors?.image}</div>
+            <div className="text-red-500 text-xs mt-1 text-center">
+              {errors?.image}
+            </div>
           </div>
         </div>
 

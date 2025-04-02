@@ -3,7 +3,7 @@ use crate::schema::restaurants;
 use diesel::prelude::*;
 use chrono::NaiveTime;
 
-#[derive(Debug, Queryable, Insertable, AsChangeset, Clone)]
+#[derive(Debug, Queryable, Insertable, AsChangeset, Clone, Selectable)]
 #[diesel(table_name = restaurants)]
 pub struct Restaurant{
     pub restaurant_id: String,

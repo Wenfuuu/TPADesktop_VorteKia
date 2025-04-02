@@ -99,8 +99,23 @@ pub fn update_restaurant(
 }
 
 #[tauri::command]
+pub fn get_restaurant_details(restaurantid: &str) -> Result<RestaurantDTO, String> {
+    println!("Fetching restaurant details");
+    use crate::schema::restaurants::dsl::*;
+    let conn = &mut establish_connection();
+
+    match restaurants.filter(restaurant_id.eq(restaurantid)).first::<Restaurant>(conn) {
+        Ok(restaurant) => Ok(restaurant.into()),
+        Err(e) => {
+            eprintln!("Error fetching ride: {}", e);
+            Err(e.to_string())
+        }
+    }
+}
+
+#[tauri::command]
 pub fn get_all_restaurants() -> Result<Vec<RestaurantDTO>, String> {
-    print!("getting all restaurants");
+    println!("getting all restaurants");
     use crate::schema::restaurants::dsl::*;
     let conn = &mut establish_connection();
 
@@ -114,4 +129,21 @@ pub fn get_all_restaurants() -> Result<Vec<RestaurantDTO>, String> {
             Err(e.to_string())
         }
     }
+}
+
+#[tauri::command]
+pub fn get_assigned_restaurant(staffid: &str) -> Result<RestaurantDTO, String> {
+    println!("getting assigned restaurant for staff {staffid}");
+    use crate::schema::restaurant_staffs;
+    use crate::schema::restaurants;
+    let conn = &mut establish_connection();
+
+    let restaurant = restaurant_staffs::table
+        .inner_join(restaurants::table.on(restaurant_staffs::restaurant_id.eq(restaurants::restaurant_id)))
+        .filter(restaurant_staffs::staff_id.eq(staffid))
+        .select(Restaurant::as_select())
+        .first::<Restaurant>(conn)
+        .map_err(|e| e.to_string())?;
+
+    Ok(RestaurantDTO::from(restaurant))
 }

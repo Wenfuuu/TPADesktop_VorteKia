@@ -2,15 +2,12 @@ import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 import TaskList from "./TaskList";
 import { toast } from "sonner";
+import { useStaff } from "@/hooks/use-staff";
 
 
 export default function TaskView(){
     const [tasks, setTasks] = useState<Task[]>([]);
-    const [staff, setStaff] = useState<Staff | null>(null);
-
-    useEffect(() => {
-      get_staff();
-    }, []);
+    const staff = useStaff();
 
     useEffect(() => {
       if (staff) {
@@ -18,16 +15,9 @@ export default function TaskView(){
       }
     }, [staff]);
 
-    const get_staff = async () => {
-      const response = await invoke("get_current_staff");
-      if (response !== null) {
-        setStaff(response as Staff);
-      }
-    };
-
     const fetchTasks = async () => {
         if(!staff) return;
-        let taskData: Task[]
+        let taskData: Task[] = [];
 
         if (staff.role === "maintenance staff") {
           taskData = await invoke("get_assigned_tasks", {

@@ -7,20 +7,22 @@ import RemoveRideDialog from "./RemoveRideDialog";
 import MaintenanceDialog from "./MaintenanceDialog";
 import { useTime } from "../context/TimeContext";
 import RideIncome from "./RideIncome";
+import { useStaff } from "@/hooks/use-staff";
+import { useDeviceId } from "@/hooks/use-device-id";
 
 export default function RideView() {
     const [rides, setRides] = useState<Ride[]>([]);
     const [editingRide, setEditingRide] = useState<Ride | null>(null);
     const [removingRide, setRemovingRide] = useState<Ride | null>(null);
     const [maintenanceRide, setMaintenanceRide] = useState<Ride | null>(null);
-    const [staff, setStaff] = useState<Staff | null>(null);
     const {currentTime} = useTime();
     const [incomeRide, setIncomeRide] = useState<Ride | null>(null);
+    const staff = useStaff();
+    const deviceId = useDeviceId();
 
     useEffect(() =>{
-        fetchRides();
-        get_staff();
-    }, [])
+        if(deviceId) fetchRides();
+    }, [staff, deviceId])
 
     useEffect(() => {
         rides.forEach(async (ride) => {
@@ -63,15 +65,18 @@ export default function RideView() {
         });
     }, [currentTime, rides, setRides]);
 
-    const get_staff = async () => {
-      const response = await invoke("get_current_staff");
-      if (response !== null) {
-        setStaff(response as Staff);
-      }
-    }
-
     const fetchRides = async () => {
-        const rideData: Ride[] = await invoke("get_all_rides");
+        // const rideData: Ride[] = await invoke("get_all_rides");
+        let rideData: Ride[] = [];
+        
+        if(deviceId?.startsWith("RIDE")){
+            rideData = await invoke("get_all_rides");
+            const ride = rideData.find((ride) => ride.ride_id === deviceId);
+
+            rideData = ride ? [ride] : [];
+        } else {
+            rideData = await invoke("get_all_rides");
+        }        
 
         const rideWithStaff = await Promise.all(
             rideData.map(async (ride) => {

@@ -20,3 +20,5 @@ pub mod ride_queue;
 pub mod ride_transaction;
 pub mod new_restaurant_proposal;
 pub mod new_store_proposal;
+pub mod order;
+pub mod restaurant_transaction;

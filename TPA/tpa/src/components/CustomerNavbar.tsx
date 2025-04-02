@@ -1,38 +1,20 @@
-import { invoke } from "@tauri-apps/api/core";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { useTime } from "../context/TimeContext";
-
-type Customer = {
-  customer_id: string;
-  name: string;
-  balance: number;
-};
+import { useTime } from "./context/TimeContext";
+import { useCustomer } from "@/hooks/use-customer";
 
 type NavItem = {
   name: string;
   onClick: () => void;
 };
 
-type RideNavbarProps = {
+type Props = {
   navItems: NavItem[];
 };
 
-export default function RideNavbar({ navItems }: RideNavbarProps) {
+export default function CustomerNavbar({ navItems }: Props) {
   const navigate = useNavigate();
-  const [customer, setCustomer] = useState<Customer | null>(null);
-  const {currentTime} = useTime(); 
-
-  async function get_customer() {
-    const response = await invoke("get_current_customer");
-    if (response !== null) {
-      setCustomer(response as Customer);
-    }
-  }
-
-  useEffect(() => {
-    get_customer();
-  }, []);
+  const customer = useCustomer();
+  const { currentTime } = useTime();
 
   return (
     <div className="bg-gray-800 p-4">

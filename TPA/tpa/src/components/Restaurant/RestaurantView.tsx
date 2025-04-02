@@ -1,24 +1,32 @@
 import { useEffect, useState } from "react";
-import { useRestaurant } from "../context/RestaurantContext";
 import RestaurantList from "./RestaurantList";
 import UpdateRestaurantModal from "./UpdateRestaurantModal";
 import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
 import { useTime } from "../context/TimeContext";
 import { useStaff } from "@/hooks/use-staff";
+import { useCustomer } from "@/hooks/use-customer";
+import { useDeviceId } from "@/hooks/use-device-id";
+import RestaurantIncome from "./RestaurantIncome";
 
 export default function RestaurantView() {
-  const { restaurants, setRestaurants } = useRestaurant();
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [editingRestaurant, setEditingRestaurant] = useState<Restaurant | null>(
     null
   );
+  const [incomeRestaurant, setIncomeRestaurant] = useState<Restaurant | null>(null);  
   const { currentTime } = useTime();
   const [statusFilter, setStatusFilter] = useState("All");
   const staff = useStaff();
+  const customer = useCustomer();
+  const deviceId = useDeviceId();
 
   useEffect(() => {
-    fetchRestaurants();
-  }, [statusFilter]);
+    // console.log(deviceId);
+    if(deviceId){
+      fetchRestaurants();
+    }
+  }, [staff, customer, deviceId, statusFilter]);
 
   const filterRestaurant = (restaurants: Restaurant[]) => {
     if (statusFilter === "All") return restaurants;
@@ -26,7 +34,31 @@ export default function RestaurantView() {
   }
 
   const fetchRestaurants = async () => {
-    const restaurantData: Restaurant[] = await invoke("get_all_restaurants");
+    let restaurantData: Restaurant[] = [];
+    
+    if(deviceId?.startsWith("RES")){
+      restaurantData = await invoke("get_all_restaurants");
+      const restaurant = restaurantData.find((r) => r.restaurant_id === deviceId);
+
+      restaurantData = restaurant ? [restaurant] : [];
+    }else{
+      console.log("staff role is " + staff?.role);
+      if (staff?.role === "f&b supervisor") {
+        restaurantData = await invoke("get_all_restaurants");
+      } else {
+        setRestaurants([]);
+        const assignedRestaurant: Restaurant = await invoke(
+          "get_assigned_restaurant",
+          {
+            staffid: staff?.staff_id,
+          }
+        );
+
+        restaurantData = assignedRestaurant ? [assignedRestaurant] : [];
+      }
+    }
+
+    console.log(restaurantData)
     setRestaurants(filterRestaurant(restaurantData));
   };
 
@@ -272,6 +304,7 @@ export default function RestaurantView() {
         onAddMenu={handleAddMenu}
         onUpdateMenu={handleUpdateMenu}
         onRemoveMenu={handleRemoveMenu}
+        onIncome={setIncomeRestaurant}
       />
 
       {editingRestaurant && (
@@ -283,6 +316,12 @@ export default function RestaurantView() {
           open={true}
         />
       )}
+
+      {incomeRestaurant && (
+        <RestaurantIncome 
+        restaurantId={incomeRestaurant.restaurant_id} />
+      )}
+
     </div>
   );
 }

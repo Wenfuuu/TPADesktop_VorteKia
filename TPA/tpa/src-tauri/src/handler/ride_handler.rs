@@ -100,7 +100,7 @@ pub fn update_ride(
 
 #[tauri::command]
 pub fn get_ride_details(rideid: &str) -> Result<RideDTO, String> {
-    println!("Fetching all rides");
+    println!("Fetching ride details");
     use crate::schema::rides::dsl::*;
     let conn = &mut establish_connection();
 

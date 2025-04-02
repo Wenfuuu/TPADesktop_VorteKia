@@ -36,7 +36,7 @@ pub fn create_task(
         .map_err(|err| format!("Database error: {}", err))
 }
 
-pub fn reassign_task(taskid: &str) ->  Result<bool, String> {
+pub fn reassign_task(taskid: &str) ->  Result<bool, String> {// klo revisi
     println!("reassigning task {}", taskid);
     use crate::schema::tasks::dsl::*;
     let conn = &mut establish_connection();
@@ -130,7 +130,7 @@ pub fn get_assigned_tasks(staffid: &str) -> Result<Vec<TaskDTO>, String> {
             Ok(dto_results)
         }
         Err(e) => {
-            eprintln!("Error fetching stores: {}", e);
+            eprintln!("Error fetching tasks: {}", e);
             Err(e.to_string())
         }
     }

@@ -37,6 +37,19 @@ pub fn login_customer(customerid: &str, current_user: State<CurrentUser>) -> boo
 }
 
 #[tauri::command]
+pub fn logout_customer(current_user: State<CurrentUser>) -> bool {
+    let mut customer_lock = current_user.customer.lock().unwrap();
+    if customer_lock.is_some() {
+        println!("Logging out customer");
+        *customer_lock = None; // Clear the logged-in customer
+        true
+    } else {
+        println!("No customer is logged in");
+        false
+    }
+}
+
+#[tauri::command]
 pub fn get_all_customers() -> Result<Vec<Customer>, String> {
     print!("getting all customers");
     use crate::schema::customers::dsl::*;

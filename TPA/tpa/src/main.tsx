@@ -9,7 +9,7 @@ import LostAndFoundView from "./components/LostAndFound/LostAndFoundView";
 import { Toaster } from "sonner";
 import ChatBox from "./components/Chatbox";
 import RestaurantView from "./components/Restaurant/RestaurantView";
-import { RestaurantProvider } from "./components/context/RestaurantContext";
+// import { RestaurantProvider } from "./components/context/RestaurantContext";
 import StoreView from "./components/Store/StoreView";
 import StaffRestaurantUI from "./ui/StaffRestaurantUI";
 import StaffStoreUI from "./ui/StaffStoreUI";
@@ -30,6 +30,9 @@ import RideUI from "./ui/RideUI";
 import RideHistory from "./components/Ride/RideHistory";
 import ProposeRestaurantDialog from "./components/Restaurant/ProposeRestaurantDialog";
 import ProposeStoreDialog from "./components/Store/ProposeStoreDialog";
+import OrderView from "./components/Restaurant/OrderView";
+import RestaurantUI from "./ui/RestaurantUI";
+import RestaurantHistory from "./components/Restaurant/RestaurantHistory";
 
 const lostAndFoundGroups = ["All Staff", "Lost and Found Staff"];
 const rideManagerGroups = ["All Staff", "Operational Division", "requestmaintenance"];
@@ -69,18 +72,25 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <Route
             path="/restaurant"
             element={
-              <RestaurantProvider>
-                <StaffRestaurantUI />
-              </RestaurantProvider>
+              // <RestaurantProvider>
+              <StaffRestaurantUI />
+              // </RestaurantProvider>
             }
           >
             <Route path="view" element={<RestaurantView />} />
             <Route path="staff_view" element={<RestaurantView />} />
+            <Route path="order_view" element={<OrderView />} />
             <Route path="propose" element={<ProposeRestaurantDialog />} />
             <Route
               path="chat"
               element={<Chatbox groupNames={consumptionGroups} />}
             />
+          </Route>
+
+          <Route path="/customer_restaurant" element={<RestaurantUI />}>
+            <Route path="restaurants" element={<RestaurantView />} />
+            <Route path="history" element={<RestaurantHistory/>} />
+            {/* <Route path="chat" element={} /> */}
           </Route>
 
           <Route path="/store" element={<StaffStoreUI />}>

@@ -11,7 +11,7 @@ export default function ImageUpload({ image, onImageUpload }: ImageUploadProps) 
           new Blob([new Uint8Array(image)], { type: "image/png" })
         )
       : "";
-    console.log(imageUrl)
+    // console.log(imageUrl)
 
     const onDrop = (acceptedFiles: File[]) => {
         const file = acceptedFiles[0];

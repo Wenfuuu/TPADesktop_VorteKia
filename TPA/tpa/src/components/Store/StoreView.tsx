@@ -16,10 +16,7 @@ export default function StoreView() {
     const {currentTime} = useTime();
 
     useEffect(() => {
-        // Only fetch stores if staff data is available
-        if (staff !== undefined) {
-            fetchStores();
-        }
+        if (staff !== undefined) fetchStores();
     }, [staff]);
 
     useEffect(() => {
@@ -79,12 +76,12 @@ export default function StoreView() {
             }
           }
         });
-    }, [currentTime, stores, setStores]);
+    }, [currentTime, stores]);
 
     const fetchStores = async () => {
       setIsLoading(true);
       try {
-        let storeData: Store[];
+        let storeData: Store[] = [];
         console.log("staff role is " + staff?.role);
         
         if (staff?.role === "sales associate" && staff?.staff_id) {

@@ -28,6 +28,8 @@ export default function StaffLoginPage() {
     console.log("Staff role:", staffData.role);
     if (staffData.role === "f&b supervisor") {
       navigate("/restaurant/view");
+    } else if (staffData.role === "chef" || staffData.role === "waiter") {
+      navigate("/restaurant/staff_view");
     } else if (staffData.role === "retail manager") {
       navigate("/store/view");
     } else if (staffData.role === "sales associate") {

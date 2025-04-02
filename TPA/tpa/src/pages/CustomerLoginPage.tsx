@@ -29,10 +29,12 @@ export default function CustomerLoginPage() {
 
   const handleNavigate = () => {
     if (deviceId) {
-        if (deviceId.startsWith("ID")) {
-            navigate("/customer_ride/rides");
+        if (deviceId.startsWith("RIDE")) {
+          navigate("/customer_ride/rides");
+        } else if (deviceId.startsWith("RES")) {
+          navigate("/customer_restaurant/restaurants");
         } else {
-            toast("Unknown device ID.");
+          toast("Unknown device ID.");
         }
     } else {
       toast("Device ID not found. Please try again.");

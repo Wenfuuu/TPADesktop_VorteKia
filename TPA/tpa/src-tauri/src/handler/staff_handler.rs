@@ -124,6 +124,24 @@ pub fn get_all_ride_staffs() -> Result<Vec<Staff>, String> {
 }
 
 #[tauri::command]
+pub fn get_all_chef_staffs() -> Result<Vec<Staff>, String> {
+    println!("getting all chef staffs");
+    use crate::schema::staffs::dsl::*;
+    use crate::schema::orders::dsl as orders_dsl;
+    let conn = &mut establish_connection();
+
+    let cooking_orders = orders_dsl::orders
+        .filter(orders_dsl::status.eq("Cooking"))
+        .select(orders_dsl::assigned_to);
+
+    staffs
+        .filter(role.eq("chef"))
+        .filter(not(exists(cooking_orders.filter(orders_dsl::assigned_to.eq(staff_id.nullable())))))
+        .load::<Staff>(conn)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 pub fn get_all_maintenance_staffs() -> Result<Vec<Staff>, String> {
     println!("getting all maintenance staffs");
     use crate::schema::staffs::dsl::*;

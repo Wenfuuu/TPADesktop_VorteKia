@@ -1,9 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
-import { Trash2, Edit } from "lucide-react";
+import { Trash2, Edit, DollarSign, Search } from "lucide-react";
 import AddMenuDialog from "./AddMenuDialog";
 import EditMenuDialog from "./EditMenuDialog";
+import { useStaff } from "@/hooks/use-staff";
+import { Input } from "@/components/ui/input";
+import { useCustomer } from "@/hooks/use-customer";
+import OrderMenuDialog from "./OrderMenuDialog";
+import { useDeviceId } from "@/hooks/use-device-id";
+import { toast } from "sonner";
 
 type Props = {
   restaurants: Restaurant[];
@@ -12,6 +18,7 @@ type Props = {
   onAddMenu?: (restaurantId: string, menu: Omit<Menu, "menu_id">) => void;
   onUpdateMenu?: (menuId: string, updatedMenu: Partial<Menu>) => void;
   onRemoveMenu?: (menuId: string, restaurantId: string) => void;
+  onIncome: (restaurant: Restaurant) => void;
 };
 
 export default function RestaurantList({
@@ -21,10 +28,35 @@ export default function RestaurantList({
   onAddMenu,
   onUpdateMenu,
   onRemoveMenu,
+  onIncome,
 }: Props) {
   const [imageUrls, setImageUrls] = useState<{ [key: string]: string }>({});
   const [menus, setMenus] = useState<{ [key: string]: Menu[] }>({});
   const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
+  const staff = useStaff();
+  const customer = useCustomer();
+  const deviceId = useDeviceId();
+  const [searchMenu, setSearchMenu] = useState("");
+
+  const handleOrder = async (menuId: string, qty: number, totalPrice: number) => {
+    console.log(`customer ${customer?.customer_id} place order for menu ${menuId}, quantity: ${qty}, restaurant: ${deviceId}`);
+    console.log(`total price is ${totalPrice}`)
+    
+    //create order & transaction
+    await invoke("create_order", {
+      restaurantid: deviceId,
+      menuid: menuId,
+      customerid: customer?.customer_id,
+      quantity: qty,
+      price: totalPrice
+    }).then((success) => {
+      if(success){
+        toast("Success placing order!")
+      }
+    }).catch((e) => {
+      toast(e)
+    })
+  }
 
   const fetchMenus = async (restaurantId: string) => {
     // Skip if already loading this restaurant's menus
@@ -132,6 +164,13 @@ export default function RestaurantList({
             const restaurantMenus = menus[restaurant.restaurant_id] || [];
             const isMenuLoading = isLoading[restaurant.restaurant_id];
 
+            // Filter menus based on search input
+            const filteredMenus = searchMenu
+              ? restaurantMenus.filter((menu) =>
+                  menu.name.toLowerCase().includes(searchMenu.toLowerCase())
+                )
+              : restaurantMenus;
+
             return (
               <li
                 key={restaurant.restaurant_id}
@@ -174,27 +213,41 @@ export default function RestaurantList({
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <Button
-                      onClick={() => onEdit(restaurant)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      View Details
-                    </Button>
+                    {staff && (
+                      <Button
+                        onClick={() => onEdit(restaurant)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        View Details
+                      </Button>
+                    )}
 
-                    <Button
-                      onClick={() => onRemove(restaurant.restaurant_id)}
-                      className="bg-red-600 hover:bg-red-700 text-white cursor-pointer flex justify-around"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Remove Restaurant
-                    </Button>
+                    {staff?.role === "f&b supervisor" && (
+                      <Button
+                        onClick={() => onIncome(restaurant)}
+                        className="bg-green-600 hover:bg-green-700 text-white cursor-pointer flex justify-around"
+                      >
+                        <DollarSign className="w-4 h-4 mr-2" />
+                        View Income
+                      </Button>
+                    )}
+
+                    {staff?.role === "f&b supervisor" && (
+                      <Button
+                        onClick={() => onRemove(restaurant.restaurant_id)}
+                        className="bg-red-600 hover:bg-red-700 text-white cursor-pointer flex justify-around"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Remove Restaurant
+                      </Button>
+                    )}
                   </div>
                 </div>
 
                 <div className="mt-2 pt-4 border-t border-gray-200">
                   <div className="flex justify-between items-center mb-3">
-                    <h2 className="font-semibold text-gray-800">Menu Items</h2>
+                    <h2 className="font-semibold text-gray-800">Menus</h2>
                     <AddMenuDialog
                       restaurantId={restaurant.restaurant_id}
                       onAddMenu={(newMenu) =>
@@ -203,13 +256,27 @@ export default function RestaurantList({
                     />
                   </div>
 
+                  <div className="mb-4">
+                    {/* search menu here */}
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        type="text"
+                        placeholder="Search menu"
+                        value={searchMenu}
+                        onChange={(e) => setSearchMenu(e.target.value)}
+                        className="pl-10 w-full"
+                      />
+                    </div>
+                  </div>
+
                   {isMenuLoading ? (
                     <div className="flex items-center justify-center h-24 bg-gray-100 rounded-lg">
                       <p className="text-gray-500">Loading menus...</p>
                     </div>
                   ) : restaurantMenus.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {restaurantMenus.map((menu) => (
+                      {filteredMenus.map((menu) => (
                         <div
                           key={menu.menu_id}
                           className="flex items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm hover:border-gray-300"
@@ -242,21 +309,29 @@ export default function RestaurantList({
                                 handleUpdateMenu(menuId, updatedMenu)
                               }
                             />
-                            <Button
-                              onClick={() =>
-                                onRemoveMenu &&
-                                onRemoveMenu(
-                                  menu.menu_id,
-                                  restaurant.restaurant_id
-                                )
-                              }
-                              variant="destructive"
-                              size="sm"
-                              className="ml-2 h-8 w-8 p-0 cursor-pointer"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                              <span className="sr-only">Delete menu</span>
-                            </Button>
+                            {staff?.role === "f&b supervisor" && (
+                              <Button
+                                onClick={() =>
+                                  onRemoveMenu &&
+                                  onRemoveMenu(
+                                    menu.menu_id,
+                                    restaurant.restaurant_id
+                                  )
+                                }
+                                variant="destructive"
+                                size="sm"
+                                className="ml-2 h-8 w-8 p-0 cursor-pointer"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                <span className="sr-only">Delete menu</span>
+                              </Button>
+                            )}
+                            {customer && (
+                              <OrderMenuDialog
+                                menu={menu}
+                                onOrder={handleOrder}
+                              />
+                            )}
                           </div>
                         </div>
                       ))}

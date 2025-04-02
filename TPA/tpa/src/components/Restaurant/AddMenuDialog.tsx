@@ -12,6 +12,7 @@ import { PlusCircle } from "lucide-react";
 import ImageUpload from "../ImageUpload";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useStaff } from "@/hooks/use-staff";
 
 type AddMenuDialogProps = {
   restaurantId: string;
@@ -27,6 +28,7 @@ export default function AddMenuDialog({
   const [menuPrice, setMenuPrice] = useState("");
   const [menuImage, setMenuImage] = useState<Uint8Array | null>(null);
   const [errors, setErrors] = useState<{ name?: string; price?: string, image?: string }>();
+  const staff = useStaff();
 
   const handleSubmit = () => {
     // Validate form
@@ -80,13 +82,15 @@ export default function AddMenuDialog({
       }}
     >
       <DialogTrigger asChild>
-        <Button
-          className="bg-green-600 hover:bg-green-700 text-white text-sm cursor-pointer"
-          size="sm"
-        >
-          <PlusCircle className="w-4 h-4 mr-1" />
-          Add Menu Item
-        </Button>
+        {staff?.role === "f&b supervisor" && (
+          <Button
+            className="bg-green-600 hover:bg-green-700 text-white text-sm cursor-pointer"
+            size="sm"
+          >
+            <PlusCircle className="w-4 h-4 mr-1" />
+            Add Menu Item
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -133,7 +137,9 @@ export default function AddMenuDialog({
               />
             </div>
             {errors?.image && (
-              <p className="text-red-500 text-xs mt-1 text-center">{errors.image}</p>
+              <p className="text-red-500 text-xs mt-1 text-center">
+                {errors.image}
+              </p>
             )}
           </div>
         </div>

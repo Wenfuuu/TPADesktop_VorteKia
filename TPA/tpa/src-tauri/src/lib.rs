@@ -17,6 +17,7 @@ use crate::handler::maintenance_log_handler::*;
 use crate::handler::ride_queue_handler::*;
 use crate::handler::chat_handler::*;
 use crate::handler::transaction_handler::*;
+use crate::handler::order_handler::*;
 
 extern crate diesel;
 
@@ -96,6 +97,7 @@ pub fn run() {
             update_lost_item,
             login_staff,
             login_customer,
+            logout_customer,
             get_current_staff,
             register_staff,
             get_all_staffs,
@@ -104,6 +106,7 @@ pub fn run() {
             get_all_ride_staffs,
             get_all_maintenance_staffs,
             get_all_restaurants,
+            get_assigned_restaurant,
             get_menus_by_restaurant,
             allocate_restaurant_staff,
             get_allocated_staff_in_restaurant,
@@ -168,8 +171,18 @@ pub fn run() {
             create_ride_transaction,
             get_transaction_by_ride,
             get_ride_details,
+            get_restaurant_details,
+            get_transaction_by_restaurant,
             propose_new_restaurant,
             propose_new_store,
+            create_order,
+            get_all_orders,
+            get_assigned_orders,
+            get_all_customer_restaurant_transactions,
+            get_all_chef_staffs,
+            assign_order,
+            mark_order_ready,
+            complete_order,
             test_backend
         ])
         .run(tauri::generate_context!())

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useStaff } from "@/hooks/use-staff";
 
 type Props = {
   allRestaurants: Restaurant[];
@@ -46,6 +47,7 @@ export default function UpdateRestaurantModal({
   });
   const [allStaff, setAllStaff] = useState<Staff[]>([]);
   const [errors, setErrors] = useState("");
+  const staff = useStaff();
 
   async function fetchStaff() {
     try {
@@ -319,7 +321,7 @@ export default function UpdateRestaurantModal({
         </div>
 
         <DialogFooter>
-          <Button onClick={handleUpdate} className="w-full">
+          <Button onClick={handleUpdate} className="w-full" disabled={staff?.role !== "f&b supervisor"}>
             Save Changes
           </Button>
         </DialogFooter>

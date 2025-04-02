@@ -1,18 +1,11 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
-type RideTransaction = {
-  transaction_id: string;
-  customer_id: string;
-  ride_id: string;
-  amount: number;
-};
-
-export default function RideIncomeSummary({ rideId }: { rideId: string }) {
+export default function RideIncome({ rideId }: { rideId: string }) {
   const [ride, setRide] = useState<Ride | null>(null);
   const [transactions, setTransactions] = useState<RideTransaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [_, setError] = useState<string | null>(null);
 
   async function getRideDetails(id: string) {
     try {
@@ -22,7 +15,7 @@ export default function RideIncomeSummary({ rideId }: { rideId: string }) {
         setRide(response as Ride);
       }
     } catch (err) {
-      setError(`Failed to get ride details: ${err}`);
+      toast(`Failed to get ride details: ${err}`);
     }
     return null;
   }
@@ -34,7 +27,7 @@ export default function RideIncomeSummary({ rideId }: { rideId: string }) {
       });
       setTransactions(response as RideTransaction[]);
     } catch (err) {
-      setError(`Failed to get transactions: ${err}`);
+      toast(`Failed to get transactions: ${err}`);
     } finally {
       setLoading(false);
     }
@@ -47,7 +40,7 @@ export default function RideIncomeSummary({ rideId }: { rideId: string }) {
         await getRideTransactions(rideId);
       } else {
         setLoading(false);
-        setError("No ride ID provided");
+        toast("No ride ID provided");
       }
     }
 

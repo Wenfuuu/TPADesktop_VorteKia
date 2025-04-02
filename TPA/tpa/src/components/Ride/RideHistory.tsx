@@ -1,24 +1,12 @@
+import { useCustomer } from "@/hooks/use-customer";
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 
 export default function RideHistory() {
-  const [customer, setCustomer] = useState<Customer | null>(null);
   const [transactions, setTransactions] = useState<RideTransaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  async function getCustomer() {
-    try {
-      const response = await invoke("get_current_customer");
-      if (response !== null) {
-        setCustomer(response as Customer);
-        return response as Customer;
-      }
-    } catch (err) {
-      setError(`Failed to get customer: ${err}`);
-    }
-    return null;
-  }
+  const customer = useCustomer();
 
   async function getTransactions(customerId: string) {
     try {
@@ -35,16 +23,15 @@ export default function RideHistory() {
 
   useEffect(() => {
     async function loadData() {
-      const customerData = await getCustomer();
-      if (customerData) {
-        await getTransactions(customerData.customer_id);
+      if (customer) {
+        await getTransactions(customer.customer_id);
       } else {
         setLoading(false);
       }
     }
 
     loadData();
-  }, []);
+  }, [customer]);
 
   if (loading) {
     return (

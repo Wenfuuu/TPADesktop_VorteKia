@@ -51,7 +51,6 @@ export default function ExecutiveUI() {
         ) : (
           <StaffNavbar navItems={cfoNavItems} />
         )}
-        {/* {staff?.role === "coo" && <StaffNavbar navItems={cooNavItems} />} */}
 
         <div className="relative min-h-screen p-6 bg-gray-900">
           <div className="text-3xl font-bold flex justify-center text-white mb-4">

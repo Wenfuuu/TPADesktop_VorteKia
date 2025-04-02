@@ -1,8 +1,10 @@
 import StaffNavbar from "@/components/StaffNavbar";
+import { useStaff } from "@/hooks/use-staff";
 import { Outlet, useNavigate } from "react-router";
 
 export default function StaffRestaurantUI() {
   const navigate = useNavigate();
+  const staff = useStaff();
 
   const navItems = [
     { name: "View Restaurants", onClick: () => navigate("/restaurant/view") },
@@ -12,12 +14,15 @@ export default function StaffRestaurantUI() {
 
   const staffNavItems = [
     { name: "View Restaurants", onClick: () => navigate("/restaurant/staff_view") },
+    { name: "View Orders", onClick: () => navigate("/restaurant/order_view") },
     { name: "Chat", onClick: () => navigate("/restaurant/chat") },
   ];
 
   return (
     <>
-      <StaffNavbar navItems={navItems} />
+      {staff?.role === "f&b supervisor" ? <StaffNavbar navItems={navItems} /> :
+      <StaffNavbar navItems={staffNavItems}/>}
+
       <div className="relative min-h-screen p-6 bg-gray-900">
         <div className="text-3xl font-bold flex justify-center text-white mb-4">
           Restaurant

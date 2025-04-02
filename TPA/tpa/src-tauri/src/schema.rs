@@ -111,6 +111,23 @@ diesel::table! {
 }
 
 diesel::table! {
+    orders (order_id) {
+        #[max_length = 255]
+        order_id -> Varchar,
+        #[max_length = 255]
+        restaurant_id -> Varchar,
+        #[max_length = 255]
+        menu_id -> Varchar,
+        #[max_length = 255]
+        customer_id -> Varchar,
+        #[max_length = 255]
+        assigned_to -> Nullable<Varchar>,
+        #[max_length = 255]
+        status -> Varchar,
+    }
+}
+
+diesel::table! {
     reports (report_id) {
         #[max_length = 255]
         report_id -> Varchar,
@@ -133,6 +150,21 @@ diesel::table! {
         restaurant_id -> Varchar,
         #[max_length = 255]
         staff_id -> Varchar,
+    }
+}
+
+diesel::table! {
+    restaurant_transactions (transaction_id) {
+        #[max_length = 255]
+        transaction_id -> Varchar,
+        #[max_length = 255]
+        customer_id -> Varchar,
+        #[max_length = 255]
+        restaurant_id -> Varchar,
+        #[max_length = 255]
+        menu_id -> Varchar,
+        quantity -> Int4,
+        total -> Int4,
     }
 }
 
@@ -303,9 +335,15 @@ diesel::joinable!(menus -> restaurants (restaurant_id));
 diesel::joinable!(new_restaurant_proposals -> staffs (staff_id));
 diesel::joinable!(new_ride_proposals -> staffs (staff_id));
 diesel::joinable!(new_store_proposals -> staffs (staff_id));
+diesel::joinable!(orders -> customers (customer_id));
+diesel::joinable!(orders -> menus (menu_id));
+diesel::joinable!(orders -> restaurants (restaurant_id));
+diesel::joinable!(orders -> staffs (assigned_to));
 diesel::joinable!(reports -> rides (ride_id));
 diesel::joinable!(restaurant_staffs -> restaurants (restaurant_id));
 diesel::joinable!(restaurant_staffs -> staffs (staff_id));
+diesel::joinable!(restaurant_transactions -> customers (customer_id));
+diesel::joinable!(restaurant_transactions -> restaurants (restaurant_id));
 diesel::joinable!(ride_queues -> customers (customer_id));
 diesel::joinable!(ride_queues -> rides (ride_id));
 diesel::joinable!(ride_removal_proposals -> rides (ride_id));
@@ -330,8 +368,10 @@ diesel::allow_tables_to_appear_in_same_query!(
     new_restaurant_proposals,
     new_ride_proposals,
     new_store_proposals,
+    orders,
     reports,
     restaurant_staffs,
+    restaurant_transactions,
     restaurants,
     ride_queues,
     ride_removal_proposals,
