@@ -41,9 +41,9 @@ export default function RestaurantView() {
       const restaurant = restaurantData.find((r) => r.restaurant_id === deviceId);
 
       restaurantData = restaurant ? [restaurant] : [];
-    }else{
+    }else if(deviceId?.startsWith("STAFF")){
       console.log("staff role is " + staff?.role);
-      if (staff?.role === "f&b supervisor") {
+      if (staff?.role === "f&b supervisor" || staff?.role === "customer service") {
         restaurantData = await invoke("get_all_restaurants");
       } else {
         setRestaurants([]);
@@ -56,6 +56,8 @@ export default function RestaurantView() {
 
         restaurantData = assignedRestaurant ? [assignedRestaurant] : [];
       }
+    }else{
+      restaurantData = await invoke("get_all_restaurants");
     }
 
     console.log(restaurantData)

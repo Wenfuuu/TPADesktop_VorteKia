@@ -1,10 +1,7 @@
-use crate::handler::customer_handler::get_current_customer;
 use crate::handler::transaction_handler::create_restaurant_transaction;
 use crate::models::order::Order;
 use crate::db::establish_connection;
 use crate::diesel::prelude::*;
-use crate::models::user::CurrentUser;
-use tauri::State;
 use uuid::Uuid;
 
 #[tauri::command]
@@ -13,19 +10,30 @@ pub fn create_order(
     menuid: &str,
     customerid: &str,
     quantity: i32,
-    price: i32,
-    current_user: State<CurrentUser>
+    price: i32
 ) -> Result<bool, String> {
     use crate::schema::orders::dsl::*;
+    use crate::schema::customers;
     let conn = &mut establish_connection();
 
-    // get current customer to validate balance
-    let customer = get_current_customer(current_user);
-    let balance = customer.as_ref().unwrap().balance;
+    //get customer balance
+    let balance = customers::table
+        .filter(customers::customer_id.eq(&customerid))
+        .select(customers::balance)
+        .first::<i32>(conn)
+        .map_err(|err| format!("Database error: {}", err))?;
     println!("customer current balance is {balance}");
+
     if balance < price {
         return Err("Insufficient balance".to_string());
     }
+
+    // deduct the price from customer balance
+    diesel::update(customers::table)
+        .filter(customers::customer_id.eq(&customerid))
+        .set(customers::balance.eq(customers::balance - price))
+        .execute(conn)
+        .map_err(|err| format!("Database error: {}", err))?;
 
     // status => Pending, Cooking, Ready to Serve, Complete
     let new_order = Order {

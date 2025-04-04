@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,23 +14,13 @@ import { Textarea } from "@/components/ui/textarea";
 import ImageUpload from "../ImageUpload";
 import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
+import { useStaff } from "@/hooks/use-staff";
 
 export default function ProposeRestaurantDialog() {
   const [restaurantName, setRestaurantName] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<Uint8Array | null>(null);
-  const [staff, setStaff] = useState<Staff | null>(null);
-
-  useEffect(() => {
-    get_staff();
-  }, []);
-
-  const get_staff = async () => {
-    const response = await invoke("get_current_staff");
-    if (response !== null) {
-      setStaff(response as Staff);
-    }
-  };
+  const staff = useStaff();
 
   // Validation state
   const [errors, setErrors] = useState<{

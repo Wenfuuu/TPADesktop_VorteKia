@@ -72,7 +72,6 @@ export default function RideView() {
         if(deviceId?.startsWith("RIDE")){
             rideData = await invoke("get_all_rides");
             const ride = rideData.find((ride) => ride.ride_id === deviceId);
-
             rideData = ride ? [ride] : [];
         } else {
             rideData = await invoke("get_all_rides");

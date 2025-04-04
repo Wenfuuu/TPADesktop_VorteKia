@@ -10,12 +10,12 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
-type OrderMenuDialogProps = {
+type Props = {
   menu: Menu;
   onOrder: (menuId: string, quantity: number, totalPrice: number) => void;
 };
 
-export default function OrderMenuDialog({ menu, onOrder }: OrderMenuDialogProps) {
+export default function OrderMenuDialog({ menu, onOrder }: Props) {
   const [open, setOpen] = useState(false);
   const [quantity, setQuantity] = useState("1");
   const [errors, setErrors] = useState<{ quantity?: string }>();

@@ -9,7 +9,6 @@ import LostAndFoundView from "./components/LostAndFound/LostAndFoundView";
 import { Toaster } from "sonner";
 import ChatBox from "./components/Chatbox";
 import RestaurantView from "./components/Restaurant/RestaurantView";
-// import { RestaurantProvider } from "./components/context/RestaurantContext";
 import StoreView from "./components/Store/StoreView";
 import StaffRestaurantUI from "./ui/StaffRestaurantUI";
 import StaffStoreUI from "./ui/StaffStoreUI";
@@ -33,14 +32,22 @@ import ProposeStoreDialog from "./components/Store/ProposeStoreDialog";
 import OrderView from "./components/Restaurant/OrderView";
 import RestaurantUI from "./ui/RestaurantUI";
 import RestaurantHistory from "./components/Restaurant/RestaurantHistory";
+import StoreUI from "./ui/StoreUI";
+import CustomerUI from "./ui/CustomerUI";
+import TopupDialog from "./components/Customer/TopupDialog";
+import StoreHistory from "./components/Store/StoreHistory";
+import CustomerServiceUI from "./ui/CustomerServiceUI";
+import BroadcastDialog from "./components/CustomerService/BroadcastDialog";
+import CreateCustomerForm from "./components/CustomerService/CreateCustomerForm";
 
 const lostAndFoundGroups = ["All Staff", "Lost and Found Staff"];
-const rideManagerGroups = ["All Staff", "Operational Division", "requestmaintenance"];
+const rideManagerGroups = ["All Staff", "Operational Division"];
 const rideStaffGroups = ["All Staff", "Operational Division"];
 const consumptionGroups = ["All Staff", "Consumption Division"];
-const maintenanceManagerGroups = ["All Staff", "Care and Maintenance Division", "respondrequest"]
+const maintenanceManagerGroups = ["All Staff", "Care and Maintenance Division"]
 const maintenanceStaffGroups = ["All Staff", "Care and Maintenance Division"]
 const marketingGroups = ["All Staff", "Marketing Division"]
+const serviceGroups = ["All Staff"]
 const executiveGroups = ["All Staff", "Executive Division"]
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
@@ -52,6 +59,21 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <Route path="/" element={<App />} />
 
           <Route path="/customer_login" element={<CustomerLoginPage />} />
+
+          <Route path="/customer" element={<CustomerUI />}>
+            <Route path="restaurants" element={<RestaurantView />} />
+            <Route path="rides" element={<RideView />} />
+            <Route path="topup" element={<TopupDialog />} />
+            <Route path="chat" element={<ChatBox groupNames={[]} />} />
+          </Route>
+
+          <Route path="/customerservice" element={<CustomerServiceUI />}>
+            <Route path="restaurants" element={<RestaurantView />} />
+            <Route path="rides" element={<RideView />} />
+            <Route path="broadcast" element={<BroadcastDialog />} />
+            <Route path="create_customer" element={<CreateCustomerForm />} />
+            <Route path="chat" element={<Chatbox groupNames={serviceGroups}/>} />
+          </Route>
 
           <Route
             path="/lostandfound"
@@ -69,14 +91,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
             />
           </Route>
 
-          <Route
-            path="/restaurant"
-            element={
-              // <RestaurantProvider>
-              <StaffRestaurantUI />
-              // </RestaurantProvider>
-            }
-          >
+          <Route path="/restaurant" element={<StaffRestaurantUI />}>
             <Route path="view" element={<RestaurantView />} />
             <Route path="staff_view" element={<RestaurantView />} />
             <Route path="order_view" element={<OrderView />} />
@@ -89,7 +104,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 
           <Route path="/customer_restaurant" element={<RestaurantUI />}>
             <Route path="restaurants" element={<RestaurantView />} />
-            <Route path="history" element={<RestaurantHistory/>} />
+            <Route path="history" element={<RestaurantHistory />} />
             {/* <Route path="chat" element={} /> */}
           </Route>
 
@@ -101,6 +116,12 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
               path="chat"
               element={<ChatBox groupNames={marketingGroups} />}
             />
+          </Route>
+
+          <Route path="/customer_store" element={<StoreUI />}>
+            <Route path="stores" element={<StoreView />} />
+            <Route path="history" element={<StoreHistory />} />
+            {/* <Route path="chat" element={} /> */}
           </Route>
 
           <Route path="/ride" element={<StaffRideUI />}>

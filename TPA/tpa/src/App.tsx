@@ -14,10 +14,18 @@ function App() {
       navigate("/customer_ride/rides");
     } else if (deviceId.startsWith("RES")) {
       navigate("/customer_restaurant/restaurants");
+    } else if(deviceId.startsWith("STR")) {
+      navigate("/customer_store/stores");
+    } else if(deviceId.startsWith("CUSTOMER")) {
+      navigate("/customer/restaurants");
     }
-  }, [deviceId]); // Depend on `deviceId` to trigger navigation when it changes
+  }, [deviceId]);
 
-  return <div>{deviceId?.startsWith("ST") && <StaffLoginPage />}</div>;
+  return (
+    <div>
+      {deviceId?.startsWith("STAFF") && <StaffLoginPage />}
+    </div>
+  )
 }
 
 export default App;

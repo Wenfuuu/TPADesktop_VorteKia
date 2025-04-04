@@ -60,14 +60,14 @@ pub fn get_all_customers() -> Result<Vec<Customer>, String> {
 }
 
 #[tauri::command]
-pub fn create_customer(new_name: &str) -> bool{
-    println!("test creating customer name {new_name}");
+pub fn create_customer(customername: &str) -> bool{
+    println!("test creating customer name {customername}");
     use crate::schema::customers::dsl::*;
     let conn = &mut establish_connection();
 
     let new_customer = Customer{
         customer_id: format!("CUST-{}", &Uuid::new_v4().to_string()[..8]),
-        name: new_name.to_string(),
+        name: customername.to_string(),
         balance: 100000
     };
 
@@ -76,4 +76,19 @@ pub fn create_customer(new_name: &str) -> bool{
         .execute(conn)
         .map(|_| true)
         .unwrap_or(false)
+}
+
+#[tauri::command]
+pub fn topup_balance(customerid: &str, amount: i32) -> Result<bool, String> {
+    println!("test topping up customer {customerid} with amount {amount}");
+    use crate::schema::customers::dsl::*;
+    let conn = &mut establish_connection();
+
+    let update_query = diesel::update(customers.filter(customer_id.eq(customerid)))
+        .set(balance.eq(balance + amount));
+
+    match update_query.execute(conn) {
+        Ok(_) => Ok(true),
+        Err(e) => Err(format!("Topup failed: {}", e)),
+    }
 }

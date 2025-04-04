@@ -1,6 +1,19 @@
 import { useNavigate } from "react-router";
 import { useTime } from "./context/TimeContext";
 import { useCustomer } from "@/hooks/use-customer";
+import { useEffect, useRef, useState } from "react";
+import { invoke } from "@tauri-apps/api/core";
+import { toast } from "sonner";
+import { Button } from "./ui/button";
+import { Bell } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "./ui/scroll-area";
 
 type NavItem = {
   name: string;
@@ -15,6 +28,69 @@ export default function CustomerNavbar({ navItems }: Props) {
   const navigate = useNavigate();
   const customer = useCustomer();
   const { currentTime } = useTime();
+  const [showBroadcastDialog, setShowBroadcastDialog] = useState(false);
+  const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
+  const prevBroadcastsRef = useRef<Broadcast[]>([]);
+
+  // Function to fetch broadcasts
+  const fetchBroadcasts = async () => {
+    if (!customer) return;
+
+    try {
+      const data: Broadcast[] = await invoke("get_customer_broadcasts", {
+        customerid: customer.customer_id
+      });
+
+      // Check for new broadcasts by comparing with previous state
+      if (prevBroadcastsRef.current.length > 0) {
+        const newBroadcasts = data.filter(
+          (newBroadcast) =>
+            !prevBroadcastsRef.current.some(
+              (oldBroadcast) =>
+                oldBroadcast.broadcast_id === newBroadcast.broadcast_id
+            )
+        );
+
+        // Show toast notifications for new broadcasts
+        newBroadcasts.forEach((broadcast) => {
+          toast("New Broadcast", {
+            description: `${broadcast.message}`,
+            action: {
+              label: "View",
+              onClick: () => setShowBroadcastDialog(true),
+            },
+          });
+        });
+      }
+
+      // Update state and reference
+      setBroadcasts(data);
+      prevBroadcastsRef.current = data;
+    } catch (error) {
+      console.error("Failed to fetch broadcasts:", error);
+    }
+  };
+
+  // Fetch broadcasts every 5 seconds
+  useEffect(() => {
+    if (!customer) return;
+
+    // Initial fetch
+    fetchBroadcasts();
+
+    // Set up interval for periodic fetching
+    const intervalId = setInterval(fetchBroadcasts, 2000);
+
+    // Clean up interval on unmount
+    return () => clearInterval(intervalId);
+  }, [customer]);
+
+  // Also fetch broadcasts when dialog opens
+  useEffect(() => {
+    if (showBroadcastDialog) {
+      fetchBroadcasts();
+    }
+  }, [showBroadcastDialog]);
 
   return (
     <div className="bg-gray-800 p-4">
@@ -34,6 +110,17 @@ export default function CustomerNavbar({ navItems }: Props) {
 
         {/* Right Side: Time, Balance, Customer Info, and Button */}
         <div className="flex space-x-4 items-center">
+          {/* Inbox icon for viewing broadcasts */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-white hover:bg-gray-700 rounded-full"
+            onClick={() => setShowBroadcastDialog(true)}
+            aria-label="View broadcasts"
+          >
+            <Bell size={24} />
+          </Button>
+
           <h2 className="text-white font-bold text-xl">
             {currentTime.toLocaleTimeString("en-US", { hour12: false })}
           </h2>
@@ -61,6 +148,40 @@ export default function CustomerNavbar({ navItems }: Props) {
             </button>
           )}
         </div>
+
+        {/* Broadcast List Dialog */}
+        <Dialog
+          open={showBroadcastDialog}
+          onOpenChange={setShowBroadcastDialog}
+        >
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Broadcasts</DialogTitle>
+              <DialogDescription>
+                System and administrative messages
+              </DialogDescription>
+            </DialogHeader>
+
+            <ScrollArea className="h-64">
+              {broadcasts.length > 0 ? (
+                <div className="space-y-4 p-1">
+                  {broadcasts.map((broadcast) => (
+                    <div
+                      key={broadcast.broadcast_id}
+                      className="p-3 rounded-lg bg-gray-100"
+                    >
+                      <p className="mt-1 text-sm">{broadcast.message}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-500">
+                  No broadcasts available
+                </div>
+              )}
+            </ScrollArea>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

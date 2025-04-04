@@ -42,7 +42,7 @@ pub fn add_queue_from_customer(rideid: String, customerid: String) -> Result<boo
 
     //check if customer has enough balance
     if balance < price {
-        return Err("Not enough balance".to_string());
+        return Err("Insufficient balance".to_string());
     }
 
     // deduct the price from customer balance

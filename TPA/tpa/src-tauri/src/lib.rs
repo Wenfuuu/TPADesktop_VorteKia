@@ -18,6 +18,7 @@ use crate::handler::ride_queue_handler::*;
 use crate::handler::chat_handler::*;
 use crate::handler::transaction_handler::*;
 use crate::handler::order_handler::*;
+use crate::handler::broadcast_handler::*;
 
 extern crate diesel;
 
@@ -66,6 +67,7 @@ fn seeding(){
     // register_staff("helena", "as24-2", "coo");
     // register_staff("celine", "ct24-2", "cfo");
     // register_staff("brenda", "bd24-2", "ceo");
+    // register_staff("veron", "vm24-2", "customer service");
     // create_customer("paula");
     // create_customer("yudhis");
     // create_customer("budi");
@@ -126,6 +128,7 @@ pub fn run() {
             update_souvenir,
             delete_souvenir,
             propose_store_removal,
+            create_store_transaction,
             get_all_rides,
             update_ride,
             allocate_ride_staff,
@@ -183,6 +186,16 @@ pub fn run() {
             assign_order,
             mark_order_ready,
             complete_order,
+            get_all_customer_store_transactions,
+            get_transaction_by_store,
+            get_store_details,
+            topup_balance,
+            send_personal_message,
+            get_personal_chat_messages,
+            broadcast_to_staff,
+            broadcast_to_customer,
+            get_staff_broadcasts,
+            get_customer_broadcasts,
             test_backend
         ])
         .run(tauri::generate_context!())

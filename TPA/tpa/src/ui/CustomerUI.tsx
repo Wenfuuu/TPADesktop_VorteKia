@@ -1,0 +1,96 @@
+import CustomerNavbar from "@/components/CustomerNavbar";
+import { useCustomer } from "@/hooks/use-customer";
+import { invoke } from "@tauri-apps/api/core";
+import { useEffect, useState } from "react";
+import { Outlet, useNavigate } from "react-router";
+import { toast } from "sonner";
+
+export default function CustomerUI(){
+    const navigate = useNavigate();
+    const customer = useCustomer();
+    const [lastActivity, setLastActivity] = useState(Date.now());
+    const inactivityTimeout = 60000;
+
+    const notLoggedItems = [
+        { name: "View Restaurants", onClick: () => navigate("/customer/restaurants") },
+        { name: "View Rides", onClick: () => navigate("/customer/rides") },
+    ];
+
+    const loggedItems = [
+        { name: "View Restaurants", onClick: () => navigate("/customer/restaurants") },
+        { name: "View Rides", onClick: () => navigate("/customer/rides") },
+        { name: "Top Up", onClick: () => navigate("/customer/topup") },
+        { name: "Chat", onClick: () => navigate("/customer/chat") },
+    ];
+
+    const handleUserActivity = () => {
+      setLastActivity(Date.now());
+    };
+
+    const handleLogout = () => {
+      invoke<boolean>("logout_customer")
+        .then((success) => {
+          if (success) {
+            toast("Automically logged out!");
+            navigate("/customer/restaurants");
+            setTimeout(() => {
+              window.location.reload();
+            }, 500);
+          }
+        })
+        .catch((error) => {
+          toast(error);
+        });
+    };
+
+    useEffect(() => {
+      // Only set up inactivity tracking if a user is logged in
+      if (!customer) return;
+
+      // Set up event listeners for user activity
+      const activityEvents = [
+        "mousedown",
+        "mousemove",
+        "keypress",
+        "scroll",
+        "touchstart",
+      ];
+
+      activityEvents.forEach((event) => {
+        window.addEventListener(event, handleUserActivity);
+      });
+
+      // Check for inactivity every 10 seconds
+      const interval = setInterval(() => {
+        const currentTime = Date.now();
+        if (currentTime - lastActivity > inactivityTimeout) {
+          handleLogout();
+          clearInterval(interval);
+        }
+      }, 10000); // Check every 10 seconds
+
+      return () => {
+        activityEvents.forEach((event) => {
+          window.removeEventListener(event, handleUserActivity);
+        });
+        clearInterval(interval);
+      };
+    }, [customer, lastActivity, navigate]);
+
+    return (
+      <>
+        {customer ? (
+          <CustomerNavbar navItems={loggedItems} />
+        ) : (
+          <CustomerNavbar navItems={notLoggedItems} />
+        )}
+        <div className="relative min-h-screen p-6 bg-gray-900">
+          <div className="text-3xl font-bold flex justify-center text-white mb-4">
+            Customer UI
+          </div>
+
+          <Outlet />
+        </div>
+      </>
+    );
+}

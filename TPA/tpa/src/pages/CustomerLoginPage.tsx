@@ -33,7 +33,12 @@ export default function CustomerLoginPage() {
           navigate("/customer_ride/rides");
         } else if (deviceId.startsWith("RES")) {
           navigate("/customer_restaurant/restaurants");
-        } else {
+        } else if(deviceId.startsWith("STR")) {
+          navigate("/customer_store/stores");
+        } else if(deviceId.startsWith("CUSTOMER")) {
+          navigate("/customer/restaurants");
+        }
+        else {
           toast("Unknown device ID.");
         }
     } else {

@@ -1,8 +1,56 @@
 use uuid::Uuid;
 use crate::models::ride_transaction::RideTransaction;
 use crate::models::restaurant_transaction::RestaurantTransaction;
+use crate::models::store_transaction::StoreTransaction;
 use crate::db::establish_connection;
 use crate::diesel::prelude::*;
+
+#[tauri::command]
+pub fn create_store_transaction(
+    customerid: &str,
+    storeid: &str,
+    souvenirid: &str,
+    qty: i32,
+    totalprice: i32
+) -> Result<bool, String> {
+    use crate::schema::store_transactions::dsl::*;
+    use crate::schema::customers;
+    let conn = &mut establish_connection();
+
+    //get customer balance
+    let balance = customers::table
+        .filter(customers::customer_id.eq(&customerid))
+        .select(customers::balance)
+        .first::<i32>(conn)
+        .map_err(|err| format!("Database error: {}", err))?;
+    println!("customer current balance is {balance}");
+
+    if balance < totalprice {
+        return Err("Insufficient balance".to_string());
+    }
+
+    // deduct the price from customer balance
+    diesel::update(customers::table)
+        .filter(customers::customer_id.eq(&customerid))
+        .set(customers::balance.eq(customers::balance - totalprice))
+        .execute(conn)
+        .map_err(|err| format!("Database error: {}", err))?;
+
+    let new_transaction = StoreTransaction {
+        transaction_id: format!("TRANS-{}", &Uuid::new_v4().to_string()[..8]),
+        customer_id: customerid.to_string(),
+        store_id: storeid.to_string(),
+        souvenir_id: souvenirid.to_string(),
+        quantity: qty,
+        total: totalprice
+    };
+
+    diesel::insert_into(store_transactions)
+        .values(&new_transaction)
+        .execute(conn)
+        .map(|_| true)
+        .map_err(|err| format!("Database error: {}", err))
+}
 
 #[tauri::command]
 pub fn create_restaurant_transaction(
@@ -77,6 +125,17 @@ pub fn get_transaction_by_restaurant(restaurantid: &str) -> Result<Vec<Restauran
 }
 
 #[tauri::command]
+pub fn get_transaction_by_store(storeid: &str) -> Result<Vec<StoreTransaction>, String> {
+    use crate::schema::store_transactions::dsl::*;
+    let conn = &mut establish_connection();
+
+    store_transactions
+        .filter(store_id.eq(storeid))
+        .load::<StoreTransaction>(conn)
+        .map_err(|err| format!("Database error: {}", err))
+}
+
+#[tauri::command]
 pub fn get_all_customer_ride_transactions(customerid: &str) -> Result<Vec<RideTransaction>, String> {
     use crate::schema::ride_transactions::dsl::*;
     let conn = &mut establish_connection();
@@ -95,6 +154,17 @@ pub fn get_all_customer_restaurant_transactions(customerid: &str) -> Result<Vec<
     restaurant_transactions
         .filter(customer_id.eq(customerid))
         .load::<RestaurantTransaction>(conn)
+        .map_err(|err| format!("Database error: {}", err))
+}
+
+#[tauri::command]
+pub fn get_all_customer_store_transactions(customerid: &str) -> Result<Vec<StoreTransaction>, String> {
+    use crate::schema::store_transactions::dsl::*;
+    let conn = &mut establish_connection();
+
+    store_transactions
+        .filter(customer_id.eq(customerid))
+        .load::<StoreTransaction>(conn)
         .map_err(|err| format!("Database error: {}", err))
 }
 

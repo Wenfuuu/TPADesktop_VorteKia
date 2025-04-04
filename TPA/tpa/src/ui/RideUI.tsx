@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router";
 import { toast } from "sonner";
 
-
 export default function RideUI() {
     const navigate = useNavigate();
     const customer = useCustomer();
@@ -17,9 +16,9 @@ export default function RideUI() {
     ];
 
     const loggedItems = [
-        { name: "View Ride", onClick: () => navigate("/customer_ride/rides") },
-        { name: "View History", onClick: () => navigate("/customer_ride/history") },
-        { name: "Chat", onClick: () => navigate("/customer_ride/chat") },
+      { name: "View Ride", onClick: () => navigate("/customer_ride/rides") },
+      { name: "View History", onClick: () => navigate("/customer_ride/history") },
+      { name: "Chat", onClick: () => navigate("/customer_ride/chat") },
     ];
 
     const handleUserActivity = () => {

@@ -330,7 +330,7 @@ export default function EditRideDialog({
           <Button 
           onClick={handleUpdate} 
           className="w-full"
-          disabled={staff?.role === "ride staff"}>
+          disabled={staff?.role !== "ride manager"}>
             Save Changes
           </Button>
         </DialogFooter>

@@ -22,3 +22,5 @@ pub mod new_restaurant_proposal;
 pub mod new_store_proposal;
 pub mod order;
 pub mod restaurant_transaction;
+pub mod store_transaction;
+pub mod broadcast;

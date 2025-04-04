@@ -46,8 +46,9 @@ export default function StaffLoginPage() {
       navigate("/maintenance/staff_reports");
     } else if (staffData.role === "coo") {
       navigate("/coo/ride_view");
+    } else if (staffData.role === "customer service") {
+      navigate("/customerservice/restaurants");
     } else {
-      // console.warn("Unknown staff role:", staffData.role);
       toast("Unknown staff role.");
     }
   };

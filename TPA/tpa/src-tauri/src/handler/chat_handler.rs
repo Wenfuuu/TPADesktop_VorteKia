@@ -200,3 +200,171 @@ pub async fn get_chat_messages(
         Err(e) => Err(format!("Error getting messages: {}", e)),
     }
 }
+
+// Send a personal message to another staff member
+#[tauri::command]
+pub async fn send_personal_message(
+    firebase: State<'_, FirebaseClient>,
+    sender_id: &str,
+    receiver_id: &str, 
+    message: &str,
+    sender_name: &str,
+    sender_role: &str
+) -> Result<String, String> {
+    let client = firebase.0.lock().await.clone();
+    let base_url = get_firestore_base_url();
+    
+    // Create a unique conversation ID by combining user IDs (in sorted order for consistency)
+    let mut user_ids = vec![sender_id, receiver_id];
+    user_ids.sort(); // Sort to ensure same conversation ID regardless of sender/receiver order
+    let conversation_id = format!("personal_{}_{}",  user_ids[0], user_ids[1]);
+    
+    let url = format!("{}/personalChats/{}/messages", base_url, conversation_id);
+
+    let avatar_initials = sender_name
+        .split_whitespace()
+        .map(|n| n.chars().next().unwrap_or(' '))
+        .collect::<String>()
+        .to_uppercase();
+
+    let timestamp = Utc::now().to_rfc3339();
+
+    // Create Firestore document structure
+    let document = serde_json::json!({
+        "fields": {
+            "text": { "stringValue": message },
+            "createdAt": { "timestampValue": timestamp },
+            "staff_id": { "stringValue": sender_id },
+            "name": { "stringValue": sender_name },
+            "role": { "stringValue": sender_role },
+            "avatarInitials": { "stringValue": avatar_initials },
+            "receiver_id": { "stringValue": receiver_id }
+        }
+    });
+
+    // Send request to Firestore
+    match client.post(&url).json(&document).send().await {
+        Ok(response) => {
+            let status = response.status();
+            let body = response.text().await.unwrap_or_default();
+            if status.is_success() {
+                Ok("Personal message sent successfully".to_string())
+            } else {
+                Err(format!("Failed to send personal message: {} - {}", status, body))
+            }
+        },
+        Err(e) => Err(format!("Error sending personal message: {}", e)),
+    }
+}
+
+// Get messages from a personal chat
+#[tauri::command]
+pub async fn get_personal_chat_messages(
+    firebase: State<'_, FirebaseClient>,
+    userid1: &str,
+    userid2: &str,
+    limit: u32
+) -> Result<Vec<ChatMessage>, String> {
+    let client = firebase.0.lock().await.clone();
+    let base_url = get_firestore_base_url();
+    
+    // Create a unique conversation ID by combining user IDs (in sorted order for consistency)
+    let mut user_ids = vec![userid1, userid2];
+    user_ids.sort(); // Sort to ensure same conversation ID regardless of order
+    let conversation_id = format!("personal_{}_{}",  user_ids[0], user_ids[1]);
+    
+    let url = format!("{}/personalChats/{}/:runQuery", base_url, conversation_id);
+
+    let query = serde_json::json!({
+        "structuredQuery": {
+            "from": [{ "collectionId": "messages" }],
+            "orderBy": [{
+                "field": { "fieldPath": "createdAt" },
+                "direction": "ASCENDING"
+            }],
+            "limit": limit
+        }
+    });
+
+    // Send request to Firestore
+    match client.post(&url).json(&query).send().await {
+        Ok(response) => {
+            let status = response.status();
+            let body = response.text().await.unwrap_or_default();
+
+            if status.is_success() {
+                match serde_json::from_str::<serde_json::Value>(&body) {
+                    Ok(data) => {
+                        let empty_vec = vec![];
+                        let documents = data.as_array().unwrap_or(&empty_vec);
+                        let mut messages = Vec::new();
+
+                        for doc in documents {
+                            if let Some(document) = doc["document"].as_object() {
+                                let name = document["name"]
+                                    .as_str()
+                                    .unwrap_or("")
+                                    .split('/')
+                                    .last()
+                                    .unwrap_or("")
+                                    .to_string();
+
+                                // Store fields object in a variable first
+                                let empty_map = serde_json::Map::new();
+                                let fields = document.get("fields").and_then(|f| f.as_object()).unwrap_or(&empty_map);
+
+                                let text = fields.get("text")
+                                    .and_then(|v| v["stringValue"].as_str())
+                                    .unwrap_or("")
+                                    .to_string();
+
+                                let created_at = fields.get("createdAt")
+                                    .and_then(|v| v["timestampValue"].as_str())
+                                    .map(|ts| chrono::DateTime::parse_from_rfc3339(ts)
+                                        .unwrap_or_default()
+                                        .timestamp())
+                                    .unwrap_or(0);
+
+                                let staff_id = fields.get("staff_id")
+                                    .and_then(|v| v["stringValue"].as_str())
+                                    .unwrap_or("")
+                                    .to_string();
+
+                                let staff_name = fields.get("name")
+                                    .and_then(|v| v["stringValue"].as_str())
+                                    .unwrap_or("")
+                                    .to_string();
+
+                                let role = fields.get("role")
+                                    .and_then(|v| v["stringValue"].as_str())
+                                    .unwrap_or("")
+                                    .to_string();
+
+                                let avatar_initials = fields.get("avatarInitials")
+                                    .and_then(|v| v["stringValue"].as_str())
+                                    .unwrap_or("")
+                                    .to_string();
+
+                                messages.push(ChatMessage {
+                                    id: Some(name),
+                                    text,
+                                    created_at,
+                                    staff_id,
+                                    name: staff_name,
+                                    role,
+                                    avatar_initials,
+                                });
+                            }
+                        }
+
+                        Ok(messages)
+                    }
+                    Err(e) => Err(format!("Error parsing response: {}", e)),
+                }
+            } else {
+                Err(format!("Failed to get personal messages: {} - {}", status, body))
+            }
+        }
+        Err(e) => Err(format!("Error getting personal messages: {}", e)),
+    }
+}

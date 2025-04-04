@@ -5,6 +5,10 @@ import AddSouvenirDialog from "./AddSouvenirDialog";
 import { invoke } from "@tauri-apps/api/core";
 import EditSouvenirDialog from "./EditSouvenirDialog";
 import { useStaff } from "@/hooks/use-staff";
+import { useCustomer } from "@/hooks/use-customer";
+import BuySouvenirDialog from "./BuySouvenirDialog";
+import { useDeviceId } from "@/hooks/use-device-id";
+import { toast } from "sonner";
 
 type Props = {
   stores: Store[];
@@ -19,6 +23,7 @@ type Props = {
     updatedSouvenir: Partial<Souvenir>
   ) => void;
   onRemoveSouvenir?: (souvenirId: string, storeId: string) => void;
+  onIncome: (store: Store) => void;
 };
 
 export default function StoreList({
@@ -28,11 +33,31 @@ export default function StoreList({
   onAddSouvenir,
   onUpdateSouvenir,
   onRemoveSouvenir,
+  onIncome,
 }: Props) {
   const [imageUrls, setImageUrls] = useState<{ [key: string]: string }>({});
   const [souvenirs, setSouvenirs] = useState<{ [key: string]: Souvenir[] }>({});
   const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
   const staff = useStaff();
+  const customer = useCustomer();
+  const deviceId = useDeviceId();
+
+  const handleBuy = async (souvenirId: string, quantity: number, totalPrice: number) => {
+    // create transaction
+    await invoke("create_store_transaction", {
+      customerid: customer?.customer_id,
+      storeid: deviceId,
+      souvenirid: souvenirId,
+      qty: quantity,
+      totalprice: totalPrice,
+    }).then((success) => {
+      if(success){
+        toast("Success buying souvenir!")
+      }
+    }).catch((e) => {
+      toast(e)
+    })
+  }
 
   const fetchSouvenirs = async (storeId: string) => {
     // Skip if already loading this store's souvenirs
@@ -171,21 +196,25 @@ export default function StoreList({
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <Button
-                      onClick={() => onEdit(store)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer flex justify-around"
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      View Details
-                    </Button>
+                    {staff && (
+                      <Button
+                        onClick={() => onEdit(store)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer flex justify-around"
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        View Details
+                      </Button>
+                    )}
 
-                    <Button
-                      onClick={() => {}}
-                      className="bg-green-600 hover:bg-green-700 text-white cursor-pointer flex justify-around"
-                    >
-                      <DollarSign className="w-4 h-4 mr-2" />
-                      View Income
-                    </Button>
+                    {staff && (
+                      <Button
+                        onClick={() => onIncome(store)}
+                        className="bg-green-600 hover:bg-green-700 text-white cursor-pointer flex justify-around"
+                      >
+                        <DollarSign className="w-4 h-4 mr-2" />
+                        View Income
+                      </Button>
+                    )}
 
                     {staff?.role === "retail manager" && (
                       <Button
@@ -284,6 +313,12 @@ export default function StoreList({
                                   </span>
                                 </Button>
                               )}
+                            {customer && (
+                              <BuySouvenirDialog
+                                souvenir={souvenir}
+                                onBuy={handleBuy}
+                              />
+                            )}
                           </div>
                         </div>
                       ))}

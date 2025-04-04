@@ -81,6 +81,21 @@ pub fn update_store(
 }
 
 #[tauri::command]
+pub fn get_store_details(storeid: &str) -> Result<StoreDTO, String> {
+    println!("Fetching store details");
+    use crate::schema::stores::dsl::*;
+    let conn = &mut establish_connection();
+
+    match stores.filter(store_id.eq(storeid)).first::<Store>(conn) {
+        Ok(store) => Ok(store.into()),
+        Err(e) => {
+            eprintln!("Error fetching store: {}", e);
+            Err(e.to_string())
+        }
+    }
+}
+
+#[tauri::command]
 pub fn get_all_stores() -> Result<Vec<StoreDTO>, String> {
     println!("Fetching all stores");
     use crate::schema::stores::dsl::*;

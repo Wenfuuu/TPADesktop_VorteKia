@@ -1,6 +1,17 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    broadcasts (broadcast_id) {
+        #[max_length = 255]
+        broadcast_id -> Varchar,
+        #[max_length = 255]
+        message -> Varchar,
+        #[max_length = 255]
+        customer_id -> Nullable<Varchar>,
+    }
+}
+
+diesel::table! {
     customers (customer_id) {
         #[max_length = 255]
         customer_id -> Varchar,
@@ -300,6 +311,21 @@ diesel::table! {
 }
 
 diesel::table! {
+    store_transactions (transaction_id) {
+        #[max_length = 255]
+        transaction_id -> Varchar,
+        #[max_length = 255]
+        customer_id -> Varchar,
+        #[max_length = 255]
+        store_id -> Varchar,
+        #[max_length = 255]
+        souvenir_id -> Varchar,
+        quantity -> Int4,
+        total -> Int4,
+    }
+}
+
+diesel::table! {
     stores (store_id) {
         #[max_length = 255]
         store_id -> Varchar,
@@ -328,6 +354,7 @@ diesel::table! {
     }
 }
 
+diesel::joinable!(broadcasts -> customers (customer_id));
 diesel::joinable!(maintenance_logs -> reports (report_id));
 diesel::joinable!(maintenance_logs -> staffs (staff_id));
 diesel::joinable!(maintenance_logs -> tasks (task_id));
@@ -357,10 +384,14 @@ diesel::joinable!(store_removal_proposals -> staffs (staff_id));
 diesel::joinable!(store_removal_proposals -> stores (store_id));
 diesel::joinable!(store_staffs -> staffs (staff_id));
 diesel::joinable!(store_staffs -> stores (store_id));
+diesel::joinable!(store_transactions -> customers (customer_id));
+diesel::joinable!(store_transactions -> souvenirs (souvenir_id));
+diesel::joinable!(store_transactions -> stores (store_id));
 diesel::joinable!(tasks -> rides (ride_id));
 diesel::joinable!(tasks -> staffs (assigned_to));
 
 diesel::allow_tables_to_appear_in_same_query!(
+    broadcasts,
     customers,
     lostandfounditems,
     maintenance_logs,
@@ -382,6 +413,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     staffs,
     store_removal_proposals,
     store_staffs,
+    store_transactions,
     stores,
     tasks,
 );

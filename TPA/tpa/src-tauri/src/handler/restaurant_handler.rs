@@ -107,7 +107,7 @@ pub fn get_restaurant_details(restaurantid: &str) -> Result<RestaurantDTO, Strin
     match restaurants.filter(restaurant_id.eq(restaurantid)).first::<Restaurant>(conn) {
         Ok(restaurant) => Ok(restaurant.into()),
         Err(e) => {
-            eprintln!("Error fetching ride: {}", e);
+            eprintln!("Error fetching restaurant: {}", e);
             Err(e.to_string())
         }
     }

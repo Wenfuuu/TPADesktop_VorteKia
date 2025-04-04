@@ -6,18 +6,22 @@ import EditStoreDialog from "./EditStoreDialog";
 import RemoveStoreDialog from "./RemoveStoreDialog";
 import { useTime } from "../context/TimeContext";
 import { useStaff } from "@/hooks/use-staff";
+import { useDeviceId } from "@/hooks/use-device-id";
+import StoreIncome from "./StoreIncome";
 
 export default function StoreView() {
     const [stores, setStores] = useState<Store[]>([]);
     const [editingStore, setEditingStore] = useState<Store | null>(null);
     const [removingStore, setRemovingStore] = useState<Store | null>(null);
+    const [incomeStore, setIncomeStore] = useState<Store | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const staff = useStaff();
     const {currentTime} = useTime();
+    const staff = useStaff();
+    const deviceId = useDeviceId();
 
     useEffect(() => {
-        if (staff !== undefined) fetchStores();
-    }, [staff]);
+        if (deviceId) fetchStores();
+    }, [staff, deviceId]);
 
     useEffect(() => {
         stores.forEach(async (store) => {
@@ -79,22 +83,29 @@ export default function StoreView() {
     }, [currentTime, stores]);
 
     const fetchStores = async () => {
+      if(!deviceId) return;
       setIsLoading(true);
       try {
         let storeData: Store[] = [];
-        console.log("staff role is " + staff?.role);
-        
-        if (staff?.role === "sales associate" && staff?.staff_id) {
-          const assignedStore: Store = await invoke("get_assigned_store", {
-            staffid: staff.staff_id,
-          });
 
-          storeData = assignedStore ? [assignedStore] : [];
-        } else {
+        if(deviceId.startsWith("STAFF")){
+          console.log("staff role is " + staff?.role);
+          if (staff?.role === "sales associate" && staff?.staff_id) {
+            const assignedStore: Store = await invoke("get_assigned_store", {
+              staffid: staff.staff_id,
+            });
+            storeData = assignedStore ? [assignedStore] : [];
+          } else {
+            storeData = await invoke("get_all_stores");
+          }
+
+          console.log(storeData);
+        }else{// store UI
           storeData = await invoke("get_all_stores");
+          const store = storeData.find((store) => store.store_id === deviceId);
+          storeData = store ? [store] : [];
         }
 
-        console.log(storeData);
         const storeWithStaff = await Promise.all(
           storeData.map(async (store) => {
             const allocatedStaff: Staff[] = await invoke(
@@ -224,7 +235,7 @@ export default function StoreView() {
     return (
       <div className="container mx-auto p-6">
         {isLoading ? (
-          <div className="flex justify-center items-center h-64">
+          <div className="flex justify-center items-center h-64 text-white">
             <p>Loading stores...</p>
           </div>
         ) : (
@@ -235,6 +246,7 @@ export default function StoreView() {
             onAddSouvenir={handleAddSouvernir}
             onUpdateSouvenir={handleUpdateSouvenir}
             onRemoveSouvenir={handleRemoveSouvenir}
+            onIncome={setIncomeStore}
           />
         )}
         
@@ -255,6 +267,10 @@ export default function StoreView() {
                 onClose={() => setRemovingStore(null)}
                 open={true}
             />
+        )}
+
+        {incomeStore && (
+          <StoreIncome storeId={incomeStore.store_id}/>
         )}
       </div>
     );
