@@ -216,7 +216,8 @@ export default function StoreList({
                       </Button>
                     )}
 
-                    {staff?.role === "retail manager" && (
+                    {(staff?.role === "retail manager" ||
+                      staff?.role === "ceo") && (
                       <Button
                         onClick={() => onRemove(store)}
                         className="bg-red-600 hover:bg-red-700 text-white cursor-pointer flex justify-around"
@@ -233,7 +234,8 @@ export default function StoreList({
                     <h2 className="font-semibold text-gray-800">
                       Souvenir Products
                     </h2>
-                    {staff?.role === "retail manager" && (
+                    {(staff?.role === "retail manager" ||
+                      staff?.role === "ceo") && (
                       <AddSouvenirDialog
                         storeId={store.store_id}
                         onAddSouvenir={(souvenir) =>
@@ -279,7 +281,8 @@ export default function StoreList({
                             </p>
                           </div>
                           <div className="flex items-center">
-                            {staff?.role === "retail manager" &&
+                            {(staff?.role === "retail manager" ||
+                              staff?.role === "ceo") &&
                               onUpdateSouvenir && (
                                 <EditSouvenirDialog
                                   souvenir={souvenir}
@@ -294,7 +297,8 @@ export default function StoreList({
                                   }
                                 />
                               )}
-                            {staff?.role === "retail manager" &&
+                            {(staff?.role === "retail manager" ||
+                              staff?.role === "ceo") &&
                               onRemoveSouvenir && (
                                 <Button
                                   onClick={() =>

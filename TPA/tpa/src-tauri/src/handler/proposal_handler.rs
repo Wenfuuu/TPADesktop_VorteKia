@@ -9,6 +9,36 @@ use crate::diesel::prelude::*;
 use crate::models::store_removal_proposal::StoreRemovalProposal;
 
 #[tauri::command]
+pub fn accept_new_restaurant_proposal(
+    proposalid: &str,
+) -> Result<bool, String> {
+    println!("test accepting new restaurant proposal with id {}", proposalid);
+    use crate::schema::new_restaurant_proposals::dsl::*;
+    let conn = &mut establish_connection();
+
+    diesel::update(new_restaurant_proposals.filter(proposal_id.eq(proposalid)))
+        .set(status.eq("Accepted"))
+        .execute(conn)
+        .map(|_| true)
+        .map_err(|err| format!("Database error: {}", err))
+}
+
+#[tauri::command]
+pub fn reject_new_restaurant_proposal(
+    proposalid: &str,
+) -> Result<bool, String> {
+    println!("test rejecting new restaurant proposal with id {}", proposalid);
+    use crate::schema::new_restaurant_proposals::dsl::*;
+    let conn = &mut establish_connection();
+
+    diesel::update(new_restaurant_proposals.filter(proposal_id.eq(proposalid)))
+        .set(status.eq("Rejected"))
+        .execute(conn)
+        .map(|_| true)
+        .map_err(|err| format!("Database error: {}", err))
+}
+
+#[tauri::command]
 pub fn accept_new_ride_proposal(
     proposalid: &str,
 ) -> Result<bool, String> {
@@ -69,6 +99,66 @@ pub fn reject_ride_removal_proposal(
 }
 
 #[tauri::command]
+pub fn accept_new_store_proposal(
+    proposalid: &str,
+) -> Result<bool, String> {
+    println!("Accepting new store proposal with id {}", proposalid);
+    use crate::schema::new_store_proposals::dsl::*;
+    let conn = &mut establish_connection();
+
+    diesel::update(new_store_proposals.filter(proposal_id.eq(proposalid)))
+        .set(status.eq("Accepted"))
+        .execute(conn)
+        .map(|_| true)
+        .map_err(|err| format!("Database error: {}", err))
+}
+
+#[tauri::command]
+pub fn reject_new_store_proposal(
+    proposalid: &str,
+) -> Result<bool, String> {
+    println!("Rejecting new store proposal with id {}", proposalid);
+    use crate::schema::new_store_proposals::dsl::*;
+    let conn = &mut establish_connection();
+
+    diesel::update(new_store_proposals.filter(proposal_id.eq(proposalid)))
+        .set(status.eq("Rejected"))
+        .execute(conn)
+        .map(|_| true)
+        .map_err(|err| format!("Database error: {}", err))
+}
+
+#[tauri::command]
+pub fn accept_store_removal_proposal(
+    proposalid: &str,
+) -> Result<bool, String> {
+    println!("Accepting store removal proposal with id {}", proposalid);
+    use crate::schema::store_removal_proposals::dsl::*;
+    let conn = &mut establish_connection();
+
+    diesel::update(store_removal_proposals.filter(proposal_id.eq(proposalid)))
+        .set(status.eq("Accepted"))
+        .execute(conn)
+        .map(|_| true)
+        .map_err(|err| format!("Database error: {}", err))
+}
+
+#[tauri::command]
+pub fn reject_store_removal_proposal(
+    proposalid: &str,
+) -> Result<bool, String> {
+    println!("Rejecting store removal proposal with id {}", proposalid);
+    use crate::schema::store_removal_proposals::dsl::*;
+    let conn = &mut establish_connection();
+
+    diesel::update(store_removal_proposals.filter(proposal_id.eq(proposalid)))
+        .set(status.eq("Rejected"))
+        .execute(conn)
+        .map(|_| true)
+        .map_err(|err| format!("Database error: {}", err))
+}
+
+#[tauri::command]
 pub fn get_all_ride_removal_proposals() -> Result<Vec<RideRemovalProposal>, String> {
     println!("test getting all ride removal proposals");
     use crate::schema::ride_removal_proposals::dsl::*;
@@ -87,6 +177,39 @@ pub fn get_all_new_ride_proposals() -> Result<Vec<NewRideProposal>, String> {
 
     new_ride_proposals
         .load::<NewRideProposal>(conn)
+        .map_err(|err| format!("Database error: {}", err))
+}
+
+#[tauri::command]
+pub fn get_all_new_restaurant_proposals() -> Result<Vec<NewRestaurantProposal>, String> {
+    println!("test getting all restaurant proposals");
+    use crate::schema::new_restaurant_proposals::dsl::*;
+    let conn = &mut establish_connection();
+
+    new_restaurant_proposals
+        .load::<NewRestaurantProposal>(conn)
+        .map_err(|err| format!("Database error: {}", err))
+}
+
+#[tauri::command]
+pub fn get_all_store_removal_proposals() -> Result<Vec<StoreRemovalProposal>, String> {
+    println!("test getting all store removal proposals");
+    use crate::schema::store_removal_proposals::dsl::*;
+    let conn = &mut establish_connection();
+
+    store_removal_proposals
+        .load::<StoreRemovalProposal>(conn)
+        .map_err(|err| format!("Database error: {}", err))
+}
+
+#[tauri::command]
+pub fn get_all_new_store_proposals() -> Result<Vec<NewStoreProposal>, String> {
+    println!("test getting all store proposals");
+    use crate::schema::new_store_proposals::dsl::*;
+    let conn = &mut establish_connection();
+
+    new_store_proposals
+        .load::<NewStoreProposal>(conn)
         .map_err(|err| format!("Database error: {}", err))
 }
 

@@ -20,8 +20,10 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useStaff } from "@/hooks/use-staff";
 
 type Props = {
+  allRides: Ride[];
   ride: Ride;
   onUpdateRide: (ride: Ride) => void;
   onClose: () => void;
@@ -29,6 +31,7 @@ type Props = {
 };
 
 export default function EditRideDialog({
+  allRides,
   ride,
   onUpdateRide,
   onClose,
@@ -44,18 +47,7 @@ export default function EditRideDialog({
   });
   const [allStaff, setAllStaff] = useState<Staff[]>([]);
   const [errors, setErrors] = useState("");
-  const [staff, setStaff] = useState<Staff | null>(null);
-
-  useEffect(() => {
-    get_staff();
-  }, []);
-
-  const get_staff = async () => {
-    const response = await invoke("get_current_staff");
-    if (response !== null) {
-      setStaff(response as Staff);
-    }
-  };
+  const staff = useStaff();
 
   async function fetchStaff() {
     try {
@@ -130,10 +122,16 @@ export default function EditRideDialog({
   }
 
   // Check if a staff member is currently assigned
-  function isStaffAssigned(staffId: string): boolean {
+  function isStaffAssignedHere(staffId: string): boolean {
     return (
       Array.isArray(updatedRide.assigned_staff) &&
       updatedRide.assigned_staff.some((staff) => staff.staff_id === staffId)
+    );
+  }
+
+  function isStaffAssigned(staffId: string): boolean {
+    return allRides.some((ride) =>
+      ride.assigned_staff?.some((staff) => staff.staff_id === staffId)
     );
   }
 
@@ -288,8 +286,9 @@ export default function EditRideDialog({
                     >
                       <Checkbox
                         id={staff.staff_id}
-                        checked={isStaffAssigned(staff.staff_id)}
+                        checked={isStaffAssignedHere(staff.staff_id)}
                         onCheckedChange={() => toggleStaffSelection(staff)}
+                        disabled={isStaffAssigned(staff.staff_id) && !isStaffAssignedHere(staff.staff_id)}
                       />
                       <Label
                         htmlFor={staff.staff_id}

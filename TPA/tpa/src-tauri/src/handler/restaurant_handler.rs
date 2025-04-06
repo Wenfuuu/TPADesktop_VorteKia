@@ -42,7 +42,7 @@ pub fn allocate_restaurant_staff(restaurant_id: &str, staff_ids: Vec<&str>) -> R
 
     // Remove existing staff
     diesel::delete(restaurant_staffs::table)
-        .filter(restaurant_staffs::restaurant_id.eq(restaurant_id))
+        .filter(restaurant_staffs::staff_id.eq_any(&staff_ids))
         .execute(conn)
         .map_err(|e| format!("Error removing previous assignments: {}", e))?;
 

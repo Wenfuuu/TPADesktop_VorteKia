@@ -18,6 +18,7 @@ import {
 } from "../ui/select";
 import { Label } from "../ui/label";
 import { invoke } from "@tauri-apps/api/core";
+import { useStaff } from "@/hooks/use-staff";
 
 type Props = {
   reports: Reports[];
@@ -41,21 +42,13 @@ export default function ReportList({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<Reports | null>(null);
   const [selectedStaffId, setSelectedStaffId] = useState("");
-  const [currentStaff, setCurrentStaff] = useState<Staff | null>(null);
+  const staff = useStaff();
 
   useEffect(() => {
     fetchAllStaff()
     fetchMaintenanceStaff();
     fetchRides();
-    get_staff();
   }, []);
-
-  const get_staff = async () => {
-    const response = await invoke("get_current_staff");
-    if (response !== null) {
-      setCurrentStaff(response as Staff);
-    }
-  };
 
   const fetchAllStaff = async () => {
     try {
@@ -184,7 +177,7 @@ export default function ReportList({
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    {currentStaff?.role === "maintenance staff" ? (
+                    {staff?.role === "maintenance staff" ? (
                       <Button
                         onClick={() => handleSubmit(report)}
                         className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer flex justify-around"

@@ -24,3 +24,4 @@ pub mod order;
 pub mod restaurant_transaction;
 pub mod store_transaction;
 pub mod broadcast;
+pub mod review;

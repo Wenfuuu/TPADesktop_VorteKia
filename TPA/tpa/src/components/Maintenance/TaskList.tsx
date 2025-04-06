@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
-import { PlusCircle, Clock, Edit, Send } from "lucide-react";
+import { PlusCircle, Clock, Edit, Send, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -19,15 +19,17 @@ import {
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { invoke } from "@tauri-apps/api/core";
+import { useStaff } from "@/hooks/use-staff";
 
 type Props = {
   tasks: Task[];
   onAdd: (task: Omit<Task, "task_id">) => void;
+  onRemove: (task: Task) => void;
   onUpdate: (task: Task) => void;
   onSubmit?: (task: Task) => void;
 };
 
-export default function TaskList({ tasks, onAdd, onUpdate, onSubmit }: Props) {
+export default function TaskList({ tasks, onAdd, onRemove, onUpdate, onSubmit }: Props) {
   const [allStaff, setAllStaff] = useState<Staff[]>([]);
   const [maintenanceStaff, setMaintenanceStaff] = useState<Staff[]>([]);
   const [allRides, setAllRides] = useState<{ ride_id: string; name: string }[]>([]);
@@ -35,8 +37,8 @@ export default function TaskList({ tasks, onAdd, onUpdate, onSubmit }: Props) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null)
-  const [currentStaff, setCurrentStaff] = useState<Staff | null>(null);
-
+  const staff = useStaff();
+  
   const [updatedTimes, setUpdatedTimes] = useState({
     start_time: "",
     end_time: ""
@@ -55,15 +57,7 @@ export default function TaskList({ tasks, onAdd, onUpdate, onSubmit }: Props) {
     fetchAllStaff();
     fetchMaintenanceStaff();
     fetchRides();
-    get_staff();
   }, []);
-
-  const get_staff = async () => {
-    const response = await invoke("get_current_staff");
-    if (response !== null) {
-      setCurrentStaff(response as Staff);
-    }
-  };
 
   const fetchAllStaff = async () => {
     try {
@@ -199,15 +193,17 @@ export default function TaskList({ tasks, onAdd, onUpdate, onSubmit }: Props) {
       <div className="bg-white shadow-lg rounded-lg p-6 mb-6 max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-black">Maintenance Tasks</h2>
-          {currentStaff?.role === "maintenance manager" && (
-            <Button
-              onClick={() => setIsDialogOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              <PlusCircle className="w-4 h-4 mr-2" />
-              Create New Task
-            </Button>
-          )}
+          {(staff?.role === "maintenance manager" ||
+            staff?.role === "ceo" ||
+            staff?.role === "coo") && (
+              <Button
+                onClick={() => setIsDialogOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <PlusCircle className="w-4 h-4 mr-2" />
+                Create New Task
+              </Button>
+            )}
         </div>
 
         {tasks.length === 0 ? (
@@ -267,16 +263,27 @@ export default function TaskList({ tasks, onAdd, onUpdate, onSubmit }: Props) {
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    {currentStaff?.role === "maintenance manager"
-                    || currentStaff?.role === "coo" ? (
-                      <Button
-                        className="bg-green-600 hover:bg-green-700 text-white cursor-pointer flex justify-around"
-                        onClick={() => handleOpenEditDialog(task)}
-                        disabled={task.status !== "In Progress"}
-                      >
-                        <Edit className="w-4 h-4 mr-2" />
-                        Edit Schedule
-                      </Button>
+                    {staff?.role === "maintenance manager" ||
+                    staff?.role === "coo" ||
+                    staff?.role === "ceo" ? (
+                      <div className="flex flex-col gap-2">
+                        <Button
+                          className="bg-green-600 hover:bg-green-700 text-white cursor-pointer flex justify-around"
+                          onClick={() => handleOpenEditDialog(task)}
+                          disabled={task.status !== "In Progress"}
+                        >
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit Schedule
+                        </Button>
+                        {/* remove task button */}
+                        <Button
+                          onClick={() => onRemove(task)}
+                          className="bg-red-600 hover:bg-red-700 text-white cursor-pointer flex justify-around"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Remove Task
+                        </Button>
+                      </div>
                     ) : (
                       <Button
                         onClick={() => handleSubmit(task)}

@@ -283,7 +283,7 @@ export default function UpdateRestaurantModal({
                         id={staff.staff_id}
                         checked={isStaffAssignedHere(staff.staff_id)}
                         onCheckedChange={() => toggleStaffSelection(staff)}
-                        disabled={!isStaffAssignedHere(staff.staff_id) && isStaffAssigned(staff.staff_id)}
+                        // disabled={!isStaffAssignedHere(staff.staff_id) && isStaffAssigned(staff.staff_id)}
                       />
                       <Label
                         htmlFor={staff.staff_id}
@@ -293,6 +293,10 @@ export default function UpdateRestaurantModal({
                         <span className="text-xs text-gray-500 ml-1">
                           ({staff.role})
                         </span>
+                        {(isStaffAssigned(staff.staff_id) &&
+                        !isStaffAssignedHere(staff.staff_id)) && (
+                          <span className="text-xs text-red-600 ml-1">Is already assigned somewhere</span>
+                        )}
                       </Label>
                     </div>
                   ))}

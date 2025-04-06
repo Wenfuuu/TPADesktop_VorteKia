@@ -74,7 +74,15 @@ export default function RideView() {
             const ride = rideData.find((ride) => ride.ride_id === deviceId);
             rideData = ride ? [ride] : [];
         } else {
-            rideData = await invoke("get_all_rides");
+            if(staff?.role !== "ride staff"
+            ){
+                rideData = await invoke("get_all_rides");
+            }else{
+                const assignedRide: Ride = await invoke("get_assigned_ride", {
+                    staffid: staff?.staff_id,
+                });
+                rideData = assignedRide ? [assignedRide] : [];
+            }
         }        
 
         const rideWithStaff = await Promise.all(
@@ -169,6 +177,7 @@ export default function RideView() {
 
         {editingRide && (
           <EditRideDialog
+            allRides={rides}
             ride={editingRide}
             onUpdateRide={updateRide}
             onClose={() => setEditingRide(null)}

@@ -19,6 +19,7 @@ use crate::handler::chat_handler::*;
 use crate::handler::transaction_handler::*;
 use crate::handler::order_handler::*;
 use crate::handler::broadcast_handler::*;
+use crate::handler::review_handler::*;
 
 extern crate diesel;
 
@@ -145,6 +146,7 @@ pub fn run() {
             get_assigned_tasks,
             update_task_schedule,
             create_task,
+            remove_task,
             submit_task,
             add_task_log,
             add_report_log,
@@ -196,6 +198,16 @@ pub fn run() {
             broadcast_to_customer,
             get_staff_broadcasts,
             get_customer_broadcasts,
+            get_all_new_restaurant_proposals,
+            get_all_new_store_proposals,
+            get_all_store_removal_proposals,
+            accept_new_restaurant_proposal,
+            reject_new_restaurant_proposal,
+            accept_new_store_proposal,
+            reject_new_store_proposal,
+            accept_store_removal_proposal,
+            reject_store_removal_proposal,
+            submit_review,
             test_backend
         ])
         .run(tauri::generate_context!())

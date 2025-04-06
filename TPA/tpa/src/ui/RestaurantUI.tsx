@@ -18,7 +18,7 @@ export default function RestaurantUI(){
     const loggedItems = [
       { name: "View Restaurant", onClick: () => navigate("/customer_restaurant/restaurants"), },
       { name: "View History", onClick: () => navigate("/customer_restaurant/history"), },
-      { name: "Chat", onClick: () => navigate("/customer_restaurant/chat") },
+      { name: "Review", onClick: () => navigate("/customer_restaurant/review") },
     ];
 
     const handleUserActivity = () => {

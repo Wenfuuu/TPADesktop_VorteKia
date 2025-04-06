@@ -1,8 +1,9 @@
 use crate::models::ride::{Ride, RideDTO};
-use crate::db::establish_connection;
+use crate::db::{establish_connection, get_redis_url, get_db_connection};
 use crate::diesel::prelude::*;
 use crate::schema::ride_staffs;
 use chrono::NaiveTime;
+use redis::Commands;
 
 #[tauri::command]
 pub fn allocate_ride_staff(ride_id: &str, staff_ids: Vec<&str>) -> Result<bool, String> {
@@ -116,16 +117,47 @@ pub fn get_ride_details(rideid: &str) -> Result<RideDTO, String> {
 #[tauri::command]
 pub fn get_all_rides() -> Result<Vec<RideDTO>, String> {
     println!("Fetching all rides");
-    use crate::schema::rides::dsl::*;
-    let conn = &mut establish_connection();
 
-    match rides.load::<Ride>(conn) {
+    let redis_url = get_redis_url();
+    println!("redis url is {}", redis_url);
+    let redis_client = redis::Client::open(redis_url).map_err(|e| e.to_string())?;
+    let mut redis_conn = redis_client.get_connection().map_err(|e| e.to_string())?;
+
+    // Try to get cache
+    match redis_conn.get::<_, Option<String>>("all_rides") {
+        Ok(Some(cached)) => {
+            println!("✅ Cache hit for all_rides");
+            let allride: Vec<RideDTO> = serde_json::from_str(&cached).map_err(|e| e.to_string())?;
+            return Ok(allride);
+        }
+        Ok(None) => {
+            println!("Cache miss, querying DB");
+        }
+        Err(e) => {
+            eprintln!("Redis error: {}", e);
+        }
+    }
+
+    // DB fallback
+    println!("Fetching ride from db");
+    use crate::schema::rides::dsl::*;
+    let mut conn = get_db_connection()
+    .lock()
+    .expect("Failed to acquire DB connection lock");
+
+    match rides.load::<Ride>(&mut *conn) {
         Ok(results) => {
             let dto_results: Vec<RideDTO> = results.into_iter().map(|s| s.into()).collect();
+
+            // Cache result
+            if let Ok(json) = serde_json::to_string(&dto_results) {
+                let _: Result<(), _> = redis_conn.set_ex("all_rides", json, 60);
+            }
+
             Ok(dto_results)
         }
         Err(e) => {
-            eprintln!("Error fetching stores: {}", e);
+            eprintln!("Error fetching rides: {}", e);
             Err(e.to_string())
         }
     }

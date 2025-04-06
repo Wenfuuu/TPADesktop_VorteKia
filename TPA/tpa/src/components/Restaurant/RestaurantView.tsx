@@ -43,7 +43,9 @@ export default function RestaurantView() {
       restaurantData = restaurant ? [restaurant] : [];
     }else if(deviceId?.startsWith("STAFF")){
       console.log("staff role is " + staff?.role);
-      if (staff?.role === "f&b supervisor" || staff?.role === "customer service") {
+      if (staff?.role === "f&b supervisor" 
+      || staff?.role === "customer service"
+      || staff?.role === "cfo") {
         restaurantData = await invoke("get_all_restaurants");
       } else {
         setRestaurants([]);
@@ -60,8 +62,22 @@ export default function RestaurantView() {
       restaurantData = await invoke("get_all_restaurants");
     }
 
-    console.log(restaurantData)
-    setRestaurants(filterRestaurant(restaurantData));
+    const restaurantWithStaff = await Promise.all(
+      restaurantData.map(async (restaurant) => {
+        const allocatedStaff: Staff[] = await invoke(
+          "get_allocated_staff_in_restaurant",
+          { restaurantid: restaurant.restaurant_id }
+        );
+
+        return {
+          ...restaurant,
+          assigned_staff: allocatedStaff || [],
+        };
+      })
+    )
+
+    console.log(restaurantWithStaff);
+    setRestaurants(filterRestaurant(restaurantWithStaff));
   };
 
   useEffect(() => {
@@ -245,6 +261,8 @@ export default function RestaurantView() {
         if (success) toast("Staff has been allocated!");
       });
     }
+
+    fetchRestaurants();
   };
 
   return (

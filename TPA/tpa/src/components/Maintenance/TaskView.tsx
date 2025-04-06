@@ -47,6 +47,20 @@ export default function TaskView(){
         })
     }
 
+    const removeTask = (task: Task) => {
+        invoke("remove_task", {
+            taskid: task.task_id
+        }).then((success) =>{
+            if(success){
+                toast("Task has been removed!")
+                fetchTasks()
+            }
+        }).catch((e) =>{
+            console.log(e);
+            toast(e);
+        })
+    }
+
     const updateTask = (updatedTask: Task) => {
         console.log(updatedTask)
         invoke("update_task_schedule", {
@@ -84,6 +98,7 @@ export default function TaskView(){
             <TaskList
             tasks={tasks}
             onAdd={addTask}
+            onRemove={removeTask}
             onUpdate={updateTask}
             onSubmit={submitTask}
             />

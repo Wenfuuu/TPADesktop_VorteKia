@@ -196,6 +196,19 @@ diesel::table! {
 }
 
 diesel::table! {
+    reviews (review_id) {
+        #[max_length = 255]
+        review_id -> Varchar,
+        #[max_length = 255]
+        customer_id -> Varchar,
+        #[max_length = 255]
+        place_id -> Varchar,
+        #[max_length = 255]
+        review -> Varchar,
+    }
+}
+
+diesel::table! {
     ride_queues (queue_id) {
         #[max_length = 255]
         queue_id -> Varchar,
@@ -371,6 +384,7 @@ diesel::joinable!(restaurant_staffs -> restaurants (restaurant_id));
 diesel::joinable!(restaurant_staffs -> staffs (staff_id));
 diesel::joinable!(restaurant_transactions -> customers (customer_id));
 diesel::joinable!(restaurant_transactions -> restaurants (restaurant_id));
+diesel::joinable!(reviews -> customers (customer_id));
 diesel::joinable!(ride_queues -> customers (customer_id));
 diesel::joinable!(ride_queues -> rides (ride_id));
 diesel::joinable!(ride_removal_proposals -> rides (ride_id));
@@ -404,6 +418,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     restaurant_staffs,
     restaurant_transactions,
     restaurants,
+    reviews,
     ride_queues,
     ride_removal_proposals,
     ride_staffs,

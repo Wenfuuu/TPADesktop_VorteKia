@@ -3,23 +3,6 @@ import { Button } from "../ui/button";
 import { CheckCircle, XCircle } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 
-type NewRideProposal = {
-  proposal_id: string;
-  staff_id: string;
-  ride_name: string;
-  description: string;
-  status: string;
-  image: Uint8Array;
-};
-
-type RideRemovalProposal = {
-  proposal_id: string;
-  ride_id: string;
-  staff_id: string;
-  reason: string;
-  status: string;
-};
-
 type Props = {
   newProposals: NewRideProposal[];
   removeProposals: RideRemovalProposal[];

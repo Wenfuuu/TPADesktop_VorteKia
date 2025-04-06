@@ -36,6 +36,21 @@ pub fn create_task(
         .map_err(|err| format!("Database error: {}", err))
 }
 
+#[tauri::command]
+pub fn remove_task(taskid: &str) -> Result<bool, String> {
+    println!("removing task {}", taskid);
+    use crate::schema::tasks::dsl::*;
+    let conn = &mut establish_connection();
+
+    let delete_query = diesel::delete(tasks)
+        .filter(task_id.eq(taskid));
+
+    match delete_query.execute(conn) {
+        Ok(_) => Ok(true),
+        Err(e) => Err(format!("Error deleting task: {}", e)),
+    }
+}
+
 pub fn reassign_task(taskid: &str) ->  Result<bool, String> {// klo revisi
     println!("reassigning task {}", taskid);
     use crate::schema::tasks::dsl::*;

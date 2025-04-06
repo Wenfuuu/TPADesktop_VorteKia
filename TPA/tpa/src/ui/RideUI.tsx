@@ -18,7 +18,7 @@ export default function RideUI() {
     const loggedItems = [
       { name: "View Ride", onClick: () => navigate("/customer_ride/rides") },
       { name: "View History", onClick: () => navigate("/customer_ride/history") },
-      { name: "Chat", onClick: () => navigate("/customer_ride/chat") },
+      { name: "Review", onClick: () => navigate("/customer_ride/review") },
     ];
 
     const handleUserActivity = () => {

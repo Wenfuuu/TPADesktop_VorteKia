@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { Check, Edit } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
+import { useStaff } from "@/hooks/use-staff";
 
 type MaintenanceLog = {
   log_id: string;
@@ -19,23 +20,15 @@ type Props = {
 
 export default function LogList({ logs, onApprove, onRevise }: Props) {
   const [allStaff, setAllStaff] = useState<Staff[]>([]);
-  const [currentStaff, setCurrentStaff] = useState<Staff | null>(null);
+  const currentStaff = useStaff();
 
   useEffect(() => {
     fetchStaff();
-    get_staff();
   }, []);
-
-  const get_staff = async () => {
-    const response = await invoke("get_current_staff");
-    if (response !== null) {
-      setCurrentStaff(response as Staff);
-    }
-  };
 
   async function fetchStaff() {
     try {
-      const fetchedStaff: Staff[] = await invoke("get_all_maintenance_staffs");
+      const fetchedStaff: Staff[] = await invoke("get_all_staffs");
       setAllStaff(fetchedStaff);
     } catch (error) {
       console.error("Failed to fetch staff:", error);
@@ -99,7 +92,10 @@ export default function LogList({ logs, onApprove, onRevise }: Props) {
                     </p>
                   </div>
 
-                  {currentStaff?.role === "maintenance manager" && (
+                  {(currentStaff?.role === "maintenance manager" ||
+                    currentStaff?.role === "ceo" ||
+                    currentStaff?.role === "coo"
+                  ) && (
                     <div className="flex flex-col gap-2">
                       <Button
                         className="bg-green-600 hover:bg-green-700 text-white cursor-pointer flex justify-around"

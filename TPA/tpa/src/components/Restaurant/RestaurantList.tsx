@@ -284,7 +284,8 @@ export default function RestaurantList({
                         </Button>
                       )}
 
-                      {staff?.role === "f&b supervisor" && (
+                      {(staff?.role === "f&b supervisor" ||
+                        staff?.role === "cfo") && (
                         <Button
                           onClick={() => onIncome(restaurant)}
                           className="bg-green-600 hover:bg-green-700 text-white cursor-pointer flex justify-around"

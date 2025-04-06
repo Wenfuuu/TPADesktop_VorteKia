@@ -2,15 +2,12 @@ import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import RideProposalList from "./RideProposalList";
+import { useStaff } from "@/hooks/use-staff";
 
 export default function RideProposalView(){
     const [newRideProposals, setNewRideProposals] = useState<NewRideProposal[]>([])
     const [rideRemovalProposals, setRideRemovalProposals] = useState<RideRemovalProposal[]>([])
-    const [staff, setStaff] = useState<Staff | null>(null);
-
-    useEffect(() => {
-      get_staff();
-    }, []);
+    const staff = useStaff();
 
     useEffect(() => {
       if (staff) {
@@ -32,13 +29,6 @@ export default function RideProposalView(){
         console.log(proposalData)
         setRideRemovalProposals(proposalData);
     }
-
-    const get_staff = async () => {
-      const response = await invoke("get_current_staff");
-      if (response !== null) {
-        setStaff(response as Staff);
-      }
-    };
 
     const handleAcceptNewRideProposal = (proposal: NewRideProposal) => {
         invoke("accept_new_ride_proposal", {

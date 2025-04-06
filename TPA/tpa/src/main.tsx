@@ -39,6 +39,9 @@ import StoreHistory from "./components/Store/StoreHistory";
 import CustomerServiceUI from "./ui/CustomerServiceUI";
 import BroadcastDialog from "./components/CustomerService/BroadcastDialog";
 import CreateCustomerForm from "./components/CustomerService/CreateCustomerForm";
+import RestaurantProposalView from "./components/Restaurant/RestaurantProposalView";
+import StoreProposalView from "./components/Store/StoreProposalView";
+import ReviewDialog from "./components/ReviewDialog";
 
 const lostAndFoundGroups = ["All Staff", "Lost and Found Staff"];
 const rideManagerGroups = ["All Staff", "Operational Division"];
@@ -72,7 +75,10 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
             <Route path="rides" element={<RideView />} />
             <Route path="broadcast" element={<BroadcastDialog />} />
             <Route path="create_customer" element={<CreateCustomerForm />} />
-            <Route path="chat" element={<Chatbox groupNames={serviceGroups}/>} />
+            <Route
+              path="chat"
+              element={<Chatbox groupNames={serviceGroups} />}
+            />
           </Route>
 
           <Route
@@ -105,7 +111,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <Route path="/customer_restaurant" element={<RestaurantUI />}>
             <Route path="restaurants" element={<RestaurantView />} />
             <Route path="history" element={<RestaurantHistory />} />
-            {/* <Route path="chat" element={} /> */}
+            <Route path="review" element={<ReviewDialog />} />
           </Route>
 
           <Route path="/store" element={<StaffStoreUI />}>
@@ -121,7 +127,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <Route path="/customer_store" element={<StoreUI />}>
             <Route path="stores" element={<StoreView />} />
             <Route path="history" element={<StoreHistory />} />
-            {/* <Route path="chat" element={} /> */}
+            <Route path="review" element={<ReviewDialog />} />
           </Route>
 
           <Route path="/ride" element={<StaffRideUI />}>
@@ -141,7 +147,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <Route path="/customer_ride" element={<RideUI />}>
             <Route path="rides" element={<RideView />} />
             <Route path="history" element={<RideHistory />} />
-            {/* <Route path="chat" element={} /> */}
+            <Route path="review" element={<ReviewDialog />} />
           </Route>
 
           <Route path="/maintenance" element={<MaintenanceUI />}>
@@ -164,8 +170,40 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
             <Route path="ride_view" element={<RideView />} />
             <Route path="reports" element={<ReportView />} />
             <Route path="tasks" element={<TaskView />} />
+            <Route path="logs" element={<LogView />} />
             <Route path="ride_proposals" element={<RideProposalView />} />
             <Route path="create_staff" element={<CreateStaffForm />} />
+            <Route
+              path="chat"
+              element={<ChatBox groupNames={executiveGroups} />}
+            />
+          </Route>
+
+          <Route path="/cfo" element={<ExecutiveUI />}>
+            <Route path="ride_view" element={<RideView />} />
+            <Route path="store_view" element={<StoreView />} />
+            <Route path="restaurant_view" element={<RestaurantView />} />
+            <Route
+              path="restaurant_proposals"
+              element={<RestaurantProposalView />}
+            />
+            <Route
+              path="chat"
+              element={<ChatBox groupNames={executiveGroups} />}
+            />
+          </Route>
+
+          <Route path="/ceo" element={<ExecutiveUI />}>
+            <Route path="ride_view" element={<RideView />} />
+            <Route path="reports" element={<ReportView />} />
+            <Route path="tasks" element={<TaskView />} />
+            <Route path="logs" element={<LogView />} />
+            <Route path="store_view" element={<StoreView />} />
+            <Route
+              path="restaurant_proposals"
+              element={<RestaurantProposalView />}
+            />
+            <Route path="store_proposals" element={<StoreProposalView />} />
             <Route
               path="chat"
               element={<ChatBox groupNames={executiveGroups} />}

@@ -2,27 +2,17 @@ import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react"
 import { toast } from "sonner";
 import ReportList from "./ReportList";
+import { useStaff } from "@/hooks/use-staff";
 
 export default function ReportView(){
     const [reports, setReports] = useState<Reports[]>([])
-    const [staff, setStaff] = useState<Staff | null>(null);
-
-    useEffect(() => {
-      get_staff();
-    }, []);
+    const staff = useStaff();
 
     useEffect(() => {
       if (staff) {
         fetchReports();
       }
     }, [staff]);
-
-    const get_staff = async () => {
-      const response = await invoke("get_current_staff");
-      if (response !== null) {
-        setStaff(response as Staff);
-      }
-    };
 
     const fetchReports = async () => {
       if (!staff) return;

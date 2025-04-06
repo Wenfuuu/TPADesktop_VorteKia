@@ -46,6 +46,10 @@ export default function StaffLoginPage() {
       navigate("/maintenance/staff_reports");
     } else if (staffData.role === "coo") {
       navigate("/coo/ride_view");
+    } else if (staffData.role === "cfo") {
+      navigate("/cfo/ride_view");
+    } else if (staffData.role === "ceo") {
+      navigate("/ceo/ride_view");
     } else if (staffData.role === "customer service") {
       navigate("/customerservice/restaurants");
     } else {

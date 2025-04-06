@@ -15,3 +15,4 @@ pub mod chat_handler;
 pub mod transaction_handler;
 pub mod order_handler;
 pub mod broadcast_handler;
+pub mod review_handler;

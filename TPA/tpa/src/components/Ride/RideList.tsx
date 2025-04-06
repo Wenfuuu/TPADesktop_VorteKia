@@ -12,6 +12,8 @@ import {
   DialogClose,
 } from "../ui/dialog";
 import { toast } from "sonner";
+import { useStaff } from "@/hooks/use-staff";
+import { useCustomer } from "@/hooks/use-customer";
 
 type Props = {
   rides: Ride[];
@@ -29,13 +31,13 @@ export default function RideList({
   onIncome
 }: Props) {
   const [imageUrls, setImageUrls] = useState<{ [key: string]: string }>({});
-  const [staff, setStaff] = useState<Staff | null>(null);
   const [queue, setQueue] = useState<RideQueue[]>([]);
 
   const [assignedRide, setAssignedRide] = useState<Ride | null>(null);
   const [customers, setCustomers] = useState<Customer[]>([]);
 
-  const [customer, setCustomer] = useState<Customer | null>(null);
+  const staff = useStaff();
+  const customer = useCustomer();
 
   // Dialog state
   const [queueDialogOpen, setQueueDialogOpen] = useState(false);
@@ -43,8 +45,6 @@ export default function RideList({
   const [isQueuing, setIsQueuing] = useState(false);
 
   useEffect(() => {
-    get_staff();
-    get_customer();
     fetchCustomers();
   }, []);
 
@@ -56,13 +56,6 @@ export default function RideList({
     fetchQueue();
   }, [assignedRide]);
 
-  async function get_customer() {
-    const response = await invoke("get_current_customer");
-    if (response !== null) {
-      setCustomer(response as Customer);
-    }
-  }
-
   const fetchAssignedRide = async () => {
     if (staff?.role !== "ride staff") return;
     const ride: Ride = await invoke("get_assigned_ride", {
@@ -71,13 +64,6 @@ export default function RideList({
     if (ride !== null) {
       console.log(ride);
       setAssignedRide(ride);
-    }
-  };
-
-  const get_staff = async () => {
-    const response = await invoke("get_current_staff");
-    if (response !== null) {
-      setStaff(response as Staff);
     }
   };
 
@@ -332,24 +318,31 @@ export default function RideList({
                     )}
 
                     {/* Ride Manager specific buttons */}
-                    {staff?.role === "ride manager" && (
+                    {(staff?.role === "ride manager" ||
+                      staff?.role === "cfo" ||
+                      staff?.role === "ceo") && (
                       <div className="flex flex-col gap-2">
-                        <Button
-                          disabled={ride.status === "Maintenance"}
-                          onClick={() => onMaintenance(ride)}
-                          className="bg-yellow-500 hover:bg-yellow-600 text-white cursor-pointer flex justify-around"
-                        >
-                          <Wrench className="w-4 h-4 mr-2" />
-                          Request Maintenance
-                        </Button>
+                        {(staff.role === "ride manager" ||
+                          staff.role === "ceo") && (
+                          <>
+                            <Button
+                              disabled={ride.status === "Maintenance"}
+                              onClick={() => onMaintenance(ride)}
+                              className="bg-yellow-500 hover:bg-yellow-600 text-white cursor-pointer flex justify-around"
+                            >
+                              <Wrench className="w-4 h-4 mr-2" />
+                              Request Maintenance
+                            </Button>
 
-                        <Button
-                          onClick={() => onRemove(ride)}
-                          className="bg-red-600 hover:bg-red-700 text-white cursor-pointer flex justify-around"
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Propose Removal
-                        </Button>
+                            <Button
+                              onClick={() => onRemove(ride)}
+                              className="bg-red-600 hover:bg-red-700 text-white cursor-pointer flex justify-around"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Propose Removal
+                            </Button>
+                          </>
+                        )}
 
                         <Button
                           onClick={() => onIncome(ride)}

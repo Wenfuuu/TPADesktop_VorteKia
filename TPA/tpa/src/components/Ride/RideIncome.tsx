@@ -98,14 +98,14 @@ export default function RideIncome({ rideId }: { rideId: string }) {
       {/* Ride Details Card */}
       {ride && (
         <div className="bg-gray-700 rounded-lg p-4 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex flex-col">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 justify-center text-center">
+            <div className="flex flex-col items-center">
               <span className="text-xs text-gray-400">Ride Name</span>
               <span className="text-lg font-medium">
                 {ride.name || "Unnamed Ride"}
               </span>
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col items-center">
               <span className="text-xs text-gray-400">Customers</span>
               <span className="text-lg font-medium">{customerCount}</span>
             </div>
