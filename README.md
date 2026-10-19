@@ -104,5 +104,5 @@ Each install reads `device_id` from `src-tauri/config.json`, and its prefix deci
 
 ## Course Context
 
-This app was built for the Desktop Technical Path Assessment (TPA) at Software Laboratory Center, BINUS University.
+This app was built for the Desktop Test Progressive Assistant (TPA) at Software Laboratory Center, BINUS University.
 The `Diagram/` folder holds the use case and activity diagrams (Visual Paradigm), and `BT_Use_Case_Description.xlsx` holds the use case descriptions.
