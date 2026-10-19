@@ -73,11 +73,10 @@ Each install reads `device_id` from `src-tauri/config.json`, and its prefix deci
    npm install
    ```
 
-2. Create `TPA/tpa/.env` with your own connection strings.
+2. Copy the example env file, then fill in your own PostgreSQL and Redis connection strings.
 
-   ```env
-   DATABASE_URL=postgres://<user>:<password>@localhost/<database>
-   REDIS_URL=redis://<user>:<password>@<host>:<port>
+   ```bash
+   cp .env.example .env
    ```
 
 3. Run the migrations from `src-tauri`.
